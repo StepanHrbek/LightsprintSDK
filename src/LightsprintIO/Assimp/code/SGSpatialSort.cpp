@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -43,10 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 vertices close to a given position. Special implementation for
 the 3ds loader handling smooth groups correctly  */
 
-#include "SGSpatialSort.h"
+#include <assimp/SGSpatialSort.h>
 
 using namespace Assimp;
-
 
 // ------------------------------------------------------------------------------------------------
 SGSpatialSort::SGSpatialSort()
@@ -88,12 +89,11 @@ void SGSpatialSort::FindPositions( const aiVector3D& pPosition,
     float dist = pPosition * mPlaneNormal;
     float minDist = dist - pRadius, maxDist = dist + pRadius;
 
-    // clear the array in this strange fashion because a simple clear() would also deallocate
-    // the array which we want to avoid
-    poResults.erase( poResults.begin(), poResults.end());
+    // clear the array
+    poResults.clear();
 
     // quick check for positions outside the range
-    if( mPositions.size() == 0)
+    if( mPositions.empty() )
         return;
     if( maxDist < mPositions.front().mDistance)
         return;

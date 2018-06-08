@@ -654,10 +654,10 @@ Material formats (1)
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - Windows: git head from 2016-01-19 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
-    (updating Assimp is temporarily stopped, newer Assimp versions don't compile with older Visual Studios)
+  - Windows: git head from 2018-06-08 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
   - OSX: install with <code>sudo port install assimp</code>
   - Ubuntu: install with <code>sudo apt-get install libassimp-dev</code>
+  - Assimp is automatically disabled when building with old Visual Studios
 
  \page assimp_patch Assimp patch
 

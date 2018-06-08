@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,8 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_SIBIMPORTER_H_INCLUDED
 #define AI_SIBIMPORTER_H_INCLUDED
 
-#include "BaseImporter.h"
-#include "../include/assimp/types.h"
+#include <assimp/BaseImporter.h>
+#include <assimp/types.h>
 #include <vector>
 
 namespace Assimp    {
@@ -53,15 +55,13 @@ namespace Assimp    {
 // ---------------------------------------------------------------------------
 /** Importer class for the Nevercenter Silo SIB scene format
 */
-class SIBImporter : public BaseImporter
+class ASSIMP_API SIBImporter : public BaseImporter
 {
 public:
     SIBImporter();
     ~SIBImporter();
 
-
 public:
-
     // -------------------------------------------------------------------
     /** Returns whether the class can handle the format of the given file.
      * See BaseImporter::CanRead() for details.
@@ -70,7 +70,6 @@ public:
         bool checkSig) const;
 
 protected:
-
     // -------------------------------------------------------------------
     /** Return importer meta information.
      * See #BaseImporter::GetInfo for the details
@@ -85,7 +84,6 @@ protected:
         IOSystem* pIOHandler);
 
 private:
-
     struct MeshInformation
     {
         explicit MeshInformation(const std::string& _name)

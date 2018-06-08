@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -57,14 +59,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *   - dump all polygons and their triangulation sequences to
  *     a file
  */
-
-
-
 #ifndef ASSIMP_BUILD_NO_TRIANGULATE_PROCESS
 #include "TriangulateProcess.h"
 #include "ProcessHelper.h"
 #include "PolyTools.h"
-#include <boost/scoped_array.hpp>
+#include <memory>
 
 //#define AI_BUILD_TRIANGULATE_COLOR_FACE_WINDING
 //#define AI_BUILD_TRIANGULATE_DEBUG_POLYS
@@ -101,18 +100,21 @@ bool TriangulateProcess::IsActive( unsigned int pFlags) const
 // Executes the post processing step on the given imported data.
 void TriangulateProcess::Execute( aiScene* pScene)
 {
-    DefaultLogger::get()->debug("TriangulateProcess begin");
+    ASSIMP_LOG_DEBUG("TriangulateProcess begin");
 
     bool bHas = false;
     for( unsigned int a = 0; a < pScene->mNumMeshes; a++)
     {
-        if( TriangulateMesh( pScene->mMeshes[a]))
+        if ( TriangulateMesh( pScene->mMeshes[ a ] ) ) {
             bHas = true;
+        }
     }
-    if (bHas)DefaultLogger::get()->info ("TriangulateProcess finished. All polygons have been triangulated.");
-    else     DefaultLogger::get()->debug("TriangulateProcess finished. There was nothing to be done.");
+    if ( bHas ) {
+        ASSIMP_LOG_INFO( "TriangulateProcess finished. All polygons have been triangulated." );
+    } else {
+        ASSIMP_LOG_DEBUG( "TriangulateProcess finished. There was nothing to be done." );
+    }
 }
-
 
 // ------------------------------------------------------------------------------------------------
 // Triangulates the given mesh.
@@ -155,7 +157,7 @@ bool TriangulateProcess::TriangulateMesh( aiMesh* pMesh)
     }
 
     // Just another check whether aiMesh::mPrimitiveTypes is correct
-    assert(numOut != pMesh->mNumFaces);
+    ai_assert(numOut != pMesh->mNumFaces);
 
     aiVector3D* nor_out = NULL;
 
@@ -184,15 +186,14 @@ bool TriangulateProcess::TriangulateMesh( aiMesh* pMesh)
     aiColor4D* clr = pMesh->mColors[0];
 #endif
 
-
 #ifdef AI_BUILD_TRIANGULATE_DEBUG_POLYS
     FILE* fout = fopen(POLY_OUTPUT_FILE,"a");
 #endif
 
     const aiVector3D* verts = pMesh->mVertices;
 
-    // use boost::scoped_array to avoid slow std::vector<bool> specialiations
-    boost::scoped_array<bool> done(new bool[max_out]);
+    // use std::unique_ptr to avoid slow std::vector<bool> specialiations
+    std::unique_ptr<bool[]> done(new bool[max_out]);
     for( unsigned int a = 0; a < pMesh->mNumFaces; a++) {
         aiFace& face = pMesh->mFaces[a];
 
@@ -276,7 +277,7 @@ bool TriangulateProcess::TriangulateMesh( aiMesh* pMesh)
         {
             // A polygon with more than 3 vertices can be either concave or convex.
             // Usually everything we're getting is convex and we could easily
-            // triangulate by trifanning. However, LightWave is probably the only
+            // triangulate by tri-fanning. However, LightWave is probably the only
             // modeling suite to make extensive use of highly concave, monster polygons ...
             // so we need to apply the full 'ear cutting' algorithm to get it right.
 
@@ -324,7 +325,6 @@ bool TriangulateProcess::TriangulateMesh( aiMesh* pMesh)
                 temp_verts[tmp].y = verts[idx[tmp]][bc];
                 done[tmp] = false;
             }
-
 
 #ifdef AI_BUILD_TRIANGULATE_DEBUG_POLYS
             // plot the plane onto which we mapped the polygon to a 2D ASCII pic
@@ -404,13 +404,12 @@ bool TriangulateProcess::TriangulateMesh( aiMesh* pMesh)
                 if (num_found == 2) {
 
                     // Due to the 'two ear theorem', every simple polygon with more than three points must
-                    // have 2 'ears'. Here's definitely someting wrong ... but we don't give up yet.
+                    // have 2 'ears'. Here's definitely something wrong ... but we don't give up yet.
                     //
 
-                    // Instead we're continuting with the standard trifanning algorithm which we'd
+                    // Instead we're continuing with the standard tri-fanning algorithm which we'd
                     // use if we had only convex polygons. That's life.
-                    DefaultLogger::get()->error("Failed to triangulate polygon (no ear found). Probably not a simple polygon?");
-
+                    ASSIMP_LOG_ERROR("Failed to triangulate polygon (no ear found). Probably not a simple polygon?");
 
 #ifdef AI_BUILD_TRIANGULATE_DEBUG_POLYS
                     fprintf(fout,"critical error here, no ear found! ");
@@ -488,7 +487,7 @@ bool TriangulateProcess::TriangulateMesh( aiMesh* pMesh)
 
             //  drop dumb 0-area triangles
             if (std::fabs(GetArea2D(temp_verts[i[0]],temp_verts[i[1]],temp_verts[i[2]])) < 1e-5f) {
-                DefaultLogger::get()->debug("Dropping triangle with area 0");
+                ASSIMP_LOG_DEBUG("Dropping triangle with area 0");
                 --curOut;
 
                 delete[] f->mIndices;

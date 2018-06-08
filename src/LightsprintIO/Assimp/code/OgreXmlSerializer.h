@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_BUILD_NO_OGRE_IMPORTER
 
 #include "OgreStructs.h"
-#include "irrXMLWrapper.h"
+#include <assimp/irrXMLWrapper.h>
 
 namespace Assimp
 {
@@ -52,7 +54,7 @@ namespace Ogre
 {
 
 typedef irr::io::IrrXMLReader XmlReader;
-typedef boost::shared_ptr<XmlReader> XmlReaderPtr;
+typedef std::shared_ptr<XmlReader> XmlReaderPtr;
 
 class OgreXmlSerializer
 {
@@ -96,8 +98,8 @@ private:
     void ReadAnimationKeyFrames(Animation *anim, VertexAnimationTrack *dest);
 
     template<typename T>
-    T ReadAttribute(const std::string &name) const;
-    bool HasAttribute(const std::string &name) const;
+    T ReadAttribute(const char *name) const;
+    bool HasAttribute(const char *name) const;
 
     std::string &NextNode();
     std::string &SkipCurrentNode();

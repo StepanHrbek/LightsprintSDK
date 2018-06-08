@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -47,10 +49,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // internal headers
 #include "HMPLoader.h"
 #include "MD2FileData.h"
-#include <boost/scoped_ptr.hpp>
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "../include/assimp/scene.h"
+#include <memory>
+#include <assimp/IOSystem.hpp>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/scene.h>
+#include <assimp/importerdesc.h>
 
 using namespace Assimp;
 
@@ -114,7 +117,7 @@ void HMPImporter::InternReadFile( const std::string& pFile,
 {
     pScene     = _pScene;
     pIOHandler = _pIOHandler;
-    boost::scoped_ptr<IOStream> file( pIOHandler->Open( pFile));
+    std::unique_ptr<IOStream> file( pIOHandler->Open( pFile));
 
     // Check whether we can read from the file
     if( file.get() == NULL)
@@ -127,8 +130,7 @@ void HMPImporter::InternReadFile( const std::string& pFile,
         throw DeadlyImportError( "HMP File is too small.");
 
     // Allocate storage and copy the contents of the file to a memory buffer
-    std::vector<uint8_t> buffer(fileSize);
-    mBuffer = &buffer[0];
+    mBuffer = new uint8_t[fileSize];
     file->Read( (void*)mBuffer, 1, fileSize);
     iFileSize = (unsigned int)fileSize;
 
@@ -139,21 +141,21 @@ void HMPImporter::InternReadFile( const std::string& pFile,
     if (AI_HMP_MAGIC_NUMBER_LE_4 == iMagic ||
         AI_HMP_MAGIC_NUMBER_BE_4 == iMagic)
     {
-        DefaultLogger::get()->debug("HMP subtype: 3D GameStudio A4, magic word is HMP4");
+        ASSIMP_LOG_DEBUG("HMP subtype: 3D GameStudio A4, magic word is HMP4");
         InternReadFile_HMP4();
     }
     // HMP5 format
     else if (AI_HMP_MAGIC_NUMBER_LE_5 == iMagic ||
              AI_HMP_MAGIC_NUMBER_BE_5 == iMagic)
     {
-        DefaultLogger::get()->debug("HMP subtype: 3D GameStudio A5, magic word is HMP5");
+        ASSIMP_LOG_DEBUG("HMP subtype: 3D GameStudio A5, magic word is HMP5");
         InternReadFile_HMP5();
     }
     // HMP7 format
     else if (AI_HMP_MAGIC_NUMBER_LE_7 == iMagic ||
              AI_HMP_MAGIC_NUMBER_BE_7 == iMagic)
     {
-        DefaultLogger::get()->debug("HMP subtype: 3D GameStudio A7, magic word is HMP7");
+        ASSIMP_LOG_DEBUG("HMP subtype: 3D GameStudio A7, magic word is HMP7");
         InternReadFile_HMP7();
     }
     else
@@ -174,7 +176,9 @@ void HMPImporter::InternReadFile( const std::string& pFile,
     // Set the AI_SCENE_FLAGS_TERRAIN bit
     pScene->mFlags |= AI_SCENE_FLAGS_TERRAIN;
 
-    // File buffer destructs automatically now
+    delete[] mBuffer;
+    mBuffer= nullptr;
+
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -445,15 +449,18 @@ void HMPImporter::CreateOutputFaceList(unsigned int width,unsigned int height)
 void HMPImporter::ReadFirstSkin(unsigned int iNumSkins, const unsigned char* szCursor,
     const unsigned char** szCursorOut)
 {
-    ai_assert(0 != iNumSkins && NULL != szCursor);
+    ai_assert( 0 != iNumSkins );
+    ai_assert( nullptr != szCursor);
 
     // read the type of the skin ...
     // sometimes we need to skip 12 bytes here, I don't know why ...
-    uint32_t iType = *((uint32_t*)szCursor);szCursor += sizeof(uint32_t);
+    uint32_t iType = *((uint32_t*)szCursor);
+    szCursor += sizeof(uint32_t);
     if (0 == iType)
     {
         szCursor += sizeof(uint32_t) * 2;
-        iType = *((uint32_t*)szCursor);szCursor += sizeof(uint32_t);
+        iType = *((uint32_t*)szCursor);
+        szCursor += sizeof(uint32_t);
         if (!iType)
             throw DeadlyImportError("Unable to read HMP7 skin chunk");
 

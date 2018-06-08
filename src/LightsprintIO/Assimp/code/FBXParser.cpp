@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,28 +46,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_FBX_IMPORTER
 
-
 #ifdef ASSIMP_BUILD_NO_OWN_ZLIB
 #   include <zlib.h>
 #else
 #   include "../contrib/zlib/zlib.h"
 #endif
 
-
 #include "FBXTokenizer.h"
 #include "FBXParser.h"
 #include "FBXUtil.h"
 
-#include "ParsingUtils.h"
-#include "fast_atof.h"
-#include <boost/foreach.hpp>
-#include "ByteSwapper.h"
+#include <assimp/ParsingUtils.h>
+#include <assimp/fast_atof.h>
+#include <assimp/ByteSwapper.h>
+
+#include <iostream>
 
 using namespace Assimp;
 using namespace Assimp::FBX;
 
 namespace {
-
 
     // ------------------------------------------------------------------------------------------------
     // signal parse error, this is always unrecoverable. Throws DeadlyImportError.
@@ -102,6 +102,7 @@ namespace {
     T SafeParse(const char* data, const char* end) {
         // Actual size validation happens during Tokenization so
         // this is valid as an assertion.
+        (void)(end);
         ai_assert(static_cast<size_t>(end - data) >= sizeof(T));
         T result = static_cast<T>(0);
         ::memcpy(&result, data, sizeof(T));
@@ -206,11 +207,10 @@ Scope::Scope(Parser& parser,bool topLevel)
 // ------------------------------------------------------------------------------------------------
 Scope::~Scope()
 {
-    BOOST_FOREACH(ElementMap::value_type& v, elements) {
+    for(ElementMap::value_type& v : elements) {
         delete v.second;
     }
 }
-
 
 // ------------------------------------------------------------------------------------------------
 Parser::Parser (const TokenList& tokens, bool is_binary)
@@ -223,12 +223,11 @@ Parser::Parser (const TokenList& tokens, bool is_binary)
     root.reset(new Scope(*this,true));
 }
 
-
 // ------------------------------------------------------------------------------------------------
 Parser::~Parser()
 {
+    // empty
 }
-
 
 // ------------------------------------------------------------------------------------------------
 TokenPtr Parser::AdvanceToNextToken()
@@ -236,13 +235,11 @@ TokenPtr Parser::AdvanceToNextToken()
     last = current;
     if (cursor == tokens.end()) {
         current = NULL;
-    }
-    else {
+    } else {
         current = *cursor++;
     }
     return current;
 }
-
 
 // ------------------------------------------------------------------------------------------------
 TokenPtr Parser::CurrentToken() const
@@ -250,13 +247,11 @@ TokenPtr Parser::CurrentToken() const
     return current;
 }
 
-
 // ------------------------------------------------------------------------------------------------
 TokenPtr Parser::LastToken() const
 {
     return last;
 }
-
 
 // ------------------------------------------------------------------------------------------------
 uint64_t ParseTokenAsID(const Token& t, const char*& err_out)
@@ -285,7 +280,7 @@ uint64_t ParseTokenAsID(const Token& t, const char*& err_out)
     unsigned int length = static_cast<unsigned int>(t.end() - t.begin());
     ai_assert(length > 0);
 
-    const char* out;
+    const char* out = nullptr;
     const uint64_t id = strtoul10_64(t.begin(),&out,&length);
     if (out > t.end()) {
         err_out = "failed to parse ID (text)";
@@ -294,7 +289,6 @@ uint64_t ParseTokenAsID(const Token& t, const char*& err_out)
 
     return id;
 }
-
 
 // ------------------------------------------------------------------------------------------------
 size_t ParseTokenAsDim(const Token& t, const char*& err_out)
@@ -332,7 +326,7 @@ size_t ParseTokenAsDim(const Token& t, const char*& err_out)
         return 0;
     }
 
-    const char* out;
+    const char* out = nullptr;
     const size_t id = static_cast<size_t>(strtoul10_64(t.begin() + 1,&out,&length));
     if (out > t.end()) {
         err_out = "failed to parse ID";
@@ -445,7 +439,7 @@ int64_t ParseTokenAsInt64(const Token& t, const char*& err_out)
     unsigned int length = static_cast<unsigned int>(t.end() - t.begin());
     ai_assert(length > 0);
 
-    const char* out;
+    const char* out = nullptr;
     const int64_t id = strtol10_64(t.begin(), &out, &length);
     if (out > t.end()) {
         err_out = "failed to parse Int64 (text)";
@@ -541,18 +535,18 @@ void ReadBinaryDataArray(char type, uint32_t count, const char*& data, const cha
     uint32_t stride = 0;
     switch(type)
     {
-    case 'f':
-    case 'i':
-        stride = 4;
-        break;
+        case 'f':
+        case 'i':
+            stride = 4;
+            break;
 
-    case 'd':
-    case 'l':
-        stride = 8;
-        break;
+        case 'd':
+        case 'l':
+            stride = 8;
+            break;
 
-    default:
-        ai_assert(false);
+        default:
+            ai_assert(false);
     };
 
     const uint32_t full_length = stride * count;
@@ -582,7 +576,7 @@ void ReadBinaryDataArray(char type, uint32_t count, const char*& data, const cha
         zstream.next_in   = reinterpret_cast<Bytef*>( const_cast<char*>(data) );
         zstream.avail_in  = comp_len;
 
-        zstream.avail_out = buff.size();
+        zstream.avail_out = static_cast<uInt>(buff.size());
         zstream.next_out = reinterpret_cast<Bytef*>(&*buff.begin());
         const int ret = inflate(&zstream, Z_FINISH);
 
@@ -611,7 +605,7 @@ void ReadBinaryDataArray(char type, uint32_t count, const char*& data, const cha
 // read an array of float3 tuples
 void ParseVectorDataArray(std::vector<aiVector3D>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
 
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
@@ -653,6 +647,13 @@ void ParseVectorDataArray(std::vector<aiVector3D>& out, const Element& el)
                     static_cast<float>(d[1]),
                     static_cast<float>(d[2])));
             }
+            // for debugging
+            /*for ( size_t i = 0; i < out.size(); i++ ) {
+                aiVector3D vec3( out[ i ] );
+                std::stringstream stream;
+                stream << " vec3.x = " << vec3.x << " vec3.y = " << vec3.y << " vec3.z = " << vec3.z << std::endl;
+                DefaultLogger::get()->info( stream.str() );
+            }*/
         }
         else if (type == 'f') {
             const float* f = reinterpret_cast<const float*>(&buff[0]);
@@ -692,7 +693,7 @@ void ParseVectorDataArray(std::vector<aiVector3D>& out, const Element& el)
 // read an array of color4 tuples
 void ParseVectorDataArray(std::vector<aiColor4D>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
         ParseError("unexpected empty element",&el);
@@ -771,7 +772,7 @@ void ParseVectorDataArray(std::vector<aiColor4D>& out, const Element& el)
 // read an array of float2 tuples
 void ParseVectorDataArray(std::vector<aiVector2D>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
         ParseError("unexpected empty element",&el);
@@ -847,7 +848,7 @@ void ParseVectorDataArray(std::vector<aiVector2D>& out, const Element& el)
 // read an array of ints
 void ParseVectorDataArray(std::vector<int>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
         ParseError("unexpected empty element",&el);
@@ -905,7 +906,7 @@ void ParseVectorDataArray(std::vector<int>& out, const Element& el)
 // read an array of floats
 void ParseVectorDataArray(std::vector<float>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
         ParseError("unexpected empty element",&el);
@@ -967,7 +968,7 @@ void ParseVectorDataArray(std::vector<float>& out, const Element& el)
 // read an array of uints
 void ParseVectorDataArray(std::vector<unsigned int>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
         ParseError("unexpected empty element",&el);
@@ -1032,7 +1033,7 @@ void ParseVectorDataArray(std::vector<unsigned int>& out, const Element& el)
 // read an array of uint64_ts
 void ParseVectorDataArray(std::vector<uint64_t>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if(tok.empty()) {
         ParseError("unexpected empty element",&el);
@@ -1090,7 +1091,7 @@ void ParseVectorDataArray(std::vector<uint64_t>& out, const Element& el)
 // read an array of int64_ts
 void ParseVectorDataArray(std::vector<int64_t>& out, const Element& el)
 {
-    out.clear();
+    out.resize( 0 );
     const TokenList& tok = el.Tokens();
     if (tok.empty()) {
         ParseError("unexpected empty element", &el);
@@ -1194,6 +1195,14 @@ std::string ParseTokenAsString(const Token& t)
     return i;
 }
 
+bool HasElement( const Scope& sc, const std::string& index ) {
+    const Element* el = sc[ index ];
+    if ( nullptr == el ) {
+        return false;
+    }
+
+    return true;
+}
 
 // ------------------------------------------------------------------------------------------------
 // extract a required element from a scope, abort if the element cannot be found

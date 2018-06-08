@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -48,16 +50,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_BUILD_NO_CSM_IMPORTER
 
 #include "CSMLoader.h"
-#include "SkeletonMeshBuilder.h"
-#include "ParsingUtils.h"
-#include "fast_atof.h"
-#include "../include/assimp/Importer.hpp"
-#include <boost/scoped_ptr.hpp>
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/anim.h"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "../include/assimp/scene.h"
-
+#include <assimp/SkeletonMeshBuilder.h>
+#include <assimp/ParsingUtils.h>
+#include <assimp/fast_atof.h>
+#include <assimp/Importer.hpp>
+#include <memory>
+#include <assimp/IOSystem.hpp>
+#include <assimp/anim.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/scene.h>
+#include <assimp/importerdesc.h>
 
 using namespace Assimp;
 
@@ -122,7 +124,7 @@ void CSMImporter::SetupProperties(const Importer* pImp)
 void CSMImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-    boost::scoped_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
+    std::unique_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
 
     // Check whether we can read from the file
     if( file.get() == NULL) {
@@ -134,7 +136,7 @@ void CSMImporter::InternReadFile( const std::string& pFile,
     TextFileToBuffer(file.get(),mBuffer2);
     const char* buffer = &mBuffer2[0];
 
-    aiAnimation* anim = new aiAnimation();
+    std::unique_ptr<aiAnimation> anim(new aiAnimation());
     int first = 0, last = 0x00ffffff;
 
     // now process the file and look out for '$' sections
@@ -179,7 +181,7 @@ void CSMImporter::InternReadFile( const std::string& pFile,
                     nda->mNodeName.length = (size_t)(ot-nda->mNodeName.data);
                 }
 
-                anim->mNumChannels = anims_temp.size();
+                anim->mNumChannels = static_cast<unsigned int>(anims_temp.size());
                 if (!anim->mNumChannels)
                     throw DeadlyImportError("CSM: Empty $order section");
 
@@ -227,11 +229,11 @@ void CSMImporter::InternReadFile( const std::string& pFile,
 
                         // read x,y,z
                         if(!SkipSpacesAndLineEnd(&buffer))
-                            throw DeadlyImportError("CSM: Unexpected EOF occured reading sample x coord");
+                            throw DeadlyImportError("CSM: Unexpected EOF occurred reading sample x coord");
 
                         if (TokenMatchI(buffer, "DROPOUT", 7))  {
                             // seems this is invalid marker data; at least the doc says it's possible
-                            DefaultLogger::get()->warn("CSM: Encountered invalid marker data (DROPOUT)");
+                            ASSIMP_LOG_WARN("CSM: Encountered invalid marker data (DROPOUT)");
                         }
                         else    {
                             aiVectorKey* sub = s->mPositionKeys + s->mNumPositionKeys;
@@ -239,11 +241,11 @@ void CSMImporter::InternReadFile( const std::string& pFile,
                             buffer = fast_atoreal_move<float>(buffer, (float&)sub->mValue.x);
 
                             if(!SkipSpacesAndLineEnd(&buffer))
-                                throw DeadlyImportError("CSM: Unexpected EOF occured reading sample y coord");
+                                throw DeadlyImportError("CSM: Unexpected EOF occurred reading sample y coord");
                             buffer = fast_atoreal_move<float>(buffer, (float&)sub->mValue.y);
 
                             if(!SkipSpacesAndLineEnd(&buffer))
-                                throw DeadlyImportError("CSM: Unexpected EOF occured reading sample z coord");
+                                throw DeadlyImportError("CSM: Unexpected EOF occurred reading sample z coord");
                             buffer = fast_atoreal_move<float>(buffer, (float&)sub->mValue.z);
 
                             ++s->mNumPositionKeys;
@@ -292,8 +294,8 @@ void CSMImporter::InternReadFile( const std::string& pFile,
 
     // Store the one and only animation in the scene
     pScene->mAnimations    = new aiAnimation*[pScene->mNumAnimations=1];
-    pScene->mAnimations[0] = anim;
     anim->mName.Set("$CSM_MasterAnim");
+    pScene->mAnimations[0] = anim.release();
 
     // mark the scene as incomplete and run SkeletonMeshBuilder on it
     pScene->mFlags |= AI_SCENE_FLAGS_INCOMPLETE;

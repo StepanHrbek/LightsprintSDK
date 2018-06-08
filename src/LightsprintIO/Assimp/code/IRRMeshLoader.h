@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -45,8 +47,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_IRRMESHLOADER_H_INCLUDED
 #define AI_IRRMESHLOADER_H_INCLUDED
 
-#include "BaseImporter.h"
+#include <assimp/BaseImporter.h>
 #include "IRRShared.h"
+
+#ifndef ASSIMP_BUILD_NO_IRRMESH_IMPORTER
 
 namespace Assimp    {
 
@@ -91,5 +95,7 @@ protected:
 };
 
 } // end of namespace Assimp
+
+#endif // ASSIMP_BUILD_NO_IRRMESH_IMPORTER
 
 #endif // AI_IRRMESHIMPORTER_H_INC

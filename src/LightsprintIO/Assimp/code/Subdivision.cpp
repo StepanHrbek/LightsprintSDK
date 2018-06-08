@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -38,11 +40,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-#include "Subdivision.h"
-#include "SceneCombiner.h"
-#include "SpatialSort.h"
+#include <assimp/Subdivision.h>
+#include <assimp/SceneCombiner.h>
+#include <assimp/SpatialSort.h>
 #include "ProcessHelper.h"
-#include "Vertex.h"
+#include <assimp/Vertex.h>
+#include <assimp/ai_assert.h>
 #include <stdio.h>
 
 using namespace Assimp;
@@ -55,9 +58,7 @@ void mydummy() {}
 // ------------------------------------------------------------------------------------------------
 class CatmullClarkSubdivider : public Subdivider
 {
-
 public:
-
     void Subdivide (aiMesh* mesh, aiMesh*& out, unsigned int num, bool discard_input);
     void Subdivide (aiMesh** smesh, size_t nmesh,
         aiMesh** out, unsigned int num, bool discard_input);
@@ -73,8 +74,6 @@ public:
         Vertex edge_point, midpoint;
         unsigned int ref;
     };
-
-
 
     typedef std::vector<unsigned int> UIntVector;
     typedef std::map<uint64_t,Edge> EdgeMap;
@@ -99,7 +98,6 @@ public:
     unsigned int eh_tmp0__, eh_tmp1__;
 
 private:
-
     void InternSubdivide (const aiMesh* const * smesh,
         size_t nmesh,aiMesh** out, unsigned int num);
 };
@@ -128,7 +126,8 @@ void  CatmullClarkSubdivider::Subdivide (
     bool discard_input
     )
 {
-    assert(mesh != out);
+    ai_assert(mesh != out);
+    
     Subdivide(&mesh,1,&out,num,discard_input);
 }
 
@@ -142,12 +141,12 @@ void CatmullClarkSubdivider::Subdivide (
     bool discard_input
     )
 {
-    ai_assert(NULL != smesh && NULL != out);
+    ai_assert( NULL != smesh );
+    ai_assert( NULL != out );
 
     // course, both regions may not overlap
-    assert(smesh<out || smesh+nmesh>out+nmesh);
+    ai_assert(smesh<out || smesh+nmesh>out+nmesh);
     if (!num) {
-
         // No subdivision at all. Need to copy all the meshes .. argh.
         if (discard_input) {
             for (size_t s = 0; s < nmesh; ++s) {
@@ -178,7 +177,7 @@ void CatmullClarkSubdivider::Subdivide (
         aiMesh* i = smesh[s];
         // FIX - mPrimitiveTypes might not yet be initialized
         if (i->mPrimitiveTypes && (i->mPrimitiveTypes & (aiPrimitiveType_LINE|aiPrimitiveType_POINT))==i->mPrimitiveTypes) {
-            DefaultLogger::get()->debug("Catmull-Clark Subdivider: Skipping pure line/point mesh");
+            ASSIMP_LOG_DEBUG("Catmull-Clark Subdivider: Skipping pure line/point mesh");
 
             if (discard_input) {
                 out[s] = i;
@@ -191,7 +190,7 @@ void CatmullClarkSubdivider::Subdivide (
         }
 
         outmeshes.push_back(NULL);inmeshes.push_back(i);
-        maptbl.push_back(s);
+        maptbl.push_back(static_cast<unsigned int>(s));
     }
 
     // Do the actual subdivision on the preallocated storage. InternSubdivide
@@ -199,12 +198,12 @@ void CatmullClarkSubdivider::Subdivide (
     // checking any ranges.
     ai_assert(inmeshes.size()==outmeshes.size()&&inmeshes.size()==maptbl.size());
     if (inmeshes.empty()) {
-        DefaultLogger::get()->warn("Catmull-Clark Subdivider: Pure point/line scene, I can't do anything");
+        ASSIMP_LOG_WARN("Catmull-Clark Subdivider: Pure point/line scene, I can't do anything");
         return;
     }
     InternSubdivide(&inmeshes.front(),inmeshes.size(),&outmeshes.front(),num);
     for (unsigned int i = 0; i < maptbl.size(); ++i) {
-        ai_assert(outmeshes[i]);
+        ai_assert(nullptr != outmeshes[i]);
         out[maptbl[i]] = outmeshes[i];
     }
 
@@ -343,11 +342,8 @@ void CatmullClarkSubdivider::InternSubdivide (
         // Report the number of bad edges. bad edges are referenced by less than two
         // faces in the mesh. They occur at outer model boundaries in non-closed
         // shapes.
-        char tmp[512];
-        ai_snprintf(tmp, 512, "Catmull-Clark Subdivider: got %u bad edges touching only one face (totally %u edges). ",
-            bad_cnt,static_cast<unsigned int>(edges.size()));
-
-        DefaultLogger::get()->debug(tmp);
+        ASSIMP_LOG_DEBUG_F("Catmull-Clark Subdivider: got ", bad_cnt, " bad edges touching only one face (totally ", 
+            static_cast<unsigned int>(edges.size()), " edges). ");
     }}
 
     // ---------------------------------------------------------------------
@@ -405,7 +401,7 @@ void CatmullClarkSubdivider::InternSubdivide (
                     }
                     ai_assert(haveit);
                     if (!haveit) {
-                        DefaultLogger::get()->debug("Catmull-Clark Subdivider: Index not used");
+                        ASSIMP_LOG_DEBUG("Catmull-Clark Subdivider: Index not used");
                     }
                     break;
                 }
@@ -535,9 +531,7 @@ void CatmullClarkSubdivider::InternSubdivide (
 
                             ai_assert(adj[o]-moffsets[nidx].first < mp->mNumFaces);
                             const aiFace& f = mp->mFaces[adj[o]-moffsets[nidx].first];
-#               ifdef ASSIMP_BUILD_DEBUG
                             bool haveit = false;
-#               endif
 
                             // find our original point in the face
                             for (unsigned int m = 0; m < f.mNumIndices; ++m) {
@@ -558,15 +552,16 @@ void CatmullClarkSubdivider::InternSubdivide (
                                     // fixme: replace with mod face.mNumIndices?
                                     R += c0.midpoint+c1.midpoint;
 
-#                       ifdef ASSIMP_BUILD_DEBUG
                                     haveit = true;
-#                       endif
                                     break;
                                 }
                             }
 
                             // this invariant *must* hold if the vertex-to-face adjacency table is valid
                             ai_assert(haveit);
+                            if ( !haveit ) {
+                                ASSIMP_LOG_WARN( "OBJ: no name for material library specified." );
+                            }
                         }
 
                         const float div = static_cast<float>(cnt), divsq = 1.f/(div*div);

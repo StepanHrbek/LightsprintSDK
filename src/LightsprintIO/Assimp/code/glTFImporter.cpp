@@ -1,8 +1,10 @@
-/*
+﻿/*
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -41,18 +43,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_BUILD_NO_GLTF_IMPORTER
 
 #include "glTFImporter.h"
-
-#include "StringComparison.h"
-
-#include "boost/scoped_ptr.hpp"
+#include <assimp/StringComparison.h>
+#include <assimp/StringUtils.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/ai_assert.h>
 #include <assimp/DefaultLogger.hpp>
-#include <boost/shared_ptr.hpp>
+#include <assimp/importerdesc.h>
+
+#include <memory>
+
+#include "MakeVerboseFormat.h"
 
 #include "glTFAsset.h"
+// This is included here so WriteLazyDict<T>'s definition is found.
+#include "glTFAssetWriter.h"
 
 using namespace Assimp;
 using namespace glTF;
@@ -76,7 +82,7 @@ static const aiImporterDesc desc = {
     "gltf glb"
 };
 
-glTFImporter::glTFImporter() 
+glTFImporter::glTFImporter()
 : BaseImporter()
 , meshOffsets()
 , embeddedTexIdxs()
@@ -93,26 +99,21 @@ const aiImporterDesc* glTFImporter::GetInfo() const
     return &desc;
 }
 
-bool glTFImporter::CanRead(const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
+bool glTFImporter::CanRead(const std::string& pFile, IOSystem* pIOHandler, bool /* checkSig */) const
 {
-    const std::string& extension = GetExtension(pFile);
+    const std::string &extension = GetExtension(pFile);
 
-    if (extension == "gltf" || extension == "glb")
-        return true;
+    if (extension != "gltf" && extension != "glb")
+        return false;
 
-    if ((checkSig || !extension.length()) && pIOHandler) {
-        char buffer[4];
-
-        boost::scoped_ptr<IOStream> pStream(pIOHandler->Open(pFile));
-        if (pStream && pStream->Read(buffer, sizeof(buffer), 1) == 1) {
-            if (memcmp(buffer, AI_GLB_MAGIC_NUMBER, sizeof(buffer)) == 0) {
-                return true; // Has GLB header
-            }
-            else if (memcmp(buffer, "{\r\n ", sizeof(buffer)) == 0
-                    || memcmp(buffer, "{\n  ", sizeof(buffer)) == 0) {
-                // seems a JSON file, and we're the only format that can read them
-                return true;
-            }
+    if (pIOHandler) {
+        glTF::Asset asset(pIOHandler);
+        try {
+            asset.Load(pFile, extension == "glb");
+            std::string version = asset.asset.version;
+            return !version.empty() && version[0] == '1';
+        } catch (...) {
+            return false;
         }
     }
 
@@ -154,7 +155,7 @@ static void CopyValue(const glTF::mat4& v, aiMatrix4x4& o)
     o.a4 = v[12]; o.b4 = v[13]; o.c4 = v[14]; o.d4 = v[15];
 }
 
-inline void SetMaterialColorProperty(std::vector<int>& embeddedTexIdxs, Asset& r, glTF::TexProperty prop, aiMaterial* mat,
+inline void SetMaterialColorProperty(std::vector<int>& embeddedTexIdxs, Asset& /*r*/, glTF::TexProperty prop, aiMaterial* mat,
     aiTextureType texType, const char* pKey, unsigned int type, unsigned int idx)
 {
     if (prop.texture) {
@@ -174,15 +175,13 @@ inline void SetMaterialColorProperty(std::vector<int>& embeddedTexIdxs, Asset& r
     else {
         aiColor4D col;
         CopyValue(prop.color, col);
-        if (col.r != 1.f || col.g != 1.f || col.b != 1.f || col.a != 1.f) {
-            mat->AddProperty(&col, 1, pKey, type, idx);
-        }
+        mat->AddProperty(&col, 1, pKey, type, idx);
     }
 }
 
 void glTFImporter::ImportMaterials(glTF::Asset& r)
 {
-    mScene->mNumMaterials = r.materials.Size();
+    mScene->mNumMaterials = unsigned(r.materials.Size());
     mScene->mMaterials = new aiMaterial*[mScene->mNumMaterials];
 
     for (unsigned int i = 0; i < mScene->mNumMaterials; ++i) {
@@ -195,9 +194,16 @@ void glTFImporter::ImportMaterials(glTF::Asset& r)
             aimat->AddProperty(&str, AI_MATKEY_NAME);
         }
 
-        SetMaterialColorProperty(embeddedTexIdxs, r, mat.diffuse, aimat, aiTextureType_DIFFUSE, AI_MATKEY_COLOR_DIFFUSE);
+        SetMaterialColorProperty(embeddedTexIdxs, r, mat.ambient,  aimat, aiTextureType_AMBIENT,  AI_MATKEY_COLOR_AMBIENT );
+        SetMaterialColorProperty(embeddedTexIdxs, r, mat.diffuse,  aimat, aiTextureType_DIFFUSE,  AI_MATKEY_COLOR_DIFFUSE );
         SetMaterialColorProperty(embeddedTexIdxs, r, mat.specular, aimat, aiTextureType_SPECULAR, AI_MATKEY_COLOR_SPECULAR);
-        SetMaterialColorProperty(embeddedTexIdxs, r, mat.ambient, aimat, aiTextureType_AMBIENT, AI_MATKEY_COLOR_AMBIENT);
+        SetMaterialColorProperty(embeddedTexIdxs, r, mat.emission, aimat, aiTextureType_EMISSIVE, AI_MATKEY_COLOR_EMISSIVE);
+
+        aimat->AddProperty(&mat.doubleSided, 1, AI_MATKEY_TWOSIDED);
+
+        if (mat.transparent && (mat.transparency != 1.0f)) {
+            aimat->AddProperty(&mat.transparency, 1, AI_MATKEY_OPACITY);
+        }
 
         if (mat.shininess > 0.f) {
             aimat->AddProperty(&mat.shininess, 1, AI_MATKEY_SHININESS);
@@ -212,14 +218,14 @@ void glTFImporter::ImportMaterials(glTF::Asset& r)
 }
 
 
-inline void SetFace(aiFace& face, int a)
+static inline void SetFace(aiFace& face, int a)
 {
     face.mNumIndices = 1;
     face.mIndices = new unsigned int[1];
     face.mIndices[0] = a;
 }
 
-inline void SetFace(aiFace& face, int a, int b)
+static inline void SetFace(aiFace& face, int a, int b)
 {
     face.mNumIndices = 2;
     face.mIndices = new unsigned int[2];
@@ -227,7 +233,7 @@ inline void SetFace(aiFace& face, int a, int b)
     face.mIndices[1] = b;
 }
 
-inline void SetFace(aiFace& face, int a, int b, int c)
+static inline void SetFace(aiFace& face, int a, int b, int c)
 {
     face.mNumIndices = 3;
     face.mIndices = new unsigned int[3];
@@ -235,6 +241,20 @@ inline void SetFace(aiFace& face, int a, int b, int c)
     face.mIndices[1] = b;
     face.mIndices[2] = c;
 }
+
+#ifdef ASSIMP_BUILD_DEBUG
+static inline bool CheckValidFacesIndices(aiFace* faces, unsigned nFaces, unsigned nVerts)
+{
+    for (unsigned i = 0; i < nFaces; ++i) {
+        for (unsigned j = 0; j < faces[i].mNumIndices; ++j) {
+            unsigned idx = faces[i].mIndices[j];
+            if (idx >= nVerts)
+                return false;
+        }
+    }
+    return true;
+}
+#endif // ASSIMP_BUILD_DEBUG
 
 void glTFImporter::ImportMeshes(glTF::Asset& r)
 {
@@ -245,8 +265,40 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
     for (unsigned int m = 0; m < r.meshes.Size(); ++m) {
         Mesh& mesh = r.meshes[m];
 
-        meshOffsets.push_back(k);
-        k += mesh.primitives.size();
+		// Check if mesh extensions is used
+		if(mesh.Extension.size() > 0)
+		{
+			for(Mesh::SExtension* cur_ext : mesh.Extension)
+			{
+#ifdef ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC
+				if(cur_ext->Type == Mesh::SExtension::EType::Compression_Open3DGC)
+				{
+					// Limitations for meshes when using Open3DGC-compression.
+					// It's a current limitation of sp... Specification have not this part still - about mesh compression. Why only one primitive?
+					// Because glTF is very flexibly. But in fact it ugly flexible. Every primitive can has own set of accessors and accessors can
+					// point to a-a-a-a-any part of buffer (through bufferview of course) and even to another buffer. We know that "Open3DGC-compression"
+					// is applicable only to part of buffer. As we can't guaranty continuity of the data for decoder, we will limit quantity of primitives.
+					// Yes indices, coordinates etc. still can br stored in different buffers, but with current specification it's a exporter problem.
+					// Also primitive can has only one of "POSITION", "NORMAL" and less then "AI_MAX_NUMBER_OF_TEXTURECOORDS" of "TEXCOORD". All accessor
+					// of primitive must point to one continuous region of the buffer.
+					if(mesh.primitives.size() > 2) throw DeadlyImportError("GLTF: When using Open3DGC compression then only one primitive per mesh are allowed.");
+
+					Mesh::SCompression_Open3DGC* o3dgc_ext = (Mesh::SCompression_Open3DGC*)cur_ext;
+					Ref<Buffer> buf = r.buffers.Get(o3dgc_ext->Buffer);
+
+					buf->EncodedRegion_SetCurrent(mesh.id);
+				}
+				else
+#endif
+				{
+					throw DeadlyImportError("GLTF: Can not import mesh: unknown mesh extension (code: \"" + to_string(cur_ext->Type) +
+											"\"), only Open3DGC is supported.");
+				}
+			}
+		}// if(mesh.Extension.size() > 0)
+
+		meshOffsets.push_back(k);
+        k += unsigned(mesh.primitives.size());
 
         for (unsigned int p = 0; p < mesh.primitives.size(); ++p) {
             Mesh::Primitive& prim = mesh.primitives[p];
@@ -258,7 +310,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
             if (mesh.primitives.size() > 1) {
                 size_t& len = aim->mName.length;
                 aim->mName.data[len] = '-';
-                len += 1 + ASSIMP_itoa10(aim->mName.data + len + 1, MAXLEN - len - 1, p);
+                len += 1 + ASSIMP_itoa10(aim->mName.data + len + 1, unsigned(MAXLEN - len - 1), p);
             }
 
             switch (prim.mode) {
@@ -280,28 +332,33 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
             }
 
             Mesh::Primitive::Attributes& attr = prim.attributes;
-            if (attr.position.size() > 0 && attr.position[0]) {
+
+			if (attr.position.size() > 0 && attr.position[0]) {
                 aim->mNumVertices = attr.position[0]->count;
                 attr.position[0]->ExtractData(aim->mVertices);
-            }
+			}
 
-            if (attr.normal.size() > 0 && attr.normal[0]) {
-                attr.normal[0]->ExtractData(aim->mNormals);
-            }
+			if (attr.normal.size() > 0 && attr.normal[0]) attr.normal[0]->ExtractData(aim->mNormals);
 
-            for (size_t tc = 0; tc < attr.texcoord.size() && tc <= AI_MAX_NUMBER_OF_TEXTURECOORDS; ++tc) {
+            for (size_t tc = 0; tc < attr.texcoord.size() && tc < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++tc) {
                 attr.texcoord[tc]->ExtractData(aim->mTextureCoords[tc]);
                 aim->mNumUVComponents[tc] = attr.texcoord[tc]->GetNumComponents();
+
+                aiVector3D* values = aim->mTextureCoords[tc];
+                for (unsigned int i = 0; i < aim->mNumVertices; ++i) {
+                    values[i].y = 1 - values[i].y; // Flip Y coords
+                }
             }
 
 
             if (prim.indices) {
-                aiFace* faces = 0;
-                size_t nFaces = 0;
+				aiFace* faces = 0;
+                unsigned int nFaces = 0;
 
                 unsigned int count = prim.indices->count;
 
                 Accessor::Indexer data = prim.indices->GetIndexer();
+                ai_assert(data.IsValid());
 
                 switch (prim.mode) {
                     case PrimitiveMode_POINTS: {
@@ -366,6 +423,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
                 if (faces) {
                     aim->mFaces = faces;
                     aim->mNumFaces = nFaces;
+                    ai_assert(CheckValidFacesIndices(faces, nFaces, aim->mNumVertices));
                 }
             }
 
@@ -377,7 +435,7 @@ void glTFImporter::ImportMeshes(glTF::Asset& r)
     }
 
     meshOffsets.push_back(k);
-    
+
     CopyVector(meshes, mScene->mMeshes, mScene->mNumMeshes);
 }
 
@@ -394,7 +452,7 @@ void glTFImporter::ImportCameras(glTF::Asset& r)
         aiCamera* aicam = mScene->mCameras[i] = new aiCamera();
 
         if (cam.type == Camera::Perspective) {
-            
+
             aicam->mAspect        = cam.perspective.aspectRatio;
             aicam->mHorizontalFOV = cam.perspective.yfov * aicam->mAspect;
             aicam->mClipPlaneFar  = cam.perspective.zfar;
@@ -435,7 +493,7 @@ void glTFImporter::ImportLights(glTF::Asset& r)
         CopyValue(l.color, ail->mColorAmbient);
         CopyValue(l.color, ail->mColorDiffuse);
         CopyValue(l.color, ail->mColorSpecular);
-        
+
         ail->mAngleOuterCone = l.falloffAngle;
         ail->mAngleInnerCone = l.falloffExponent; // TODO fix this, it does not look right at all
 
@@ -453,7 +511,7 @@ aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& m
     aiNode* ainode = new aiNode(node.id);
 
     if (!node.children.empty()) {
-        ainode->mNumChildren = node.children.size();
+        ainode->mNumChildren = unsigned(node.children.size());
         ainode->mChildren = new aiNode*[ainode->mNumChildren];
 
         for (unsigned int i = 0; i < ainode->mNumChildren; ++i) {
@@ -463,7 +521,7 @@ aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& m
         }
     }
 
-    aiMatrix4x4 matrix = ainode->mTransformation;
+    aiMatrix4x4& matrix = ainode->mTransformation;
     if (node.matrix.isPresent) {
         CopyValue(node.matrix.value, matrix);
     }
@@ -505,7 +563,7 @@ aiNode* ImportNode(aiScene* pScene, glTF::Asset& r, std::vector<unsigned int>& m
         int k = 0;
         for (size_t i = 0; i < node.meshes.size(); ++i) {
             int idx = node.meshes[i].GetIndex();
-            for (size_t j = meshOffsets[idx]; j < meshOffsets[idx + 1]; ++j, ++k) {
+            for (unsigned int j = meshOffsets[idx]; j < meshOffsets[idx + 1]; ++j, ++k) {
                 ainode->mMeshes[k] = j;
             }
         }
@@ -529,7 +587,7 @@ void glTFImporter::ImportNodes(glTF::Asset& r)
     std::vector< Ref<Node> > rootNodes = r.scene->nodes;
 
     // The root nodes
-    unsigned int numRootNodes = rootNodes.size();
+    unsigned int numRootNodes = unsigned(rootNodes.size());
     if (numRootNodes == 1) { // a single root node: use it
         mScene->mRootNode = ImportNode(mScene, r, meshOffsets, rootNodes[0]);
     }
@@ -566,7 +624,7 @@ void glTFImporter::ImportEmbeddedTextures(glTF::Asset& r)
 
     // Add the embedded textures
     for (size_t i = 0; i < r.images.Size(); ++i) {
-        Image img = r.images[i];
+        Image &img = r.images[i];
         if (!img.HasData()) continue;
 
         int idx = mScene->mNumTextures++;
@@ -598,7 +656,7 @@ void glTFImporter::ImportEmbeddedTextures(glTF::Asset& r)
 void glTFImporter::InternReadFile(const std::string& pFile, aiScene* pScene, IOSystem* pIOHandler) {
 
     this->mScene = pScene;
-    
+
     // read the asset file
     glTF::Asset asset(pIOHandler);
     asset.Load(pFile, GetExtension(pFile) == "glb");
@@ -619,7 +677,10 @@ void glTFImporter::InternReadFile(const std::string& pFile, aiScene* pScene, IOS
     ImportNodes(asset);
 
     // TODO: it does not split the loaded vertices, should it?
-    pScene->mFlags |= AI_SCENE_FLAGS_NON_VERBOSE_FORMAT;
+    //pScene->mFlags |= AI_SCENE_FLAGS_NON_VERBOSE_FORMAT;
+	MakeVerboseFormatProcess process;
+    process.Execute(pScene);
+
 
     if (pScene->mNumMeshes == 0) {
         pScene->mFlags |= AI_SCENE_FLAGS_INCOMPLETE;

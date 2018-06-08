@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -46,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "BaseProcess.h"
 #include "ProcessHelper.h"
-#include "../include/assimp/types.h"
+#include <assimp/types.h>
 #include <set>
 
 struct aiMesh;
@@ -100,7 +102,7 @@ public:
     }
 
     // -------------------------------------------------------------------
-    /** @brief Rmeove a node from the list of locked nodes.
+    /** @brief Remove a node from the list of locked nodes.
      *  @param name Name to be unlocked
      */
     inline void RemoveLockedNode(std::string& name)

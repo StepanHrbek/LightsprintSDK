@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -43,39 +45,52 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if !defined(ASSIMP_BUILD_NO_EXPORT) && !defined(ASSIMP_BUILD_NO_STL_EXPORTER)
 
 #include "STLExporter.h"
-#include "../include/assimp/version.h"
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/Exporter.hpp"
-#include <boost/scoped_ptr.hpp>
-#include "Exceptional.h"
-#include "ByteSwapper.h"
+#include <assimp/version.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/Exporter.hpp>
+#include <memory>
+#include <assimp/Exceptional.h>
+#include <assimp/ByteSwapper.h>
 
 using namespace Assimp;
+
 namespace Assimp    {
 
 // ------------------------------------------------------------------------------------------------
 // Worker function for exporting a scene to Stereolithograpy. Prototyped and registered in Exporter.cpp
-void ExportSceneSTL(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
+void ExportSceneSTL(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties )
 {
-    // invoke the exporter
-    STLExporter exporter(pFile, pScene);
+    bool exportPointClouds = pProperties->GetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS);
 
+    // invoke the exporter
+    STLExporter exporter(pFile, pScene, exportPointClouds );
+
+    if (exporter.mOutput.fail()) {
+        throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
+    }
+    
     // we're still here - export successfully completed. Write the file.
-    boost::scoped_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
+    std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
     if(outfile == NULL) {
         throw DeadlyExportError("could not open output .stl file: " + std::string(pFile));
     }
 
     outfile->Write( exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()),1);
 }
-void ExportSceneSTLBinary(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
+void ExportSceneSTLBinary(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties )
 {
-    // invoke the exporter
-    STLExporter exporter(pFile, pScene, true);
+    bool exportPointClouds = pProperties->GetPropertyBool(AI_CONFIG_EXPORT_POINT_CLOUDS);
 
+    // invoke the exporter
+    STLExporter exporter(pFile, pScene, exportPointClouds, true);
+
+    if (exporter.mOutput.fail()) {
+        throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
+    }
+    
     // we're still here - export successfully completed. Write the file.
-    boost::scoped_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wb"));
+    std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wb"));
     if(outfile == NULL) {
         throw DeadlyExportError("could not open output .stl file: " + std::string(pFile));
     }
@@ -85,15 +100,18 @@ void ExportSceneSTLBinary(const char* pFile,IOSystem* pIOSystem, const aiScene* 
 
 } // end of namespace Assimp
 
+static const char *SolidToken = "solid";
+static const char *EndSolidToken = "endsolid";
 
 // ------------------------------------------------------------------------------------------------
-STLExporter :: STLExporter(const char* _filename, const aiScene* pScene, bool binary)
+STLExporter::STLExporter(const char* _filename, const aiScene* pScene, bool exportPointClouds, bool binary)
 : filename(_filename)
 , endl("\n")
 {
     // make sure that all formatting happens using the standard, C locale and not the user's current locale
     const std::locale& l = std::locale("C");
     mOutput.imbue(l);
+    mOutput.precision(16);
     if (binary) {
         char buf[80] = {0} ;
         buf[0] = 'A'; buf[1] = 's'; buf[2] = 's'; buf[3] = 'i'; buf[4] = 'm'; buf[5] = 'p';
@@ -107,22 +125,55 @@ STLExporter :: STLExporter(const char* _filename, const aiScene* pScene, bool bi
         }
         AI_SWAP4(meshnum);
         mOutput.write((char *)&meshnum, 4);
+
+        if (exportPointClouds) {
+
+        }
+
         for(unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
             WriteMeshBinary(pScene->mMeshes[i]);
         }
     } else {
-        const std::string& name = "AssimpScene";
 
-        mOutput << "solid " << name << endl;
+        // Exporting only point clouds
+        if (exportPointClouds) {
+            WritePointCloud("Assimp_Pointcloud", pScene );
+            return;
+        } 
+
+        // Export the assimp mesh 
+        const std::string name = "AssimpScene";
+        mOutput << SolidToken << " " << name << endl;
         for(unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
-            WriteMesh(pScene->mMeshes[i]);
+            WriteMesh(pScene->mMeshes[ i ]);
         }
-        mOutput << "endsolid " << name << endl;
+        mOutput << EndSolidToken << name << endl;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-void STLExporter :: WriteMesh(const aiMesh* m)
+void STLExporter::WritePointCloud(const std::string &name, const aiScene* pScene) {
+    mOutput << " " << SolidToken << " " << name << endl;
+    aiVector3D nor;
+    mOutput << " facet normal " << nor.x << " " << nor.y << " " << nor.z << endl;
+    for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
+        aiMesh *mesh = pScene->mMeshes[i];
+        if (nullptr == mesh) {
+            continue;
+        }
+
+        for (unsigned int a = 0; a < mesh->mNumVertices; ++a) {
+            const aiVector3D& v = mesh->mVertices[a];
+            mOutput << "  vertex " << v.x << " " << v.y << " " << v.z << endl;
+            mOutput << "  vertex " << v.x << " " << v.y << " " << v.z << endl;
+            mOutput << "  vertex " << v.x << " " << v.y << " " << v.z << endl;
+        }
+    }
+    mOutput << EndSolidToken << " " << name << endl;
+}
+
+// ------------------------------------------------------------------------------------------------
+void STLExporter::WriteMesh(const aiMesh* m)
 {
     for (unsigned int i = 0; i < m->mNumFaces; ++i) {
         const aiFace& f = m->mFaces[i];
@@ -134,7 +185,7 @@ void STLExporter :: WriteMesh(const aiMesh* m)
             for(unsigned int a = 0; a < f.mNumIndices; ++a) {
                 nor += m->mNormals[f.mIndices[a]];
             }
-            nor.Normalize();
+            nor.NormalizeSafe();
         }
         mOutput << " facet normal " << nor.x << " " << nor.y << " " << nor.z << endl;
         mOutput << "  outer loop" << endl;
@@ -148,7 +199,7 @@ void STLExporter :: WriteMesh(const aiMesh* m)
     }
 }
 
-void STLExporter :: WriteMeshBinary(const aiMesh* m)
+void STLExporter::WriteMeshBinary(const aiMesh* m)
 {
     for (unsigned int i = 0; i < m->mNumFaces; ++i) {
         const aiFace& f = m->mFaces[i];
@@ -161,12 +212,16 @@ void STLExporter :: WriteMeshBinary(const aiMesh* m)
             }
             nor.Normalize();
         }
-        float nx = nor.x, ny = nor.y, nz = nor.z;
+        // STL binary files use 4-byte floats. This may possibly cause loss of precision
+        // for clients using 8-byte doubles
+        float nx = (float) nor.x;
+        float ny = (float) nor.y;
+        float nz = (float) nor.z;
         AI_SWAP4(nx); AI_SWAP4(ny); AI_SWAP4(nz);
         mOutput.write((char *)&nx, 4); mOutput.write((char *)&ny, 4); mOutput.write((char *)&nz, 4);
         for(unsigned int a = 0; a < f.mNumIndices; ++a) {
             const aiVector3D& v  = m->mVertices[f.mIndices[a]];
-            float vx = v.x, vy = v.y, vz = v.z;
+            float vx = (float) v.x, vy = (float) v.y, vz = (float) v.z;
             AI_SWAP4(vx); AI_SWAP4(vy); AI_SWAP4(vz);
             mOutput.write((char *)&vx, 4); mOutput.write((char *)&vy, 4); mOutput.write((char *)&vz, 4);
         }

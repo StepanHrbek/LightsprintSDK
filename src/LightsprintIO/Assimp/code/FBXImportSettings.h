@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -62,6 +64,7 @@ struct ImportSettings
         , readWeights(true)
         , preservePivots(true)
         , optimizeEmptyAnimationCurves(true)
+        , useLegacyEmbeddedTextureNaming(false)
     {}
 
 
@@ -136,6 +139,10 @@ struct ImportSettings
      *  values matching the corresponding node transformation.
      *  The default value is true. */
     bool optimizeEmptyAnimationCurves;
+
+    /** use legacy naming for embedded textures eg: (*0, *1, *2)
+    **/
+    bool useLegacyEmbeddedTextureNaming;
 };
 
 

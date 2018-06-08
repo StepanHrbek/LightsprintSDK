@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,13 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_HMPLOADER_H_INCLUDED
 #define AI_HMPLOADER_H_INCLUDED
 
-// public ASSIMP headers
-#include "../include/assimp/types.h"
-#include "../include/assimp/texture.h"
-#include "../include/assimp/material.h"
-
 // internal headers
-#include "BaseImporter.h"
+#include <assimp/BaseImporter.h>
 #include "MDLLoader.h"
 #include "HMPFileData.h"
 

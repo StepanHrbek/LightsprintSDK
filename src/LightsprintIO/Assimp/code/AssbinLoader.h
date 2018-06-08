@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -45,8 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_ASSBINIMPORTER_H_INC
 #define AI_ASSBINIMPORTER_H_INC
 
-#include "BaseImporter.h"
-#include "../include/assimp/types.h"
+#include <assimp/BaseImporter.h>
 
 struct aiMesh;
 struct aiNode;
@@ -71,7 +72,6 @@ class AssbinImporter : public BaseImporter
 private:
   bool shortened;
   bool compressed;
-protected:
 
 public:
   virtual bool CanRead(
@@ -86,7 +86,7 @@ public:
     IOSystem* pIOHandler
     );
   void ReadBinaryScene( IOStream * stream, aiScene* pScene );
-  void ReadBinaryNode( IOStream * stream, aiNode** mRootNode );
+  void ReadBinaryNode( IOStream * stream, aiNode** mRootNode, aiNode* parent );
   void ReadBinaryMesh( IOStream * stream, aiMesh* mesh );
   void ReadBinaryBone( IOStream * stream, aiBone* bone );
   void ReadBinaryMaterial(IOStream * stream, aiMaterial* mat);

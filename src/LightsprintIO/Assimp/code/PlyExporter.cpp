@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -43,28 +45,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if !defined(ASSIMP_BUILD_NO_EXPORT) && !defined(ASSIMP_BUILD_NO_PLY_EXPORTER)
 
 #include "PlyExporter.h"
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 #include <cmath>
-#include "Exceptional.h"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/version.h"
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/Exporter.hpp"
-#include "qnan.h"
+#include <assimp/Exceptional.h>
+#include <assimp/scene.h>
+#include <assimp/version.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/Exporter.hpp>
+#include <assimp/qnan.h>
 
 
 //using namespace Assimp;
 namespace Assimp    {
 
+// make sure type_of returns consistent output across different platforms
+// also consider using: typeid(VAR).name()
+template <typename T> const char* type_of(T&) { return "unknown"; }
+template<> const char* type_of(float&) { return "float"; }
+template<> const char* type_of(double&) { return "double"; }
+
 // ------------------------------------------------------------------------------------------------
 // Worker function for exporting a scene to PLY. Prototyped and registered in Exporter.cpp
-void ExportScenePly(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
+void ExportScenePly(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* /*pProperties*/)
 {
     // invoke the exporter
     PlyExporter exporter(pFile, pScene);
 
+    if (exporter.mOutput.fail()) {
+        throw DeadlyExportError("output data creation failed. Most likely the file became too large: " + std::string(pFile));
+    }
+
     // we're still here - export successfully completed. Write the file.
-    boost::scoped_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
+    std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
     if(outfile == NULL) {
         throw DeadlyExportError("could not open output .ply file: " + std::string(pFile));
     }
@@ -72,13 +84,13 @@ void ExportScenePly(const char* pFile,IOSystem* pIOSystem, const aiScene* pScene
     outfile->Write( exporter.mOutput.str().c_str(), static_cast<size_t>(exporter.mOutput.tellp()),1);
 }
 
-void ExportScenePlyBinary(const char* pFile, IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* pProperties)
+void ExportScenePlyBinary(const char* pFile, IOSystem* pIOSystem, const aiScene* pScene, const ExportProperties* /*pProperties*/)
 {
     // invoke the exporter
     PlyExporter exporter(pFile, pScene, true);
 
     // we're still here - export successfully completed. Write the file.
-    boost::scoped_ptr<IOStream> outfile(pIOSystem->Open(pFile, "wb"));
+    std::unique_ptr<IOStream> outfile(pIOSystem->Open(pFile, "wb"));
     if (outfile == NULL) {
         throw DeadlyExportError("could not open output .ply file: " + std::string(pFile));
     }
@@ -99,6 +111,7 @@ PlyExporter::PlyExporter(const char* _filename, const aiScene* pScene, bool bina
     // make sure that all formatting happens using the standard, C locale and not the user's current locale
     const std::locale& l = std::locale("C");
     mOutput.imbue(l);
+    mOutput.precision(16);
 
     unsigned int faces = 0u, vertices = 0u, components = 0u;
     for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
@@ -135,15 +148,32 @@ PlyExporter::PlyExporter(const char* _filename, const aiScene* pScene, bool bina
         << aiGetVersionMajor() << '.' << aiGetVersionMinor() << '.'
         << aiGetVersionRevision() << ")" << endl;
 
+    // Look through materials for a diffuse texture, and add it if found
+    for ( unsigned int i = 0; i < pScene->mNumMaterials; ++i )
+    {
+        const aiMaterial* const mat = pScene->mMaterials[i];
+        aiString s;
+        if ( AI_SUCCESS == mat->Get( AI_MATKEY_TEXTURE_DIFFUSE( 0 ), s ) )
+        {
+            mOutput << "comment TextureFile " << s.data << endl;
+        }
+    }
+
+    // TODO: probably want to check here rather than just assume something
+    //       definitely not good to always write float even if we might have double precision
+
+    ai_real tmp = 0.0;
+    const char * typeName = type_of(tmp);
+
     mOutput << "element vertex " << vertices << endl;
-    mOutput << "property float x" << endl;
-    mOutput << "property float y" << endl;
-    mOutput << "property float z" << endl;
+    mOutput << "property " << typeName << " x" << endl;
+    mOutput << "property " << typeName << " y" << endl;
+    mOutput << "property " << typeName << " z" << endl;
 
     if(components & PLY_EXPORT_HAS_NORMALS) {
-        mOutput << "property float nx" << endl;
-        mOutput << "property float ny" << endl;
-        mOutput << "property float nz" << endl;
+        mOutput << "property " << typeName << " nx" << endl;
+        mOutput << "property " << typeName << " ny" << endl;
+        mOutput << "property " << typeName << " nz" << endl;
     }
 
     // write texcoords first, just in case an importer does not support tangents
@@ -153,37 +183,37 @@ PlyExporter::PlyExporter(const char* _filename, const aiScene* pScene, bool bina
     // and texture coordinates).
     for (unsigned int n = PLY_EXPORT_HAS_TEXCOORDS, c = 0; (components & n) && c != AI_MAX_NUMBER_OF_TEXTURECOORDS; n <<= 1, ++c) {
         if (!c) {
-            mOutput << "property float s" << endl;
-            mOutput << "property float t" << endl;
+            mOutput << "property " << typeName << " s" << endl;
+            mOutput << "property " << typeName << " t" << endl;
         }
         else {
-            mOutput << "property float s" << c << endl;
-            mOutput << "property float t" << c << endl;
+            mOutput << "property " << typeName << " s" << c << endl;
+            mOutput << "property " << typeName << " t" << c << endl;
         }
     }
 
     for (unsigned int n = PLY_EXPORT_HAS_COLORS, c = 0; (components & n) && c != AI_MAX_NUMBER_OF_COLOR_SETS; n <<= 1, ++c) {
         if (!c) {
-            mOutput << "property float r" << endl;
-            mOutput << "property float g" << endl;
-            mOutput << "property float b" << endl;
-            mOutput << "property float a" << endl;
+            mOutput << "property " << "uchar" << " red" << endl;
+            mOutput << "property " << "uchar" << " green" << endl;
+            mOutput << "property " << "uchar" << " blue" << endl;
+            mOutput << "property " << "uchar" << " alpha" << endl;
         }
         else {
-            mOutput << "property float r" << c << endl;
-            mOutput << "property float g" << c << endl;
-            mOutput << "property float b" << c << endl;
-            mOutput << "property float a" << c << endl;
+            mOutput << "property " << "uchar" << " red" << c << endl;
+            mOutput << "property " << "uchar" << " green" << c << endl;
+            mOutput << "property " << "uchar" << " blue" << c << endl;
+            mOutput << "property " << "uchar" << " alpha" << c << endl;
         }
     }
 
     if(components & PLY_EXPORT_HAS_TANGENTS_BITANGENTS) {
-        mOutput << "property float tx" << endl;
-        mOutput << "property float ty" << endl;
-        mOutput << "property float tz" << endl;
-        mOutput << "property float bx" << endl;
-        mOutput << "property float by" << endl;
-        mOutput << "property float bz" << endl;
+        mOutput << "property " << typeName << " tx" << endl;
+        mOutput << "property " << typeName << " ty" << endl;
+        mOutput << "property " << typeName << " tz" << endl;
+        mOutput << "property " << typeName << " bx" << endl;
+        mOutput << "property " << typeName << " by" << endl;
+        mOutput << "property " << typeName << " bz" << endl;
     }
 
     mOutput << "element face " << faces << endl;
@@ -222,7 +252,7 @@ PlyExporter::~PlyExporter() {
 // ------------------------------------------------------------------------------------------------
 void PlyExporter::WriteMeshVerts(const aiMesh* m, unsigned int components)
 {
-    static const float inf = std::numeric_limits<float>::infinity();
+    static const ai_real inf = std::numeric_limits<ai_real>::infinity();
 
     // If a component (for instance normal vectors) is present in at least one mesh in the scene,
     // then default values are written for meshes that do not contain this component.
@@ -258,13 +288,13 @@ void PlyExporter::WriteMeshVerts(const aiMesh* m, unsigned int components)
         for (unsigned int n = PLY_EXPORT_HAS_COLORS, c = 0; (components & n) && c != AI_MAX_NUMBER_OF_COLOR_SETS; n <<= 1, ++c) {
             if (m->HasVertexColors(c)) {
                 mOutput <<
-                    " " << m->mColors[c][i].r <<
-                    " " << m->mColors[c][i].g <<
-                    " " << m->mColors[c][i].b <<
-                    " " << m->mColors[c][i].a;
+                    " " << (int)(m->mColors[c][i].r * 255) <<
+                    " " << (int)(m->mColors[c][i].g * 255) <<
+                    " " << (int)(m->mColors[c][i].b * 255) <<
+                    " " << (int)(m->mColors[c][i].a * 255);
             }
             else {
-                mOutput << " -1.0 -1.0 -1.0 -1.0";
+                mOutput << " 0 0 0";
             }
         }
 
@@ -309,10 +339,10 @@ void PlyExporter::WriteMeshVertsBinary(const aiMesh* m, unsigned int components)
 
         for (unsigned int n = PLY_EXPORT_HAS_TEXCOORDS, c = 0; (components & n) && c != AI_MAX_NUMBER_OF_TEXTURECOORDS; n <<= 1, ++c) {
             if (m->HasTextureCoords(c)) {
-                mOutput.write(reinterpret_cast<const char*>(&m->mTextureCoords[c][i].x), 6);
+                mOutput.write(reinterpret_cast<const char*>(&m->mTextureCoords[c][i].x), 8);
             }
             else {
-                mOutput.write(reinterpret_cast<const char*>(&defaultUV.x), 6);
+                mOutput.write(reinterpret_cast<const char*>(&defaultUV.x), 8);
             }
         }
 

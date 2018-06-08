@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -48,8 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // internal headers
 #include "GenVertexNormalsProcess.h"
 #include "ProcessHelper.h"
-#include "Exceptional.h"
-#include "qnan.h"
+#include <assimp/Exceptional.h>
+#include <assimp/qnan.h>
 
 using namespace Assimp;
 
@@ -78,32 +80,33 @@ bool GenVertexNormalsProcess::IsActive( unsigned int pFlags) const
 void GenVertexNormalsProcess::SetupProperties(const Importer* pImp)
 {
     // Get the current value of the AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE property
-    configMaxAngle = pImp->GetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE,175.f);
-    configMaxAngle = AI_DEG_TO_RAD(std::max(std::min(configMaxAngle,175.0f),0.0f));
+    configMaxAngle = pImp->GetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE,(ai_real)175.0);
+    configMaxAngle = AI_DEG_TO_RAD(std::max(std::min(configMaxAngle,(ai_real)175.0),(ai_real)0.0));
 }
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
 void GenVertexNormalsProcess::Execute( aiScene* pScene)
 {
-    DefaultLogger::get()->debug("GenVertexNormalsProcess begin");
+    ASSIMP_LOG_DEBUG("GenVertexNormalsProcess begin");
 
-    if (pScene->mFlags & AI_SCENE_FLAGS_NON_VERBOSE_FORMAT)
+    if (pScene->mFlags & AI_SCENE_FLAGS_NON_VERBOSE_FORMAT) {
         throw DeadlyImportError("Post-processing order mismatch: expecting pseudo-indexed (\"verbose\") vertices here");
+    }
 
     bool bHas = false;
-    for( unsigned int a = 0; a < pScene->mNumMeshes; a++)
-    {
+    for( unsigned int a = 0; a < pScene->mNumMeshes; ++a) {
         if(GenMeshVertexNormals( pScene->mMeshes[a],a))
             bHas = true;
     }
 
     if (bHas)   {
-        DefaultLogger::get()->info("GenVertexNormalsProcess finished. "
+        ASSIMP_LOG_INFO("GenVertexNormalsProcess finished. "
             "Vertex normals have been calculated");
+    } else {
+        ASSIMP_LOG_DEBUG("GenVertexNormalsProcess finished. "
+            "Normals are already there");
     }
-    else DefaultLogger::get()->debug("GenVertexNormalsProcess finished. "
-        "Normals are already there");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -118,12 +121,12 @@ bool GenVertexNormalsProcess::GenMeshVertexNormals (aiMesh* pMesh, unsigned int 
     // are undefined.
     if (!(pMesh->mPrimitiveTypes & (aiPrimitiveType_TRIANGLE | aiPrimitiveType_POLYGON)))
     {
-        DefaultLogger::get()->info("Normal vectors are undefined for line and point meshes");
+        ASSIMP_LOG_INFO("Normal vectors are undefined for line and point meshes");
         return false;
     }
 
     // Allocate the array to hold the output normals
-    const float qnan = std::numeric_limits<float>::quiet_NaN();
+    const float qnan = std::numeric_limits<ai_real>::quiet_NaN();
     pMesh->mNormals = new aiVector3D[pMesh->mNumVertices];
 
     // Compute per-face normals but store them per-vertex
@@ -143,7 +146,7 @@ bool GenVertexNormalsProcess::GenMeshVertexNormals (aiMesh* pMesh, unsigned int 
         const aiVector3D* pV1 = &pMesh->mVertices[face.mIndices[0]];
         const aiVector3D* pV2 = &pMesh->mVertices[face.mIndices[1]];
         const aiVector3D* pV3 = &pMesh->mVertices[face.mIndices[face.mNumIndices-1]];
-        const aiVector3D vNor = ((*pV2 - *pV1) ^ (*pV3 - *pV1));
+        const aiVector3D vNor = ((*pV2 - *pV1) ^ (*pV3 - *pV1)).NormalizeSafe();
 
         for (unsigned int i = 0;i < face.mNumIndices;++i) {
             pMesh->mNormals[face.mIndices[i]] = vNor;
@@ -154,13 +157,13 @@ bool GenVertexNormalsProcess::GenMeshVertexNormals (aiMesh* pMesh, unsigned int 
     // check whether we can reuse the SpatialSort of a previous step.
     SpatialSort* vertexFinder = NULL;
     SpatialSort  _vertexFinder;
-    float posEpsilon = 1e-5f;
+    ai_real posEpsilon = ai_real( 1e-5 );
     if (shared) {
-        std::vector<std::pair<SpatialSort,float> >* avf;
+        std::vector<std::pair<SpatialSort,ai_real> >* avf;
         shared->GetProperty(AI_SPP_SPATIAL_SORT,avf);
         if (avf)
         {
-            std::pair<SpatialSort,float>& blubb = avf->operator [] (meshIndex);
+            std::pair<SpatialSort,ai_real>& blubb = avf->operator [] (meshIndex);
             vertexFinder = &blubb.first;
             posEpsilon = blubb.second;
         }
@@ -205,23 +208,21 @@ bool GenVertexNormalsProcess::GenMeshVertexNormals (aiMesh* pMesh, unsigned int 
     // Slower code path if a smooth angle is set. There are many ways to achieve
     // the effect, this one is the most straightforward one.
     else    {
-        const float fLimit = std::cos(configMaxAngle);
+        const ai_real fLimit = std::cos(configMaxAngle);
         for (unsigned int i = 0; i < pMesh->mNumVertices;++i)   {
             // Get all vertices that share this one ...
             vertexFinder->FindPositions( pMesh->mVertices[i] , posEpsilon, verticesFound);
 
             aiVector3D vr = pMesh->mNormals[i];
-            float vrlen = vr.Length();
 
             aiVector3D pcNor;
             for (unsigned int a = 0; a < verticesFound.size(); ++a) {
                 aiVector3D v = pMesh->mNormals[verticesFound[a]];
 
-                // check whether the angle between the two normals is not too large
-                // HACK: if v.x is qnan the dot product will become qnan, too
-                //   therefore the comparison against fLimit should be false
-                //   in every case.
-                if (v * vr >= fLimit * vrlen * v.Length())
+                // Check whether the angle between the two normals is not too large.
+                // Skip the angle check on our own normal to avoid false negatives
+                // (v*v is not guaranteed to be 1.0 for all unit vectors v)
+                if (is_not_qnan(v.x) && (verticesFound[a] == i || (v * vr >= fLimit)))
                     pcNor += v;
             }
             pcNew[i] = pcNor.NormalizeSafe();

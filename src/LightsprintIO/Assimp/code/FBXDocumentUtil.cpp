@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -49,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FBXUtil.h"
 #include "FBXDocumentUtil.h"
 #include "FBXProperties.h"
-#include <boost/make_shared.hpp>
+
 
 namespace Assimp {
 namespace FBX {
@@ -77,7 +79,7 @@ void DOMError(const std::string& message, const Element* element /*= NULL*/)
 void DOMWarning(const std::string& message, const Token& token)
 {
     if(DefaultLogger::get()) {
-        DefaultLogger::get()->warn(Util::AddTokenText("FBX-DOM",message,&token));
+        ASSIMP_LOG_WARN(Util::AddTokenText("FBX-DOM",message,&token));
     }
 }
 
@@ -89,21 +91,21 @@ void DOMWarning(const std::string& message, const Element* element /*= NULL*/)
         return;
     }
     if(DefaultLogger::get()) {
-        DefaultLogger::get()->warn("FBX-DOM: " + message);
+        ASSIMP_LOG_WARN("FBX-DOM: " + message);
     }
 }
 
 
 // ------------------------------------------------------------------------------------------------
 // fetch a property table and the corresponding property template
-boost::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
+std::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
     const std::string& templateName,
     const Element &element,
     const Scope& sc,
     bool no_warn /*= false*/)
 {
     const Element* const Properties70 = sc["Properties70"];
-    boost::shared_ptr<const PropertyTable> templateProps = boost::shared_ptr<const PropertyTable>(
+    std::shared_ptr<const PropertyTable> templateProps = std::shared_ptr<const PropertyTable>(
         static_cast<const PropertyTable*>(NULL));
 
     if(templateName.length()) {
@@ -121,10 +123,10 @@ boost::shared_ptr<const PropertyTable> GetPropertyTable(const Document& doc,
             return templateProps;
         }
         else {
-            return boost::make_shared<const PropertyTable>();
+            return std::make_shared<const PropertyTable>();
         }
     }
-    return boost::make_shared<const PropertyTable>(*Properties70,templateProps);
+    return std::make_shared<const PropertyTable>(*Properties70,templateProps);
 }
 } // !Util
 } // !FBX

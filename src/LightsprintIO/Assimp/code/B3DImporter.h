@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -43,12 +45,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_B3DIMPORTER_H_INC
 #define AI_B3DIMPORTER_H_INC
 
-#include "../include/assimp/types.h"
-#include "../include/assimp/mesh.h"
-#include "../include/assimp/material.h"
-#include "BaseImporter.h"
+#include <assimp/types.h>
+#include <assimp/mesh.h>
+#include <assimp/material.h>
+#include <assimp/BaseImporter.h>
 
-#include <string>
+#include <memory>
 #include <vector>
 
 struct aiNodeAnim;
@@ -59,6 +61,8 @@ namespace Assimp{
 
 class B3DImporter : public BaseImporter{
 public:
+    B3DImporter() = default;
+    virtual ~B3DImporter();
 
     virtual bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const;
 
@@ -114,15 +118,15 @@ private:
     std::vector<unsigned> _stack;
 
     std::vector<std::string> _textures;
-    std::vector<aiMaterial*> _materials;
+    std::vector<std::unique_ptr<aiMaterial> > _materials;
 
     int _vflags,_tcsets,_tcsize;
     std::vector<Vertex> _vertices;
 
     std::vector<aiNode*> _nodes;
-    std::vector<aiMesh*> _meshes;
-    std::vector<aiNodeAnim*> _nodeAnims;
-    std::vector<aiAnimation*> _animations;
+    std::vector<std::unique_ptr<aiMesh> > _meshes;
+    std::vector<std::unique_ptr<aiNodeAnim> > _nodeAnims;
+    std::vector<std::unique_ptr<aiAnimation> > _animations;
 };
 
 }

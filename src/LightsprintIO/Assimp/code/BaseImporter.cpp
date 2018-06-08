@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -43,43 +45,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @brief Implementation of BaseImporter
  */
 
-#include "BaseImporter.h"
+#include <assimp/BaseImporter.h>
 #include "FileSystemFilter.h"
 #include "Importer.h"
-#include "ByteSwapper.h"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/Importer.hpp"
-#include "../include/assimp/postprocess.h"
+#include <assimp/ByteSwapper.h>
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/importerdesc.h>
 #include <ios>
 #include <list>
-#include <boost/scoped_ptr.hpp>
-#include <boost/scoped_array.hpp>
+#include <memory>
 #include <sstream>
 #include <cctype>
-
 
 using namespace Assimp;
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
 BaseImporter::BaseImporter()
-: m_progress()
-{
+: m_progress() {
     // nothing to do here
 }
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-BaseImporter::~BaseImporter()
-{
+BaseImporter::~BaseImporter() {
     // nothing to do here
 }
 
 // ------------------------------------------------------------------------------------------------
 // Imports the given file and returns the imported data.
-aiScene* BaseImporter::ReadFile(const Importer* pImp, const std::string& pFile, IOSystem* pIOHandler)
-{
+aiScene* BaseImporter::ReadFile(const Importer* pImp, const std::string& pFile, IOSystem* pIOHandler) {
     m_progress = pImp->GetProgressHandler();
+    if (nullptr == m_progress) {
+        return nullptr;
+    }
+
     ai_assert(m_progress);
 
     // Gather configuration properties for this run
@@ -89,23 +91,22 @@ aiScene* BaseImporter::ReadFile(const Importer* pImp, const std::string& pFile, 
     FileSystemFilter filter(pFile,pIOHandler);
 
     // create a scene object to hold the data
-    ScopeGuard<aiScene> sc(new aiScene());
+    std::unique_ptr<aiScene> sc(new aiScene());
 
     // dispatch importing
     try
     {
-        InternReadFile( pFile, sc, &filter);
+        InternReadFile( pFile, sc.get(), &filter);
 
     } catch( const std::exception& err )    {
         // extract error description
         m_ErrorText = err.what();
-        DefaultLogger::get()->error(m_ErrorText);
-        return NULL;
+        ASSIMP_LOG_ERROR(m_ErrorText);
+        return nullptr;
     }
 
     // return what we gathered from the import.
-    sc.dismiss();
-    return sc;
+    return sc.release();
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -115,13 +116,12 @@ void BaseImporter::SetupProperties(const Importer* /*pImp*/)
 }
 
 // ------------------------------------------------------------------------------------------------
-void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
-{
+void BaseImporter::GetExtensionList(std::set<std::string>& extensions) {
     const aiImporterDesc* desc = GetInfo();
-    ai_assert(desc != NULL);
+    ai_assert(desc != nullptr);
 
     const char* ext = desc->mFileExtensions;
-    ai_assert(ext != NULL);
+    ai_assert(ext != nullptr );
 
     const char* last = ext;
     do {
@@ -138,25 +138,26 @@ void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
 }
 
 // ------------------------------------------------------------------------------------------------
-/*static*/ bool BaseImporter::SearchFileHeaderForToken(IOSystem* pIOHandler,
+/*static*/ bool BaseImporter::SearchFileHeaderForToken( IOSystem* pIOHandler,
     const std::string&  pFile,
     const char**        tokens,
     unsigned int        numTokens,
     unsigned int        searchBytes /* = 200 */,
     bool                tokensSol /* false */)
 {
-    ai_assert(NULL != tokens && 0 != numTokens && 0 != searchBytes);
-    if (!pIOHandler)
-        return false;
+    ai_assert( nullptr != tokens );
+    ai_assert( 0 != numTokens );
+    ai_assert( 0 != searchBytes);
 
-    boost::scoped_ptr<IOStream> pStream (pIOHandler->Open(pFile));
+    if ( nullptr == pIOHandler ) {
+        return false;
+    }
+
+    std::unique_ptr<IOStream> pStream (pIOHandler->Open(pFile));
     if (pStream.get() ) {
         // read 200 characters from the file
-        boost::scoped_array<char> _buffer (new char[searchBytes+1 /* for the '\0' */]);
+        std::unique_ptr<char[]> _buffer (new char[searchBytes+1 /* for the '\0' */]);
         char* buffer = _buffer.get();
-        if( NULL == buffer ) {
-            return false;
-        }
 
         const size_t read = pStream->Read(buffer,1,searchBytes);
         if( !read ) {
@@ -178,18 +179,24 @@ void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
         }
         *cur2 = '\0';
 
-        for (unsigned int i = 0; i < numTokens;++i) {
-            ai_assert(NULL != tokens[i]);
-
-
-            const char* r = strstr(buffer,tokens[i]);
+        std::string token;
+        for (unsigned int i = 0; i < numTokens; ++i ) {
+            ai_assert( nullptr != tokens[i] );
+            const size_t len( strlen( tokens[ i ] ) );
+            token.clear();
+            const char *ptr( tokens[ i ] );
+            for ( size_t tokIdx = 0; tokIdx < len; ++tokIdx ) {
+                token.push_back( tolower( *ptr ) );
+                ++ptr;
+            }
+            const char* r = strstr( buffer, token.c_str() );
             if( !r ) {
                 continue;
             }
             // We got a match, either we don't care where it is, or it happens to
             // be in the beginning of the file / line
             if (!tokensSol || r == buffer || r[-1] == '\r' || r[-1] == '\n') {
-                DefaultLogger::get()->debug(std::string("Found positive match for header keyword: ") + tokens[i]);
+                ASSIMP_LOG_DEBUG_F( "Found positive match for header keyword: ", tokens[i] );
                 return true;
             }
         }
@@ -245,7 +252,8 @@ void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
 /* static */ bool BaseImporter::CheckMagicToken(IOSystem* pIOHandler, const std::string& pFile,
     const void* _magic, unsigned int num, unsigned int offset, unsigned int size)
 {
-    ai_assert(size <= 16 && _magic);
+    ai_assert( size <= 16 );
+    ai_assert( _magic );
 
     if (!pIOHandler) {
         return false;
@@ -256,7 +264,7 @@ void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
         const uint32_t* magic_u32;
     };
     magic = reinterpret_cast<const char*>(_magic);
-    boost::scoped_ptr<IOStream> pStream (pIOHandler->Open(pFile));
+    std::unique_ptr<IOStream> pStream (pIOHandler->Open(pFile));
     if (pStream.get() ) {
 
         // skip to offset
@@ -302,41 +310,31 @@ void BaseImporter::GetExtensionList(std::set<std::string>& extensions)
     return false;
 }
 
-#include "../contrib/ConvertUTF/ConvertUTF.h"
-
-// ------------------------------------------------------------------------------------------------
-void ReportResult(ConversionResult res)
-{
-    if(res == sourceExhausted) {
-        DefaultLogger::get()->error("Source ends with incomplete character sequence, transformation to UTF-8 fails");
-    }
-    else if(res == sourceIllegal) {
-        DefaultLogger::get()->error("Source contains illegal character sequence, transformation to UTF-8 fails");
-    }
-}
+#include "../contrib/utf8cpp/source/utf8.h"
 
 // ------------------------------------------------------------------------------------------------
 // Convert to UTF8 data
 void BaseImporter::ConvertToUTF8(std::vector<char>& data)
 {
-    ConversionResult result;
+    //ConversionResult result;
     if(data.size() < 8) {
         throw DeadlyImportError("File is too small");
     }
 
     // UTF 8 with BOM
     if((uint8_t)data[0] == 0xEF && (uint8_t)data[1] == 0xBB && (uint8_t)data[2] == 0xBF) {
-        DefaultLogger::get()->debug("Found UTF-8 BOM ...");
+        ASSIMP_LOG_DEBUG("Found UTF-8 BOM ...");
 
         std::copy(data.begin()+3,data.end(),data.begin());
         data.resize(data.size()-3);
         return;
     }
-
+    
+    
     // UTF 32 BE with BOM
     if(*((uint32_t*)&data.front()) == 0xFFFE0000) {
 
-        // swap the endianess ..
+        // swap the endianness ..
         for(uint32_t* p = (uint32_t*)&data.front(), *end = (uint32_t*)&data.back(); p <= end; ++p) {
             AI_SWAP4P(p);
         }
@@ -344,30 +342,19 @@ void BaseImporter::ConvertToUTF8(std::vector<char>& data)
 
     // UTF 32 LE with BOM
     if(*((uint32_t*)&data.front()) == 0x0000FFFE) {
-        DefaultLogger::get()->debug("Found UTF-32 BOM ...");
+        ASSIMP_LOG_DEBUG("Found UTF-32 BOM ...");
 
-        const uint32_t* sstart = (uint32_t*)&data.front()+1, *send = (uint32_t*)&data.back()+1;
-        char* dstart,*dend;
         std::vector<char> output;
-        do {
-            output.resize(output.size()?output.size()*3/2:data.size()/2);
-            dstart = &output.front(),dend = &output.back()+1;
-
-            result = ConvertUTF32toUTF8((const UTF32**)&sstart,(const UTF32*)send,(UTF8**)&dstart,(UTF8*)dend,lenientConversion);
-        } while(result == targetExhausted);
-
-        ReportResult(result);
-
-        // copy to output buffer.
-        const size_t outlen = (size_t)(dstart-&output.front());
-        data.assign(output.begin(),output.begin()+outlen);
+        int *ptr = (int*)&data[ 0 ];
+        int *end = ptr + ( data.size() / sizeof(int) ) +1;
+        utf8::utf32to8( ptr, end, back_inserter(output));
         return;
     }
 
     // UTF 16 BE with BOM
     if(*((uint16_t*)&data.front()) == 0xFFFE) {
 
-        // swap the endianess ..
+        // swap the endianness ..
         for(uint16_t* p = (uint16_t*)&data.front(), *end = (uint16_t*)&data.back(); p <= end; ++p) {
             ByteSwap::Swap2(p);
         }
@@ -375,23 +362,10 @@ void BaseImporter::ConvertToUTF8(std::vector<char>& data)
 
     // UTF 16 LE with BOM
     if(*((uint16_t*)&data.front()) == 0xFEFF) {
-        DefaultLogger::get()->debug("Found UTF-16 BOM ...");
+        ASSIMP_LOG_DEBUG("Found UTF-16 BOM ...");
 
-        const uint16_t* sstart = (uint16_t*)&data.front()+1, *send = (uint16_t*)(&data.back()+1);
-        char* dstart,*dend;
-        std::vector<char> output;
-        do {
-            output.resize(output.size()?output.size()*3/2:data.size()*3/4);
-            dstart = &output.front(),dend = &output.back()+1;
-
-            result = ConvertUTF16toUTF8((const UTF16**)&sstart,(const UTF16*)send,(UTF8**)&dstart,(UTF8*)dend,lenientConversion);
-        } while(result == targetExhausted);
-
-        ReportResult(result);
-
-        // copy to output buffer.
-        const size_t outlen = (size_t)(dstart-&output.front());
-        data.assign(output.begin(),output.begin()+outlen);
+        std::vector<unsigned char> output;
+        utf8::utf16to8(data.begin(), data.end(), back_inserter(output));
         return;
     }
 }
@@ -413,16 +387,14 @@ void BaseImporter::ConvertUTF8toISO8859_1(std::string& data)
                 data[j] = ((unsigned char) data[++i] + 0x40);
             } else {
                 std::stringstream stream;
-
                 stream << "UTF8 code " << std::hex << data[i] << data[i + 1] << " can not be converted into ISA-8859-1.";
-
-                DefaultLogger::get()->error(stream.str());
+                ASSIMP_LOG_ERROR( stream.str() );
 
                 data[j++] = data[i++];
                 data[j] = data[i];
             }
         } else {
-            DefaultLogger::get()->error("UTF8 code but only one character remaining");
+            ASSIMP_LOG_ERROR("UTF8 code but only one character remaining");
 
             data[j] = data[i];
         }
@@ -438,7 +410,7 @@ void BaseImporter::TextFileToBuffer(IOStream* stream,
     std::vector<char>& data,
     TextFileMode mode)
 {
-    ai_assert(NULL != stream);
+    ai_assert(nullptr != stream);
 
     const size_t fileSize = stream->FileSize();
     if (mode == FORBID_EMPTY) {
@@ -462,41 +434,53 @@ void BaseImporter::TextFileToBuffer(IOStream* stream,
 }
 
 // ------------------------------------------------------------------------------------------------
-namespace Assimp
-{
+namespace Assimp {
     // Represents an import request
-    struct LoadRequest
-    {
+    struct LoadRequest {
         LoadRequest(const std::string& _file, unsigned int _flags,const BatchLoader::PropertyMap* _map, unsigned int _id)
-            : file(_file), flags(_flags), refCnt(1),scene(NULL), loaded(false), id(_id)
-        {
-            if (_map)
+        : file(_file)
+        , flags(_flags)
+        , refCnt(1)
+        , scene(NULL)
+        , loaded(false)
+        , id(_id) {
+            if ( _map ) {
                 map = *_map;
+            }
         }
 
-        const std::string file;
-        unsigned int flags;
-        unsigned int refCnt;
-        aiScene* scene;
-        bool loaded;
-        BatchLoader::PropertyMap map;
-        unsigned int id;
-
-        bool operator== (const std::string& f) {
+        bool operator== ( const std::string& f ) const {
             return file == f;
         }
+
+        const std::string        file;
+        unsigned int             flags;
+        unsigned int             refCnt;
+        aiScene                 *scene;
+        bool                     loaded;
+        BatchLoader::PropertyMap map;
+        unsigned int             id;
     };
 }
 
 // ------------------------------------------------------------------------------------------------
 // BatchLoader::pimpl data structure
-struct Assimp::BatchData
-{
-    BatchData()
-        : pIOSystem()
-        , pImporter()
-        , next_id(0xffff)
-    {}
+struct Assimp::BatchData {
+    BatchData( IOSystem* pIO, bool validate )
+    : pIOSystem( pIO )
+    , pImporter( nullptr )
+    , next_id(0xffff)
+    , validate( validate ) {
+        ai_assert( nullptr != pIO );
+        
+        pImporter = new Importer();
+        pImporter->SetIOHandler( pIO );
+    }
+
+    ~BatchData() {
+        pImporter->SetIOHandler( nullptr ); /* get pointer back into our possession */
+        delete pImporter;
+    }
 
     // IO system to be used for all imports
     IOSystem* pIOSystem;
@@ -512,53 +496,58 @@ struct Assimp::BatchData
 
     // Id for next item
     unsigned int next_id;
+
+    // Validation enabled state
+    bool validate;
 };
 
+typedef std::list<LoadRequest>::iterator LoadReqIt;
+
 // ------------------------------------------------------------------------------------------------
-BatchLoader::BatchLoader(IOSystem* pIO)
-{
-    ai_assert(NULL != pIO);
+BatchLoader::BatchLoader(IOSystem* pIO, bool validate ) {
+    ai_assert(nullptr != pIO);
 
-    data = new BatchData();
-    data->pIOSystem = pIO;
-
-    data->pImporter = new Importer();
-    data->pImporter->SetIOHandler(data->pIOSystem);
+    m_data = new BatchData( pIO, validate );
 }
 
 // ------------------------------------------------------------------------------------------------
 BatchLoader::~BatchLoader()
 {
-    // delete all scenes wthat have not been polled by the user
-    for (std::list<LoadRequest>::iterator it = data->requests.begin();it != data->requests.end(); ++it) {
-
+    // delete all scenes what have not been polled by the user
+    for ( LoadReqIt it = m_data->requests.begin();it != m_data->requests.end(); ++it) {
         delete (*it).scene;
     }
-    data->pImporter->SetIOHandler(NULL); /* get pointer back into our posession */
-    delete data->pImporter;
-    delete data;
+    delete m_data;
 }
 
+// ------------------------------------------------------------------------------------------------
+void BatchLoader::setValidation( bool enabled ) {
+    m_data->validate = enabled;
+}
 
 // ------------------------------------------------------------------------------------------------
-unsigned int BatchLoader::AddLoadRequest    (const std::string& file,
+bool BatchLoader::getValidation() const {
+    return m_data->validate;
+}
+
+// ------------------------------------------------------------------------------------------------
+unsigned int BatchLoader::AddLoadRequest(const std::string& file,
     unsigned int steps /*= 0*/, const PropertyMap* map /*= NULL*/)
 {
     ai_assert(!file.empty());
 
     // check whether we have this loading request already
-    std::list<LoadRequest>::iterator it;
-    for (it = data->requests.begin();it != data->requests.end(); ++it)  {
-
+    for ( LoadReqIt it = m_data->requests.begin();it != m_data->requests.end(); ++it)  {
         // Call IOSystem's path comparison function here
-        if (data->pIOSystem->ComparePaths((*it).file,file)) {
-
+        if ( m_data->pIOSystem->ComparePaths((*it).file,file)) {
             if (map) {
-                if (!((*it).map == *map))
+                if ( !( ( *it ).map == *map ) ) {
                     continue;
+                }
             }
-            else if (!(*it).map.empty())
+            else if ( !( *it ).map.empty() ) {
                 continue;
+            }
 
             (*it).refCnt++;
             return (*it).id;
@@ -566,39 +555,38 @@ unsigned int BatchLoader::AddLoadRequest    (const std::string& file,
     }
 
     // no, we don't have it. So add it to the queue ...
-    data->requests.push_back(LoadRequest(file,steps,map,data->next_id));
-    return data->next_id++;
+    m_data->requests.push_back(LoadRequest(file,steps,map, m_data->next_id));
+    return m_data->next_id++;
 }
 
 // ------------------------------------------------------------------------------------------------
-aiScene* BatchLoader::GetImport     (unsigned int which)
+aiScene* BatchLoader::GetImport( unsigned int which )
 {
-    for (std::list<LoadRequest>::iterator it = data->requests.begin();it != data->requests.end(); ++it) {
-
+    for ( LoadReqIt it = m_data->requests.begin();it != m_data->requests.end(); ++it) {
         if ((*it).id == which && (*it).loaded)  {
-
             aiScene* sc = (*it).scene;
             if (!(--(*it).refCnt))  {
-                data->requests.erase(it);
+                m_data->requests.erase(it);
             }
             return sc;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------
 void BatchLoader::LoadAll()
 {
     // no threaded implementation for the moment
-    for (std::list<LoadRequest>::iterator it = data->requests.begin();it != data->requests.end(); ++it) {
+    for ( LoadReqIt it = m_data->requests.begin();it != m_data->requests.end(); ++it) {
         // force validation in debug builds
         unsigned int pp = (*it).flags;
-#ifdef ASSIMP_BUILD_DEBUG
-        pp |= aiProcess_ValidateDataStructure;
-#endif
+        if ( m_data->validate ) {
+            pp |= aiProcess_ValidateDataStructure;
+        }
+
         // setup config properties if necessary
-        ImporterPimpl* pimpl = data->pImporter->Pimpl();
+        ImporterPimpl* pimpl = m_data->pImporter->Pimpl();
         pimpl->mFloatProperties  = (*it).map.floats;
         pimpl->mIntProperties    = (*it).map.ints;
         pimpl->mStringProperties = (*it).map.strings;
@@ -606,13 +594,13 @@ void BatchLoader::LoadAll()
 
         if (!DefaultLogger::isNullLogger())
         {
-            DefaultLogger::get()->info("%%% BEGIN EXTERNAL FILE %%%");
-            DefaultLogger::get()->info("File: " + (*it).file);
+            ASSIMP_LOG_INFO("%%% BEGIN EXTERNAL FILE %%%");
+            ASSIMP_LOG_INFO_F("File: ", (*it).file);
         }
-        data->pImporter->ReadFile((*it).file,pp);
-        (*it).scene = data->pImporter->GetOrphanedScene();
+        m_data->pImporter->ReadFile((*it).file,pp);
+        (*it).scene = m_data->pImporter->GetOrphanedScene();
         (*it).loaded = true;
 
-        DefaultLogger::get()->info("%%% END EXTERNAL FILE %%%");
+        ASSIMP_LOG_INFO("%%% END EXTERNAL FILE %%%");
     }
 }

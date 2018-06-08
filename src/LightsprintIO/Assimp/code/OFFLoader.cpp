@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -48,13 +50,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // internal headers
 #include "OFFLoader.h"
-#include "ParsingUtils.h"
-#include "fast_atof.h"
-#include <boost/scoped_ptr.hpp>
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/DefaultLogger.hpp"
-
+#include <assimp/ParsingUtils.h>
+#include <assimp/fast_atof.h>
+#include <memory>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/importerdesc.h>
 
 using namespace Assimp;
 
@@ -93,7 +95,7 @@ bool OFFImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool 
     {
         if (!pIOHandler)return true;
         const char* tokens[] = {"off"};
-        return SearchFileHeaderForToken(pIOHandler,pFile,tokens,1);
+        return SearchFileHeaderForToken(pIOHandler,pFile,tokens,1,3);
     }
     return false;
 }
@@ -109,7 +111,7 @@ const aiImporterDesc* OFFImporter::GetInfo () const
 void OFFImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-    boost::scoped_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
+    std::unique_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
 
     // Check whether we can read from the file
     if( file.get() == NULL) {
@@ -155,15 +157,15 @@ void OFFImporter::InternReadFile( const std::string& pFile,
     {
         if(!GetNextLine(buffer,line))
         {
-            DefaultLogger::get()->error("OFF: The number of verts in the header is incorrect");
+            ASSIMP_LOG_ERROR("OFF: The number of verts in the header is incorrect");
             break;
         }
         aiVector3D& v = tempPositions[i];
 
         sz = line; SkipSpaces(&sz);
-        sz = fast_atoreal_move<float>(sz,(float&)v.x); SkipSpaces(&sz);
-        sz = fast_atoreal_move<float>(sz,(float&)v.y); SkipSpaces(&sz);
-        fast_atoreal_move<float>(sz,(float&)v.z);
+        sz = fast_atoreal_move<ai_real>(sz,(ai_real&)v.x); SkipSpaces(&sz);
+        sz = fast_atoreal_move<ai_real>(sz,(ai_real&)v.y); SkipSpaces(&sz);
+        fast_atoreal_move<ai_real>(sz,(ai_real&)v.z);
     }
 
 
@@ -173,14 +175,14 @@ void OFFImporter::InternReadFile( const std::string& pFile,
     {
         if(!GetNextLine(buffer,line))
         {
-            DefaultLogger::get()->error("OFF: The number of faces in the header is incorrect");
+            ASSIMP_LOG_ERROR("OFF: The number of faces in the header is incorrect");
             break;
         }
         sz = line;SkipSpaces(&sz);
         faces->mNumIndices = strtoul10(sz,&sz);
         if(!(faces->mNumIndices) || faces->mNumIndices > 9)
         {
-            DefaultLogger::get()->error("OFF: Faces with zero indices aren't allowed");
+            ASSIMP_LOG_ERROR("OFF: Faces with zero indices aren't allowed");
             --mesh->mNumFaces;
             continue;
         }
@@ -215,7 +217,7 @@ void OFFImporter::InternReadFile( const std::string& pFile,
             idx = strtoul10(sz,&sz);
             if ((idx) >= numVertices)
             {
-                DefaultLogger::get()->error("OFF: Vertex index is out of range");
+                ASSIMP_LOG_ERROR("OFF: Vertex index is out of range");
                 idx = numVertices-1;
             }
             faces->mIndices[m] = p++;
@@ -242,7 +244,7 @@ void OFFImporter::InternReadFile( const std::string& pFile,
     pScene->mMaterials = new aiMaterial*[pScene->mNumMaterials];
     aiMaterial* pcMat = new aiMaterial();
 
-    aiColor4D clr(0.6f,0.6f,0.6f,1.0f);
+    aiColor4D clr( ai_real( 0.6 ), ai_real( 0.6 ), ai_real( 0.6 ), ai_real( 1.0 ) );
     pcMat->AddProperty(&clr,1,AI_MATKEY_COLOR_DIFFUSE);
     pScene->mMaterials[0] = pcMat;
 

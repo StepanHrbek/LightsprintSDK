@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -48,24 +50,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_BUILD_NO_IRR_IMPORTER
 
 #include "IRRLoader.h"
-#include "ParsingUtils.h"
-#include "fast_atof.h"
-#include "GenericProperty.h"
+#include <assimp/ParsingUtils.h>
+#include <assimp/fast_atof.h>
+#include <assimp/GenericProperty.h>
 
-#include "SceneCombiner.h"
-#include "StandardShapes.h"
+#include <assimp/SceneCombiner.h>
+#include <assimp/StandardShapes.h>
 #include "Importer.h"
 
-// We need boost::common_factor to compute the lcm/gcd of a number
-#include <boost/math/common_factor_rt.hpp>
-#include <boost/scoped_ptr.hpp>
-#include "../include/assimp/DefaultLogger.hpp"
-#include "../include/assimp/mesh.h"
-#include "../include/assimp/material.h"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/postprocess.h"
-
+// We need MathFunctions.h to compute the lcm/gcd of a number
+#include <assimp/MathFunctions.h>
+#include <memory>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/mesh.h>
+#include <assimp/material.h>
+#include <assimp/scene.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/importerdesc.h>
 
 using namespace Assimp;
 using namespace irr;
@@ -98,26 +100,22 @@ IRRImporter::~IRRImporter()
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool IRRImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
-{
-    /* NOTE: A simple check for the file extension is not enough
-     * here. Irrmesh and irr are easy, but xml is too generic
-     * and could be collada, too. So we need to open the file and
-     * search for typical tokens.
-     */
+bool IRRImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const {
     const std::string extension = GetExtension(pFile);
-
-    if (extension == "irr")return true;
-    else if (extension == "xml" || checkSig)
-    {
+    if ( extension == "irr" ) {
+        return true;
+    } else if (extension == "xml" || checkSig) {
         /*  If CanRead() is called in order to check whether we
          *  support a specific file extension in general pIOHandler
          *  might be NULL and it's our duty to return true here.
          */
-        if (!pIOHandler)return true;
+        if ( nullptr == pIOHandler ) {
+            return true;
+        }
         const char* tokens[] = {"irr_scene"};
         return SearchFileHeaderForToken(pIOHandler,pFile,tokens,1);
     }
+
     return false;
 }
 
@@ -133,7 +131,7 @@ void IRRImporter::SetupProperties(const Importer* pImp)
     // read the output frame rate of all node animation channels
     fps = pImp->GetPropertyInteger(AI_CONFIG_IMPORT_IRR_ANIM_FPS,100);
     if (fps < 10.)  {
-        DefaultLogger::get()->error("IRR: Invalid FPS configuration");
+        ASSIMP_LOG_ERROR("IRR: Invalid FPS configuration");
         fps = 100;
     }
 
@@ -207,55 +205,55 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
     // by six single planes with different textures, so we'll
     // need to build six meshes.
 
-    const float l = 10.f; // the size used by Irrlicht
+    const ai_real l = 10.0; // the size used by Irrlicht
 
     // FRONT SIDE
     meshes.push_back( BuildSingleQuadMesh(
-        SkyboxVertex(-l,-l,-l,  0, 0, 1,   1.f,1.f),
-        SkyboxVertex( l,-l,-l,  0, 0, 1,   0.f,1.f),
-        SkyboxVertex( l, l,-l,  0, 0, 1,   0.f,0.f),
-        SkyboxVertex(-l, l,-l,  0, 0, 1,   1.f,0.f)) );
-    meshes.back()->mMaterialIndex = materials.size()-6u;
+        SkyboxVertex(-l,-l,-l,  0, 0, 1,   1.0,1.0),
+        SkyboxVertex( l,-l,-l,  0, 0, 1,   0.0,1.0),
+        SkyboxVertex( l, l,-l,  0, 0, 1,   0.0,0.0),
+        SkyboxVertex(-l, l,-l,  0, 0, 1,   1.0,0.0)) );
+    meshes.back()->mMaterialIndex = static_cast<unsigned int>(materials.size()-6u);
 
     // LEFT SIDE
     meshes.push_back( BuildSingleQuadMesh(
-        SkyboxVertex( l,-l,-l,  -1, 0, 0,   1.f,1.f),
-        SkyboxVertex( l,-l, l,  -1, 0, 0,   0.f,1.f),
-        SkyboxVertex( l, l, l,  -1, 0, 0,   0.f,0.f),
-        SkyboxVertex( l, l,-l,  -1, 0, 0,   1.f,0.f)) );
-    meshes.back()->mMaterialIndex = materials.size()-5u;
+        SkyboxVertex( l,-l,-l,  -1, 0, 0,   1.0,1.0),
+        SkyboxVertex( l,-l, l,  -1, 0, 0,   0.0,1.0),
+        SkyboxVertex( l, l, l,  -1, 0, 0,   0.0,0.0),
+        SkyboxVertex( l, l,-l,  -1, 0, 0,   1.0,0.0)) );
+    meshes.back()->mMaterialIndex = static_cast<unsigned int>(materials.size()-5u);
 
     // BACK SIDE
     meshes.push_back( BuildSingleQuadMesh(
-        SkyboxVertex( l,-l, l,  0, 0, -1,   1.f,1.f),
-        SkyboxVertex(-l,-l, l,  0, 0, -1,   0.f,1.f),
-        SkyboxVertex(-l, l, l,  0, 0, -1,   0.f,0.f),
-        SkyboxVertex( l, l, l,  0, 0, -1,   1.f,0.f)) );
-    meshes.back()->mMaterialIndex = materials.size()-4u;
+        SkyboxVertex( l,-l, l,  0, 0, -1,   1.0,1.0),
+        SkyboxVertex(-l,-l, l,  0, 0, -1,   0.0,1.0),
+        SkyboxVertex(-l, l, l,  0, 0, -1,   0.0,0.0),
+        SkyboxVertex( l, l, l,  0, 0, -1,   1.0,0.0)) );
+    meshes.back()->mMaterialIndex = static_cast<unsigned int>(materials.size()-4u);
 
     // RIGHT SIDE
     meshes.push_back( BuildSingleQuadMesh(
-        SkyboxVertex(-l,-l, l,  1, 0, 0,   1.f,1.f),
-        SkyboxVertex(-l,-l,-l,  1, 0, 0,   0.f,1.f),
-        SkyboxVertex(-l, l,-l,  1, 0, 0,   0.f,0.f),
-        SkyboxVertex(-l, l, l,  1, 0, 0,   1.f,0.f)) );
-    meshes.back()->mMaterialIndex = materials.size()-3u;
+        SkyboxVertex(-l,-l, l,  1, 0, 0,   1.0,1.0),
+        SkyboxVertex(-l,-l,-l,  1, 0, 0,   0.0,1.0),
+        SkyboxVertex(-l, l,-l,  1, 0, 0,   0.0,0.0),
+        SkyboxVertex(-l, l, l,  1, 0, 0,   1.0,0.0)) );
+    meshes.back()->mMaterialIndex = static_cast<unsigned int>(materials.size()-3u);
 
     // TOP SIDE
     meshes.push_back( BuildSingleQuadMesh(
-        SkyboxVertex( l, l,-l,  0, -1, 0,   1.f,1.f),
-        SkyboxVertex( l, l, l,  0, -1, 0,   0.f,1.f),
-        SkyboxVertex(-l, l, l,  0, -1, 0,   0.f,0.f),
-        SkyboxVertex(-l, l,-l,  0, -1, 0,   1.f,0.f)) );
-    meshes.back()->mMaterialIndex = materials.size()-2u;
+        SkyboxVertex( l, l,-l,  0, -1, 0,   1.0,1.0),
+        SkyboxVertex( l, l, l,  0, -1, 0,   0.0,1.0),
+        SkyboxVertex(-l, l, l,  0, -1, 0,   0.0,0.0),
+        SkyboxVertex(-l, l,-l,  0, -1, 0,   1.0,0.0)) );
+    meshes.back()->mMaterialIndex = static_cast<unsigned int>(materials.size()-2u);
 
     // BOTTOM SIDE
     meshes.push_back( BuildSingleQuadMesh(
-        SkyboxVertex( l,-l, l,  0,  1, 0,   0.f,0.f),
-        SkyboxVertex( l,-l,-l,  0,  1, 0,   1.f,0.f),
-        SkyboxVertex(-l,-l,-l,  0,  1, 0,   1.f,1.f),
-        SkyboxVertex(-l,-l, l,  0,  1, 0,   0.f,1.f)) );
-    meshes.back()->mMaterialIndex = materials.size()-1u;
+        SkyboxVertex( l,-l, l,  0,  1, 0,   0.0,0.0),
+        SkyboxVertex( l,-l,-l,  0,  1, 0,   1.0,0.0),
+        SkyboxVertex(-l,-l,-l,  0,  1, 0,   1.0,1.0),
+        SkyboxVertex(-l,-l, l,  0,  1, 0,   0.0,1.0)) );
+    meshes.back()->mMaterialIndex = static_cast<unsigned int>(materials.size()-1u);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -269,20 +267,21 @@ void IRRImporter::CopyMaterial(std::vector<aiMaterial*>& materials,
         if (UINT_MAX == defMatIdx)
         {
             defMatIdx = (unsigned int)materials.size();
-            aiMaterial* mat = new aiMaterial();
+            //TODO: add this materials to someone?
+            /*aiMaterial* mat = new aiMaterial();
 
             aiString s;
             s.Set(AI_DEFAULT_MATERIAL_NAME);
             mat->AddProperty(&s,AI_MATKEY_NAME);
 
             aiColor3D c(0.6f,0.6f,0.6f);
-            mat->AddProperty(&c,1,AI_MATKEY_COLOR_DIFFUSE);
+            mat->AddProperty(&c,1,AI_MATKEY_COLOR_DIFFUSE);*/
         }
         mesh->mMaterialIndex = defMatIdx;
         return;
     }
     else if (inmaterials.size() > 1)    {
-        DefaultLogger::get()->info("IRR: Skipping additional materials");
+        ASSIMP_LOG_INFO("IRR: Skipping additional materials");
     }
 
     mesh->mMaterialIndex = (unsigned int)materials.size();
@@ -320,17 +319,18 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
     if (root->animators.empty()) {
         return;
     }
-    unsigned int total = 0;
+    unsigned int total( 0 );
     for (std::list<Animator>::iterator it = root->animators.begin();it != root->animators.end(); ++it)  {
         if ((*it).type == Animator::UNKNOWN || (*it).type == Animator::OTHER)   {
-            DefaultLogger::get()->warn("IRR: Skipping unknown or unsupported animator");
+            ASSIMP_LOG_WARN("IRR: Skipping unknown or unsupported animator");
             continue;
         }
         ++total;
     }
-    if (!total)return;
-    else if (1 == total)    {
-        DefaultLogger::get()->warn("IRR: Adding dummy nodes to simulate multiple animators");
+    if (!total) {
+        return;
+    } else if (1 == total)    {
+        ASSIMP_LOG_WARN("IRR: Adding dummy nodes to simulate multiple animators");
     }
 
     // NOTE: 1 tick == i millisecond
@@ -392,7 +392,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                 angles[1] %= 360;
                 angles[2] %= 360;
 
-                if ((angles[0]*angles[1]) && (angles[1]*angles[2]))
+                if ( (angles[0]*angles[1]) != 0 && (angles[1]*angles[2]) != 0 )
                 {
                     FindSuitableMultiple(angles[0]);
                     FindSuitableMultiple(angles[1]);
@@ -402,13 +402,13 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                 int lcm = 360;
 
                 if (angles[0])
-                    lcm  = boost::math::lcm(lcm,angles[0]);
+                    lcm  = Math::lcm(lcm,angles[0]);
 
                 if (angles[1])
-                    lcm  = boost::math::lcm(lcm,angles[1]);
+                    lcm  = Math::lcm(lcm,angles[1]);
 
                 if (angles[2])
-                    lcm  = boost::math::lcm(lcm,angles[2]);
+                    lcm  = Math::lcm(lcm,angles[2]);
 
                 if (360 == lcm)
                     break;
@@ -479,7 +479,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                     aiVectorKey& key = anim->mPositionKeys[i];
                     key.mTime = i * tdelta;
 
-                    const float t = (float) ( in.speed * key.mTime );
+                    const ai_real t = (ai_real) ( in.speed * key.mTime );
                     key.mValue = in.circleCenter  + in.circleRadius * ((vecU * std::cos(t)) + (vecV * std::sin(t)));
                 }
 
@@ -498,7 +498,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                 anim->mPositionKeys = new aiVectorKey[anim->mNumPositionKeys];
 
                 aiVector3D diff = in.direction - in.circleCenter;
-                const float lengthOfWay = diff.Length();
+                const ai_real lengthOfWay = diff.Length();
                 diff.Normalize();
 
                 const double timeFactor = lengthOfWay / in.timeForWay;
@@ -507,7 +507,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                 for (unsigned int i = 0; i < anim->mNumPositionKeys;++i)    {
                     aiVectorKey& key = anim->mPositionKeys[i];
                     key.mTime = i * tdelta;
-                    key.mValue = in.circleCenter + diff * float(timeFactor * key.mTime);
+                    key.mValue = in.circleCenter + diff * ai_real(timeFactor * key.mTime);
                 }
             }
             break;
@@ -519,9 +519,9 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                 const int size = (int)in.splineKeys.size();
                 if (!size)  {
                     // We have no point in the spline. That's bad. Really bad.
-                    DefaultLogger::get()->warn("IRR: Spline animators with no points defined");
+                    ASSIMP_LOG_WARN("IRR: Spline animators with no points defined");
 
-                    delete anim;anim = NULL;
+                    delete anim;anim = nullptr;
                     break;
                 }
                 else if (size == 1) {
@@ -542,8 +542,8 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                 {
                     aiVectorKey& key = anim->mPositionKeys[i];
 
-                    const float dt = (i * in.speed * 0.001f );
-                    const float u = dt - std::floor(dt);
+                    const ai_real dt = (i * in.speed * ai_real( 0.001 ) );
+                    const ai_real u = dt - std::floor(dt);
                     const int idx = (int)std::floor(dt) % size;
 
                     // get the 4 current points to evaluate the spline
@@ -553,13 +553,13 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
                     const aiVector3D& p3 = in.splineKeys[ ClampSpline( idx + 2, size ) ].mValue;
 
                     // compute polynomials
-                    const float u2 = u*u;
-                    const float u3 = u2*2;
+                    const ai_real u2 = u*u;
+                    const ai_real u3 = u2*2;
 
-                    const float h1 = 2.0f * u3 - 3.0f * u2 + 1.0f;
-                    const float h2 = -2.0f * u3 + 3.0f * u3;
-                    const float h3 = u3 - 2.0f * u3;
-                    const float h4 = u3 - u2;
+                    const ai_real h1 = ai_real( 2.0 ) * u3 - ai_real( 3.0 ) * u2 + ai_real( 1.0 );
+                    const ai_real h2 = ai_real( -2.0 ) * u3 + ai_real( 3.0 ) * u3;
+                    const ai_real h3 = u3 - ai_real( 2.0 ) * u3;
+                    const ai_real h4 = u3 - u2;
 
                     // compute the spline tangents
                     const aiVector3D t1 = ( p2 - p0 ) * in.tightness;
@@ -641,7 +641,7 @@ void SetupMapping (aiMaterial* mat, aiTextureMapping mode, const aiVector3D& axi
         delete[] mat->mProperties;
         mat->mProperties = new aiMaterialProperty*[p.size()*2];
 
-        mat->mNumAllocated = p.size()*2;
+        mat->mNumAllocated = static_cast<unsigned int>(p.size()*2);
     }
     mat->mNumProperties = (unsigned int)p.size();
     ::memcpy(mat->mProperties,&p[0],sizeof(void*)*mat->mNumProperties);
@@ -673,7 +673,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
             // graph we're currently building
             aiScene* scene = batch.GetImport(root->id);
             if (!scene) {
-                DefaultLogger::get()->error("IRR: Unable to load external file: " + root->meshPath);
+                ASSIMP_LOG_ERROR("IRR: Unable to load external file: " + root->meshPath);
                 break;
             }
             attach.push_back(AttachmentInfo(scene,rootOut));
@@ -684,7 +684,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
             // should be equal. If they are not, we can impossibly
             // do this  ...
             if (root->materials.size() != (unsigned int)scene->mNumMaterials)   {
-                DefaultLogger::get()->warn("IRR: Failed to match imported materials "
+                ASSIMP_LOG_WARN("IRR: Failed to match imported materials "
                     "with the materials found in the IRR scene file");
 
                 break;
@@ -723,7 +723,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
                         }
                     }
                     if (bdo)    {
-                        DefaultLogger::get()->info("IRR: Replacing mesh vertex alpha with common opacity");
+                        ASSIMP_LOG_INFO("IRR: Replacing mesh vertex alpha with common opacity");
 
                         for (unsigned int a = 0; a < mesh->mNumVertices;++a)
                             mesh->mColors[0][a].a = 1.f;
@@ -807,7 +807,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
         {
             // A skybox is defined by six materials
             if (root->materials.size() < 6) {
-                DefaultLogger::get()->error("IRR: There should be six materials for a skybox");
+                ASSIMP_LOG_ERROR("IRR: There should be six materials for a skybox");
                 break;
             }
 
@@ -824,7 +824,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
             // for IRR skyboxes. We add a 'IRR.SkyBox_' prefix to the node.
             // *************************************************************
             root->name = "IRR.SkyBox_" + root->name;
-            DefaultLogger::get()->info("IRR: Loading skybox, this will "
+            ASSIMP_LOG_INFO("IRR: Loading skybox, this will "
                 "require special handling to be displayed correctly");
         }
         break;
@@ -832,7 +832,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
     case Node::TERRAIN:
         {
             // to support terrains, we'd need to have a texture decoder
-            DefaultLogger::get()->error("IRR: Unsupported node - TERRAIN");
+            ASSIMP_LOG_ERROR("IRR: Unsupported node - TERRAIN");
         }
         break;
     default:
@@ -902,7 +902,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
 void IRRImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-    boost::scoped_ptr<IOStream> file( pIOHandler->Open( pFile));
+    std::unique_ptr<IOStream> file( pIOHandler->Open( pFile));
 
     // Check whether we can read from the file
     if( file.get() == NULL)
@@ -1011,11 +1011,11 @@ void IRRImporter::InternReadFile( const std::string& pFile,
                 }
                 else if (!ASSIMP_stricmp(sz,"billBoard"))   {
                     // We don't support billboards, so ignore them
-                    DefaultLogger::get()->error("IRR: Billboards are not supported by Assimp");
+                    ASSIMP_LOG_ERROR("IRR: Billboards are not supported by Assimp");
                     nd = new Node(Node::DUMMY);
                 }
                 else    {
-                    DefaultLogger::get()->warn("IRR: Found unknown node: " + std::string(sz));
+                    ASSIMP_LOG_WARN("IRR: Found unknown node: " + std::string(sz));
 
                     /*  We skip the contents of nodes we don't know.
                      *  We parse the transformation and all animators
@@ -1042,7 +1042,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
                  */
                 if (!curNode)   {
 #if 0
-                    DefaultLogger::get()->error("IRR: Encountered <attributes> element, but "
+                    ASSIMP_LOG_ERROR("IRR: Encountered <attributes> element, but "
                         "there is no node active");
 #endif
                     continue;
@@ -1270,7 +1270,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
                                         lights.pop_back();
                                         curNode->type = Node::DUMMY;
 
-                                        DefaultLogger::get()->error("Ignoring light of unknown type: " + prop.value);
+                                        ASSIMP_LOG_ERROR("Ignoring light of unknown type: " + prop.value);
                                     }
                                 }
                                 else if ((prop.name == "Mesh" && Node::MESH == curNode->type) ||
@@ -1278,7 +1278,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
                                 {
                                     /*  This is the file name of the mesh - either
                                      *  animated or not. We need to make sure we setup
-                                     *  the correct postprocessing settings here.
+                                     *  the correct post-processing settings here.
                                      */
                                     unsigned int pp = 0;
                                     BatchLoader::PropertyMap map;
@@ -1300,7 +1300,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
 
                                     const std::string extension = GetExtension(prop.value);
                                     if ("irr" == extension) {
-                                        DefaultLogger::get()->error("IRR: Can't load another IRR file recursively");
+                                        ASSIMP_LOG_ERROR("IRR: Can't load another IRR file recursively");
                                     }
                                     else
                                     {
@@ -1324,7 +1324,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
                                         curAnim->type = Animator::FOLLOW_SPLINE;
                                     }
                                     else    {
-                                        DefaultLogger::get()->warn("IRR: Ignoring unknown animator: "
+                                        ASSIMP_LOG_WARN("IRR: Ignoring unknown animator: "
                                             + prop.value);
 
                                         curAnim->type = Animator::UNKNOWN;
@@ -1349,7 +1349,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
                     // back in the node hierarchy
                     if (!curParent) {
                         curParent = root;
-                        DefaultLogger::get()->error("IRR: Too many closing <node> elements");
+                        ASSIMP_LOG_ERROR("IRR: Too many closing <node> elements");
                     }
                     else curParent = curParent->parent;
                 }
@@ -1370,16 +1370,14 @@ void IRRImporter::InternReadFile( const std::string& pFile,
         }
     }
 
-    /*  Now iterate through all cameras and compute their final (horizontal) FOV
-     */
-    for (std::vector<aiCamera*>::iterator it = cameras.begin(), end = cameras.end();it != end; ++it)    {
-        aiCamera* cam = *it;
-
+    //  Now iterate through all cameras and compute their final (horizontal) FOV
+    for (aiCamera *cam : cameras) {
         // screen aspect could be missing
         if (cam->mAspect)   {
             cam->mHorizontalFOV *= cam->mAspect;
+        } else {
+            ASSIMP_LOG_WARN("IRR: Camera aspect is not given, can't compute horizontal FOV");
         }
-        else DefaultLogger::get()->warn("IRR: Camera aspect is not given, can't compute horizontal FOV");
     }
 
     batch.LoadAll();
@@ -1474,7 +1472,7 @@ void IRRImporter::InternReadFile( const std::string& pFile,
      *  models from external files
      */
     if (!pScene->mNumMeshes || !pScene->mNumMaterials)  {
-        DefaultLogger::get()->warn("IRR: No meshes loaded, setting AI_SCENE_FLAGS_INCOMPLETE");
+        ASSIMP_LOG_WARN("IRR: No meshes loaded, setting AI_SCENE_FLAGS_INCOMPLETE");
         pScene->mFlags |= AI_SCENE_FLAGS_INCOMPLETE;
     }
 

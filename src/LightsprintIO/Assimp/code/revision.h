@@ -1,1 +1,2 @@
-#define GitVersion 123
+#define GitVersion 1
+#define GitBranch "branch"

@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -40,8 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_GLTFIMPORTER_H_INC
 #define AI_GLTFIMPORTER_H_INC
 
-#include "BaseImporter.h"
-#include "DefaultIOSystem.h"
+#include <assimp/BaseImporter.h>
+#include <assimp/DefaultIOSystem.h>
 
 struct aiNode;
 

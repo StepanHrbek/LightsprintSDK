@@ -1,9 +1,11 @@
-/*
+﻿/*
 ---------------------------------------------------------------------------
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -48,10 +50,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // internal headers
 #include "ValidateDataStructure.h"
-#include "BaseImporter.h"
-#include "fast_atof.h"
+#include <assimp/BaseImporter.h>
+#include <assimp/fast_atof.h>
 #include "ProcessHelper.h"
-#include <boost/scoped_array.hpp>
+#include <memory>
 
 // CRT headers
 #include <stdarg.h>
@@ -88,9 +90,7 @@ AI_WONT_RETURN void ValidateDSProcess::ReportError(const char* msg,...)
     ai_assert(iLen > 0);
 
     va_end(args);
-#ifdef ASSIMP_BUILD_DEBUG
-    ai_assert( false );
-#endif
+
     throw DeadlyImportError("Validation failed: " + std::string(szBuffer,iLen));
 }
 // ------------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void ValidateDSProcess::ReportWarning(const char* msg,...)
     ai_assert(iLen > 0);
 
     va_end(args);
-    DefaultLogger::get()->warn("Validation warning: " + std::string(szBuffer,iLen));
+    ASSIMP_LOG_WARN("Validation warning: " + std::string(szBuffer,iLen));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ inline void ValidateDSProcess::DoValidationWithNameCheck(T** array,
 void ValidateDSProcess::Execute( aiScene* pScene)
 {
     this->mScene = pScene;
-    DefaultLogger::get()->debug("ValidateDataStructureProcess begin");
+    ASSIMP_LOG_DEBUG("ValidateDataStructureProcess begin");
 
     // validate the node graph of the scene
     Validate(pScene->mRootNode);
@@ -273,7 +273,7 @@ void ValidateDSProcess::Execute( aiScene* pScene)
     }
 
 //  if (!has)ReportError("The aiScene data structure is empty");
-    DefaultLogger::get()->debug("ValidateDataStructureProcess end");
+    ASSIMP_LOG_DEBUG("ValidateDataStructureProcess end");
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -335,28 +335,28 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
             case 1:
                 if (0 == (pMesh->mPrimitiveTypes & aiPrimitiveType_POINT))
                 {
-                    ReportError("aiMesh::mFaces[%i] is a POINT but aiMesh::mPrimtiveTypes "
+                    ReportError("aiMesh::mFaces[%i] is a POINT but aiMesh::mPrimitiveTypes "
                         "does not report the POINT flag",i);
                 }
                 break;
             case 2:
                 if (0 == (pMesh->mPrimitiveTypes & aiPrimitiveType_LINE))
                 {
-                    ReportError("aiMesh::mFaces[%i] is a LINE but aiMesh::mPrimtiveTypes "
+                    ReportError("aiMesh::mFaces[%i] is a LINE but aiMesh::mPrimitiveTypes "
                         "does not report the LINE flag",i);
                 }
                 break;
             case 3:
                 if (0 == (pMesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
                 {
-                    ReportError("aiMesh::mFaces[%i] is a TRIANGLE but aiMesh::mPrimtiveTypes "
+                    ReportError("aiMesh::mFaces[%i] is a TRIANGLE but aiMesh::mPrimitiveTypes "
                         "does not report the TRIANGLE flag",i);
                 }
                 break;
             default:
                 if (0 == (pMesh->mPrimitiveTypes & aiPrimitiveType_POLYGON))
                 {
-                    this->ReportError("aiMesh::mFaces[%i] is a POLYGON but aiMesh::mPrimtiveTypes "
+                    this->ReportError("aiMesh::mFaces[%i] is a POLYGON but aiMesh::mPrimitiveTypes "
                         "does not report the POLYGON flag",i);
                 }
                 break;
@@ -369,7 +369,7 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 
     // positions must always be there ...
     if (!pMesh->mNumVertices || (!pMesh->mVertices && !mScene->mFlags)) {
-        ReportError("The mesh contains no vertices");
+        ReportError("The mesh %s contains no vertices", pMesh->mName.C_Str());
     }
 
     if (pMesh->mNumVertices > AI_MAX_VERTICES) {
@@ -386,7 +386,7 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
 
     // faces, too
     if (!pMesh->mNumFaces || (!pMesh->mFaces && !mScene->mFlags))   {
-        ReportError("Mesh contains no faces");
+        ReportError("Mesh %s contains no faces", pMesh->mName.C_Str());
     }
 
     // now check whether the face indexing layout is correct:
@@ -408,11 +408,12 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
             // the MSB flag is temporarily used by the extra verbose
             // mode to tell us that the JoinVerticesProcess might have
             // been executed already.
-            if ( !(this->mScene->mFlags & AI_SCENE_FLAGS_NON_VERBOSE_FORMAT ) && abRefList[face.mIndices[a]])
+			/*if ( !(this->mScene->mFlags & AI_SCENE_FLAGS_NON_VERBOSE_FORMAT ) && !(this->mScene->mFlags & AI_SCENE_FLAGS_ALLOW_SHARED) &&
+				abRefList[face.mIndices[a]])
             {
                 ReportError("aiMesh::mVertices[%i] is referenced twice - second "
                     "time by aiMesh::mFaces[%i]::mIndices[%i]",face.mIndices[a],i,a);
-            }
+            }*/
             abRefList[face.mIndices[a]] = true;
         }
     }
@@ -463,7 +464,7 @@ void ValidateDSProcess::Validate( const aiMesh* pMesh)
             ReportError("aiMesh::mBones is NULL (aiMesh::mNumBones is %i)",
                 pMesh->mNumBones);
         }
-        boost::scoped_array<float> afSum(NULL);
+        std::unique_ptr<float[]> afSum(nullptr);
         if (pMesh->mNumVertices)
         {
             afSum.reset(new float[pMesh->mNumVertices]);
@@ -719,7 +720,7 @@ void ValidateDSProcess::Validate( const aiMaterial* pMaterial)
     }
 
     // make some more specific tests
-    float fTemp;
+    ai_real fTemp;
     int iShading;
     if (AI_SUCCESS == aiGetMaterialInteger( pMaterial,AI_MATKEY_SHADING_MODEL,&iShading))   {
         switch ((aiShadingMode)iShading)
@@ -741,7 +742,7 @@ void ValidateDSProcess::Validate( const aiMaterial* pMaterial)
         };
     }
 
-    if (AI_SUCCESS == aiGetMaterialFloat( pMaterial,AI_MATKEY_OPACITY,&fTemp) && (!fTemp || fTemp > 1.01f)) {
+    if (AI_SUCCESS == aiGetMaterialFloat( pMaterial,AI_MATKEY_OPACITY,&fTemp) && (!fTemp || fTemp > 1.01)) {
         ReportWarning("Invalid opacity value (must be 0 < opacity < 1.0)");
     }
 

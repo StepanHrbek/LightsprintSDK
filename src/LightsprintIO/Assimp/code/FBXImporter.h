@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,19 +46,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDED_AI_FBX_IMPORTER_H
 #define INCLUDED_AI_FBX_IMPORTER_H
 
-#include "BaseImporter.h"
-#include "LogAux.h"
+#include <assimp/BaseImporter.h>
+#include <assimp/LogAux.h>
 
 #include "FBXImportSettings.h"
 
 namespace Assimp    {
 
-    // TinyFormatter.h
-    namespace Formatter {
-        template <typename T,typename TR, typename A> class basic_formatter;
-        typedef class basic_formatter< char, std::char_traits<char>, std::allocator<char> > format;
-    }
-
+// TinyFormatter.h
+namespace Formatter {
+    template <typename T,typename TR, typename A> class basic_formatter;
+    typedef class basic_formatter< char, std::char_traits<char>, std::allocator<char> > format;
+}
 
 // -------------------------------------------------------------------------------------------
 /** Load the Autodesk FBX file format.
@@ -68,10 +69,7 @@ class FBXImporter : public BaseImporter, public LogFunctions<FBXImporter>
 {
 public:
     FBXImporter();
-    ~FBXImporter();
-
-
-public:
+    virtual ~FBXImporter();
 
     // --------------------
     bool CanRead( const std::string& pFile,
@@ -94,12 +92,7 @@ protected:
     );
 
 private:
-
-
-private:
-
     FBX::ImportSettings settings;
-
 }; // !class FBXImporter
 
 } // end of namespace Assimp

@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -118,14 +120,18 @@ public:
     {
         unsigned int mBone; ///< Index of the bone
         float mWeight;      ///< Weight of that bone on this vertex
-        Weight() { }
+        Weight()
+        : mBone(0)
+        , mWeight(0.0f)
+        { }
+
         Weight( unsigned int pBone, float pWeight)
         {
             mBone = pBone;
             mWeight = pWeight;
         }
 
-        /** Comparision operator to sort bone weights by descending weight */
+        /** Comparison operator to sort bone weights by descending weight */
         bool operator < (const Weight& pWeight) const
         {
             return mWeight > pWeight.mWeight;

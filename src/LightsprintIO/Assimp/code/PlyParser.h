@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -38,25 +39,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-
 /** @file Defines the helper data structures for importing PLY files  */
+#pragma once
 #ifndef AI_PLYFILEHELPER_H_INC
 #define AI_PLYFILEHELPER_H_INC
 
-
-#include "ParsingUtils.h"
+#include <assimp/ParsingUtils.h>
+#include <assimp/IOStreamBuffer.h>
 #include <vector>
-
 
 namespace Assimp
 {
 
+//pre-declaration
+class PLYImporter;
+
 // http://local.wasp.uwa.edu.au/~pbourke/dataformats/ply/
 // http://w3.impa.br/~lvelho/outgoing/sossai/old/ViHAP_D4.4.2_PLY_format_v1.1.pdf
 // http://www.okino.com/conv/exp_ply.htm
-namespace PLY
-{
-
+namespace PLY {
 
 // ---------------------------------------------------------------------------------
 /*
@@ -75,8 +76,7 @@ int8
 int16
 uint8 ... forms are also used
 */
-enum EDataType
-{
+enum EDataType {
     EDT_Char = 0x0u,
     EDT_UChar,
     EDT_Short,
@@ -95,8 +95,7 @@ enum EDataType
  *
  * Semantics define the usage of a property, e.g. x coordinate
 */
-enum ESemantic
-{
+enum ESemantic {
     //! vertex position x coordinate
     EST_XCoord = 0x0u,
     //! vertex position x coordinate
@@ -179,15 +178,14 @@ enum ESemantic
  *
  * Semantics define the usage of an element, e.g. vertex or material
 */
-enum EElementSemantic
-{
+enum EElementSemantic {
     //! The element is a vertex
     EEST_Vertex = 0x0u,
 
     //! The element is a face description (index table)
     EEST_Face,
 
-    //! The element is a tristrip description (index table)
+    //! The element is a triangle-strip description (index table)
     EEST_TriStrip,
 
     //! The element is an edge description (ignored)
@@ -195,6 +193,9 @@ enum EElementSemantic
 
     //! The element is a material description
     EEST_Material,
+
+    //! texture path
+    EEST_TextureFile,
 
     //! Marks invalid entries
     EEST_INVALID
@@ -205,17 +206,16 @@ enum EElementSemantic
  *
  * This can e.g. be a part of the vertex declaration
  */
-class Property
-{
+class Property {
 public:
-
     //! Default constructor
     Property()
-        : eType (EDT_Int),
-        Semantic(),
-        bIsList(false),
-        eFirstType(EDT_UChar)
-    {}
+    : eType (EDT_Int)
+    , Semantic()
+    , bIsList(false)
+    , eFirstType(EDT_UChar) {
+        // empty
+    }
 
     //! Data type of the property
     EDataType eType;
@@ -234,19 +234,18 @@ public:
 
     // -------------------------------------------------------------------
     //! Parse a property from a string. The end of the
-    //! string is either '\n', '\r' or '\0'. Return valie is false
+    //! string is either '\n', '\r' or '\0'. Return value is false
     //! if the input string is NOT a valid property (E.g. does
     //! not start with the "property" keyword)
-    static bool ParseProperty (const char* pCur, const char** pCurOut,
-        Property* pOut);
+    static bool ParseProperty(std::vector<char> &buffer, Property* pOut);
 
     // -------------------------------------------------------------------
     //! Parse a data type from a string
-    static EDataType ParseDataType(const char* pCur,const char** pCurOut);
+    static EDataType ParseDataType(std::vector<char> &buffer);
 
     // -------------------------------------------------------------------
     //! Parse a semantic from a string
-    static ESemantic ParseSemantic(const char* pCur,const char** pCurOut);
+    static ESemantic ParseSemantic(std::vector<char> &buffer);
 };
 
 // ---------------------------------------------------------------------------------
@@ -255,15 +254,14 @@ public:
  * This can e.g. be the vertex declaration. Elements contain a
  * well-defined number of properties.
  */
-class Element
-{
+class Element {
 public:
-
     //! Default constructor
     Element()
-        :   eSemantic (EEST_INVALID)
-        ,   NumOccur(0)
-    {}
+    : eSemantic (EEST_INVALID)
+    , NumOccur(0) {
+        // empty
+    }
 
     //! List of properties assigned to the element
     //! std::vector to support operator[]
@@ -284,13 +282,11 @@ public:
     //! Parse an element from a string.
     //! The function will parse all properties contained in the
     //! element, too.
-    static bool ParseElement (const char* pCur, const char** pCurOut,
-        Element* pOut);
+    static bool ParseElement(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer, Element* pOut);
 
     // -------------------------------------------------------------------
     //! Parse a semantic from a string
-    static EElementSemantic ParseSemantic(const char* pCur,
-        const char** pCurOut);
+    static EElementSemantic ParseSemantic(std::vector<char> &buffer);
 };
 
 // ---------------------------------------------------------------------------------
@@ -330,13 +326,13 @@ public:
 
     // -------------------------------------------------------------------
     //! Parse a property instance
-    static bool ParseInstance (const char* pCur,const char** pCurOut,
+    static bool ParseInstance(const char* &pCur,
         const Property* prop, PropertyInstance* p_pcOut);
 
     // -------------------------------------------------------------------
     //! Parse a property instance in binary format
-    static bool ParseInstanceBinary (const char* pCur,const char** pCurOut,
-        const Property* prop, PropertyInstance* p_pcOut,bool p_bBE);
+    static bool ParseInstanceBinary(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer,
+        const char* &pCur, unsigned int &bufferSize, const Property* prop, PropertyInstance* p_pcOut, bool p_bBE);
 
     // -------------------------------------------------------------------
     //! Get the default value for a given data type
@@ -344,13 +340,12 @@ public:
 
     // -------------------------------------------------------------------
     //! Parse a value
-    static bool ParseValue(const char* pCur,const char** pCurOut,
-        EDataType eType,ValueUnion* out);
+    static bool ParseValue(const char* &pCur, EDataType eType, ValueUnion* out);
 
     // -------------------------------------------------------------------
     //! Parse a binary value
-    static bool ParseValueBinary(const char* pCur,const char** pCurOut,
-        EDataType eType,ValueUnion* out,bool p_bBE);
+    static bool ParseValueBinary(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer,
+        const char* &pCur, unsigned int &bufferSize, EDataType eType, ValueUnion* out, bool p_bBE);
 
     // -------------------------------------------------------------------
     //! Convert a property value to a given type TYPE
@@ -374,13 +369,13 @@ public:
 
     // -------------------------------------------------------------------
     //! Parse an element instance
-    static bool ParseInstance (const char* pCur,const char** pCurOut,
+    static bool ParseInstance(const char* &pCur,
         const Element* pcElement, ElementInstance* p_pcOut);
 
     // -------------------------------------------------------------------
     //! Parse a binary element instance
-    static bool ParseInstanceBinary (const char* pCur,const char** pCurOut,
-        const Element* pcElement, ElementInstance* p_pcOut,bool p_bBE);
+    static bool ParseInstanceBinary(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer,
+        const char* &pCur, unsigned int &bufferSize, const Element* pcElement, ElementInstance* p_pcOut, bool p_bBE);
 };
 
 // ---------------------------------------------------------------------------------
@@ -399,13 +394,13 @@ public:
 
     // -------------------------------------------------------------------
     //! Parse an element instance list
-    static bool ParseInstanceList (const char* pCur,const char** pCurOut,
-        const Element* pcElement, ElementInstanceList* p_pcOut);
+    static bool ParseInstanceList(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer,
+        const Element* pcElement, ElementInstanceList* p_pcOut, PLYImporter* loader);
 
     // -------------------------------------------------------------------
     //! Parse a binary element instance list
-    static bool ParseInstanceListBinary (const char* pCur,const char** pCurOut,
-        const Element* pcElement, ElementInstanceList* p_pcOut,bool p_bBE);
+    static bool ParseInstanceListBinary(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer,
+        const char* &pCur, unsigned int &bufferSize, const Element* pcElement, ElementInstanceList* p_pcOut, PLYImporter* loader, bool p_bBE);
 };
 // ---------------------------------------------------------------------------------
 /** \brief Class to represent the document object model of an ASCII or binary
@@ -427,50 +422,33 @@ public:
 
     //! Parse the DOM for a PLY file. The input string is assumed
     //! to be terminated with zero
-    static bool ParseInstance (const char* pCur,DOM* p_pcOut);
-    static bool ParseInstanceBinary (const char* pCur,
-        DOM* p_pcOut,bool p_bBE);
+    static bool ParseInstance(IOStreamBuffer<char> &streamBuffer, DOM* p_pcOut, PLYImporter* loader);
+    static bool ParseInstanceBinary(IOStreamBuffer<char> &streamBuffer, DOM* p_pcOut, PLYImporter* loader, bool p_bBE);
 
     //! Skip all comment lines after this
-    static bool SkipComments (const char* pCur,const char** pCurOut);
+    static bool SkipComments(std::vector<char> &buffer);
+
+    static bool SkipSpaces(std::vector<char> &buffer);
+
+    static bool SkipLine(std::vector<char> &buffer);
+
+    static bool TokenMatch(std::vector<char> &buffer, const char* token, unsigned int len);
+
+    static bool SkipSpacesAndLineEnd(std::vector<char> &buffer);
 
 private:
 
     // -------------------------------------------------------------------
     //! Handle the file header and read all element descriptions
-    bool ParseHeader (const char* pCur,const char** pCurOut, bool p_bBE);
+    bool ParseHeader(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer, bool p_bBE);
 
     // -------------------------------------------------------------------
     //! Read in all element instance lists
-    bool ParseElementInstanceLists (const char* pCur,const char** pCurOut);
+    bool ParseElementInstanceLists(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer, PLYImporter* loader);
 
     // -------------------------------------------------------------------
     //! Read in all element instance lists for a binary file format
-    bool ParseElementInstanceListsBinary (const char* pCur,
-        const char** pCurOut,bool p_bBE);
-};
-
-// ---------------------------------------------------------------------------------
-/** \brief Helper class to represent a loaded PLY face
- */
-class Face
-{
-public:
-
-    Face()
-        : iMaterialIndex(0xFFFFFFFF)
-    {
-        // set all indices to zero by default
-        mIndices.resize(3,0);
-    }
-
-public:
-
-    //! List of vertex indices
-    std::vector<unsigned int> mIndices;
-
-    //! Material index
-    unsigned int iMaterialIndex;
+    bool ParseElementInstanceListsBinary(IOStreamBuffer<char> &streamBuffer, std::vector<char> &buffer, const char* &pCur, unsigned int &bufferSize, PLYImporter* loader, bool p_bBE);
 };
 
 // ---------------------------------------------------------------------------------

@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -43,12 +45,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_OGRE_IMPORTER
 
-#include "BaseImporter.h"
+#include <assimp/BaseImporter.h>
 
 #include "OgreStructs.h"
 #include "OgreParsingUtils.h"
 
-#include "../include/assimp/material.h"
+#include <assimp/material.h>
 
 namespace Assimp
 {

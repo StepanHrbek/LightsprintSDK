@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,9 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDED_AI_FBX_TOKENIZER_H
 #define INCLUDED_AI_FBX_TOKENIZER_H
 
-#include <boost/shared_ptr.hpp>
 #include "FBXCompileConfig.h"
-#include "../include/assimp/ai_assert.h"
+#include <assimp/ai_assert.h>
 #include <vector>
 #include <string>
 
@@ -84,13 +85,10 @@ enum TokenType
  *  Offers iterator protocol. Tokens are immutable. */
 class Token
 {
-
 private:
-
     static const unsigned int BINARY_MARKER = static_cast<unsigned int>(-1);
 
 public:
-
     /** construct a textual token */
     Token(const char* sbegin, const char* send, TokenType type, unsigned int line, unsigned int column);
 
@@ -100,12 +98,9 @@ public:
     ~Token();
 
 public:
-
     std::string StringContents() const {
         return std::string(begin(),end());
     }
-
-public:
 
     bool IsBinary() const {
         return column == BINARY_MARKER;

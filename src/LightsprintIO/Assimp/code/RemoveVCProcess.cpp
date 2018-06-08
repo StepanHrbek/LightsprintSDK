@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -44,13 +46,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "RemoveVCProcess.h"
-#include "../include/assimp/postprocess.h"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "../include/assimp/scene.h"
-
+#include <assimp/postprocess.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/scene.h>
 
 using namespace Assimp;
-
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
@@ -145,7 +145,7 @@ bool UpdateNodeGraph(aiNode* node,std::list<aiNode*>& childsOfParent,bool root)
 // Executes the post processing step on the given imported data.
 void RemoveVCProcess::Execute( aiScene* pScene)
 {
-    DefaultLogger::get()->debug("RemoveVCProcess begin");
+    ASSIMP_LOG_DEBUG("RemoveVCProcess begin");
     bool bHas = false; //,bMasked = false;
 
     mScene = pScene;
@@ -224,15 +224,18 @@ void RemoveVCProcess::Execute( aiScene* pScene)
     if (!pScene->mNumMeshes || !pScene->mNumMaterials)
     {
         pScene->mFlags |= AI_SCENE_FLAGS_INCOMPLETE;
-        DefaultLogger::get()->debug("Setting AI_SCENE_FLAGS_INCOMPLETE flag");
+        ASSIMP_LOG_DEBUG("Setting AI_SCENE_FLAGS_INCOMPLETE flag");
 
         // If we have no meshes anymore we should also clear another flag ...
         if (!pScene->mNumMeshes)
             pScene->mFlags &= ~AI_SCENE_FLAGS_NON_VERBOSE_FORMAT;
     }
 
-    if (bHas)DefaultLogger::get()->info("RemoveVCProcess finished. Data structure cleanup has been done.");
-    else DefaultLogger::get()->debug("RemoveVCProcess finished. Nothing to be done ...");
+    if (bHas) {
+        ASSIMP_LOG_INFO("RemoveVCProcess finished. Data structure cleanup has been done.");
+    } else {
+        ASSIMP_LOG_DEBUG("RemoveVCProcess finished. Nothing to be done ...");
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -242,7 +245,7 @@ void RemoveVCProcess::SetupProperties(const Importer* pImp)
     configDeleteFlags = pImp->GetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,0x0);
     if (!configDeleteFlags)
     {
-        DefaultLogger::get()->warn("RemoveVCProcess: AI_CONFIG_PP_RVC_FLAGS is zero.");
+        ASSIMP_LOG_WARN("RemoveVCProcess: AI_CONFIG_PP_RVC_FLAGS is zero.");
     }
 }
 
@@ -307,7 +310,7 @@ bool RemoveVCProcess::ProcessMesh(aiMesh* pMesh)
         if (!pMesh->mColors[i])break;
         if (configDeleteFlags & aiComponent_COLORSn(i) || b)
         {
-            delete pMesh->mColors[i];
+            delete [] pMesh->mColors[i];
             pMesh->mColors[i] = NULL;
             ret = true;
 

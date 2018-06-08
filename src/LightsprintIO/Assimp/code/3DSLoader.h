@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -45,13 +47,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_3DSIMPORTER_H_INC
 #define AI_3DSIMPORTER_H_INC
 
-#include "BaseImporter.h"
-#include "../include/assimp/types.h"
+#include <assimp/BaseImporter.h>
+#include <assimp/types.h>
 
 #ifndef ASSIMP_BUILD_NO_3DS_IMPORTER
 
 #include "3DSHelper.h"
-#include "StreamReader.h"
+#include <assimp/StreamReader.h>
 
 struct aiNode;
 
@@ -119,7 +121,7 @@ protected:
     * chunk behind afterwards. If no percentage chunk is found
     * QNAN is returned.
     */
-    float ParsePercentageChunk();
+    ai_real ParsePercentageChunk();
 
     // -------------------------------------------------------------------
     /** Parse a color chunk. mCurrent will point to the next
@@ -265,7 +267,7 @@ protected:
     aiColor3D mClrAmbient;
 
     /** Master scaling factor of the scene */
-    float mMasterScale;
+    ai_real mMasterScale;
 
     /** Path to the background image of the scene */
     std::string mBackgroundImage;

@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -42,23 +44,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef ASSIMP_BUILD_NO_EXPORT
 #ifndef ASSIMP_BUILD_NO_STEP_EXPORTER
+
 #include "StepExporter.h"
 #include "ConvertToLHProcess.h"
-#include "Bitmap.h"
-#include "BaseImporter.h"
-#include "fast_atof.h"
-#include "SceneCombiner.h"
-#include "DefaultIOSystem.h"
+#include <assimp/Bitmap.h>
+#include <assimp/BaseImporter.h>
+#include <assimp/fast_atof.h>
+#include <assimp/SceneCombiner.h>
 #include <iostream>
 #include <ctime>
 #include <set>
 #include <map>
 #include <list>
-#include <boost/scoped_ptr.hpp>
-#include "Exceptional.h"
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/light.h"
+#include <memory>
+#include <assimp/Exceptional.h>
+#include <assimp/DefaultIOSystem.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/light.h>
 
 //
 #if _MSC_VER > 1500 || (defined __GNUC___)
@@ -102,7 +105,7 @@ void ExportSceneStep(const char* pFile,IOSystem* pIOSystem, const aiScene* pScen
     StepExporter iDoTheExportThing( pScene, pIOSystem, path, file, &props);
 
     // we're still here - export successfully completed. Write result to the given IOSYstem
-    boost::scoped_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
+    std::unique_ptr<IOStream> outfile (pIOSystem->Open(pFile,"wt"));
     if(outfile == NULL) {
         throw DeadlyExportError("could not open output .stp file: " + std::string(pFile));
     }
@@ -146,6 +149,7 @@ StepExporter::StepExporter(const aiScene* pScene, IOSystem* pIOSystem, const std
 
     // make sure that all formatting happens using the standard, C locale and not the user's current locale
     mOutput.imbue( std::locale("C") );
+    mOutput.precision(16);
 
     // start writing
     WriteFile();
@@ -158,7 +162,9 @@ void StepExporter::WriteFile()
     // see http://shodhganga.inflibnet.ac.in:8080/jspui/bitstream/10603/14116/11/11_chapter%203.pdf
     // note, that all realnumber values must be comma separated in x files
     mOutput.setf(std::ios::fixed);
-    mOutput.precision(16); // precission for double
+    // precision for double
+    // see http://stackoverflow.com/questions/554063/how-do-i-print-a-double-value-with-full-precision-using-cout
+    mOutput.precision(16);
 
     // standard color
     aiColor4D fColor;
@@ -365,4 +371,3 @@ void StepExporter::WriteFile()
 
 #endif
 #endif
-

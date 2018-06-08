@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -47,20 +49,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // internal headers
 #include "MDLLoader.h"
 #include "MDLDefaultColorMap.h"
-#include "StringUtils.h"
-#include "../include/assimp/texture.h"
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "../include/assimp/scene.h"
-#include "qnan.h"
-#include "Defines.h"
+#include <assimp/StringUtils.h>
+#include <assimp/texture.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/scene.h>
+#include <assimp/Defines.h>
+#include <assimp/qnan.h>
+
+#include <memory>
 
 
 using namespace Assimp;
 static aiTexel* const bad_texel = reinterpret_cast<aiTexel*>(SIZE_MAX);
 
 // ------------------------------------------------------------------------------------------------
-// Find a suitable pallette file or take teh default one
+// Find a suitable palette file or take the default one
 void MDLImporter::SearchPalette(const unsigned char** pszColorMap)
 {
     // now try to find the color map in the current directory
@@ -71,10 +75,11 @@ void MDLImporter::SearchPalette(const unsigned char** pszColorMap)
     {
         if (pcStream->FileSize() >= 768)
         {
-            unsigned char* colorMap = new unsigned char[256*3];
+            size_t len = 256 * 3;
+            unsigned char* colorMap = new unsigned char[len];
             szColorMap = colorMap;
-            pcStream->Read(colorMap,256*3,1);
-            DefaultLogger::get()->info("Found valid colormap.lmp in directory. "
+            pcStream->Read(colorMap, len,1);
+            ASSIMP_LOG_INFO("Found valid colormap.lmp in directory. "
                 "It will be used to decode embedded textures in palletized formats.");
         }
         delete pcStream;
@@ -129,7 +134,7 @@ aiColor4D MDLImporter::ReplaceTextureWithColor(const aiTexture* pcTexture)
 // Read a texture from a MDL3 file
 void MDLImporter::CreateTextureARGB8_3DGS_MDL3(const unsigned char* szData)
 {
-    const MDL::Header *pcHeader = (const MDL::Header*)mBuffer;  //the endianess is allready corrected in the InternReadFile_3DGS_MDL345 function
+    const MDL::Header *pcHeader = (const MDL::Header*)mBuffer;  //the endianness is already corrected in the InternReadFile_3DGS_MDL345 function
 
     VALIDATE_FILE_SIZE(szData + pcHeader->skinwidth *
         pcHeader->skinheight);
@@ -178,11 +183,11 @@ void MDLImporter::CreateTexture_3DGS_MDL4(const unsigned char* szData,
 {
     ai_assert(NULL != piSkip);
 
-    const MDL::Header *pcHeader = (const MDL::Header*)mBuffer;  //the endianess is allready corrected in the InternReadFile_3DGS_MDL345 function
+    const MDL::Header *pcHeader = (const MDL::Header*)mBuffer;  //the endianness is already corrected in the InternReadFile_3DGS_MDL345 function
 
     if (iType == 1 || iType > 3)
     {
-        DefaultLogger::get()->error("Unsupported texture file format");
+        ASSIMP_LOG_ERROR("Unsupported texture file format");
         return;
     }
 
@@ -488,7 +493,7 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
     unsigned int iWidth,
     unsigned int iHeight)
 {
-    aiTexture* pcNew = NULL;
+    std::unique_ptr<aiTexture> pcNew;
 
     // get the type of the skin
     unsigned int iMasked = (unsigned int)(iType & 0xF);
@@ -504,11 +509,11 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
         // ***** EMBEDDED DDS FILE *****
         if (1 != iHeight)
         {
-            DefaultLogger::get()->warn("Found a reference to an embedded DDS texture, "
+            ASSIMP_LOG_WARN("Found a reference to an embedded DDS texture, "
                 "but texture height is not equal to 1, which is not supported by MED");
         }
 
-        pcNew = new aiTexture();
+        pcNew.reset(new aiTexture());
         pcNew->mHeight = 0;
         pcNew->mWidth = iWidth;
 
@@ -522,12 +527,12 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
         memcpy(pcNew->pcData,szCurrent,pcNew->mWidth);
         szCurrent += iWidth;
     }
-    if (0x7 == iMasked)
+    else if (0x7 == iMasked)
     {
         // ***** REFERENCE TO EXTERNAL FILE *****
         if (1 != iHeight)
         {
-            DefaultLogger::get()->warn("Found a reference to an external texture, "
+            ASSIMP_LOG_WARN("Found a reference to an external texture, "
                 "but texture height is not equal to 1, which is not supported by MED");
         }
 
@@ -545,11 +550,10 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
     }
     else if (iMasked || !iType || (iType && iWidth && iHeight))
     {
-        // ***** STANDARD COLOR TEXTURE *****
-        pcNew = new aiTexture();
+        pcNew.reset(new aiTexture());
         if (!iHeight || !iWidth)
         {
-            DefaultLogger::get()->warn("Found embedded texture, but its width "
+            ASSIMP_LOG_WARN("Found embedded texture, but its width "
                 "an height are both 0. Is this a joke?");
 
             // generate an empty chess pattern
@@ -577,7 +581,7 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
             pcNew->mHeight = iHeight;
 
             unsigned int iSkip = 0;
-            ParseTextureColorData(szCurrent,iMasked,&iSkip,pcNew);
+            ParseTextureColorData(szCurrent,iMasked,&iSkip,pcNew.get());
 
             // skip length of texture data
             szCurrent += iSkip;
@@ -588,7 +592,7 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
     // texture instead of material colors ... posssible they have
     // been converted to MDL7 from other formats, such as MDL5
     aiColor4D clrTexture;
-    if (pcNew)clrTexture = ReplaceTextureWithColor(pcNew);
+    if (pcNew)clrTexture = ReplaceTextureWithColor(pcNew.get());
     else clrTexture.r = get_qnan();
 
     // check whether a material definition is contained in the skin
@@ -657,7 +661,7 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
         if (is_not_qnan(clrTexture.r)) {
             clrTemp.r *= clrTexture.a;
         }
-        pcMatOut->AddProperty<float>(&clrTemp.r,1,AI_MATKEY_OPACITY);
+        pcMatOut->AddProperty<ai_real>(&clrTemp.r,1,AI_MATKEY_OPACITY);
 
         // read phong power
         int iShadingMode = (int)aiShadingMode_Gouraud;
@@ -665,7 +669,9 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
         if (0.0f != pcMatIn->Power)
         {
             iShadingMode = (int)aiShadingMode_Phong;
-            pcMatOut->AddProperty<float>(&pcMatIn->Power,1,AI_MATKEY_SHININESS);
+            // pcMatIn is packed, we can't form pointers to its members
+            float power = pcMatIn->Power;
+            pcMatOut->AddProperty<float>(&power,1,AI_MATKEY_SHININESS);
         }
         pcMatOut->AddProperty<int>(&iShadingMode,1,AI_MATKEY_SHADING_MODEL);
     }
@@ -678,8 +684,7 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
     // we don't need the texture anymore
     if (is_not_qnan(clrTexture.r))
     {
-        delete pcNew;
-        pcNew = NULL;
+        pcNew.reset();
     }
 
     // If an ASCII effect description (HLSL?) is contained in the file,
@@ -714,7 +719,7 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
         {
             pScene->mNumTextures = 1;
             pScene->mTextures = new aiTexture*[1];
-            pScene->mTextures[0] = pcNew;
+            pScene->mTextures[0] = pcNew.release();
         }
         else
         {
@@ -724,7 +729,7 @@ void MDLImporter::ParseSkinLump_3DGS_MDL7(
                 pScene->mTextures[i] = pc[i];
             }
 
-            pScene->mTextures[pScene->mNumTextures] = pcNew;
+            pScene->mTextures[pScene->mNumTextures] = pcNew.release();
             pScene->mNumTextures++;
             delete[] pc;
         }

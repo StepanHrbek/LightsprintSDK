@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -43,8 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "MakeVerboseFormat.h"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/DefaultLogger.hpp"
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
 
 using namespace Assimp;
 
@@ -63,7 +65,7 @@ MakeVerboseFormatProcess::~MakeVerboseFormatProcess()
 void MakeVerboseFormatProcess::Execute( aiScene* pScene)
 {
     ai_assert(NULL != pScene);
-    DefaultLogger::get()->debug("MakeVerboseFormatProcess begin");
+    ASSIMP_LOG_DEBUG("MakeVerboseFormatProcess begin");
 
     bool bHas = false;
     for( unsigned int a = 0; a < pScene->mNumMeshes; a++)
@@ -71,12 +73,15 @@ void MakeVerboseFormatProcess::Execute( aiScene* pScene)
         if( MakeVerboseFormat( pScene->mMeshes[a]))
             bHas = true;
     }
-    if (bHas) DefaultLogger::get()->info("MakeVerboseFormatProcess finished. There was much work to do ...");
-    else DefaultLogger::get()->debug("MakeVerboseFormatProcess. There was nothing to do.");
+    if (bHas) {
+        ASSIMP_LOG_INFO("MakeVerboseFormatProcess finished. There was much work to do ...");
+    } else {
+        ASSIMP_LOG_DEBUG("MakeVerboseFormatProcess. There was nothing to do.");
+    }
 
     pScene->mFlags &= ~AI_SCENE_FLAGS_NON_VERBOSE_FORMAT;
-
 }
+
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
 bool MakeVerboseFormatProcess::MakeVerboseFormat(aiMesh* pcMesh)
@@ -168,20 +173,22 @@ bool MakeVerboseFormatProcess::MakeVerboseFormat(aiMesh* pcMesh)
         }
     }
 
+
+
     // build output vertex weights
     for (unsigned int i = 0;i < pcMesh->mNumBones;++i)
     {
-        delete pcMesh->mBones[i]->mWeights;
+        delete [] pcMesh->mBones[i]->mWeights;
         if (!newWeights[i].empty()) {
             pcMesh->mBones[i]->mWeights = new aiVertexWeight[newWeights[i].size()];
             aiVertexWeight *weightToCopy = &( newWeights[i][0] );
             memcpy(pcMesh->mBones[i]->mWeights, weightToCopy,
                 sizeof(aiVertexWeight) * newWeights[i].size());
-            delete[] newWeights;
         } else {
             pcMesh->mBones[i]->mWeights = NULL;
         }
     }
+    delete[] newWeights;
 
     // delete the old members
     delete[] pcMesh->mVertices;
@@ -190,14 +197,14 @@ bool MakeVerboseFormatProcess::MakeVerboseFormat(aiMesh* pcMesh)
     p = 0;
     while (pcMesh->HasTextureCoords(p))
     {
-        delete pcMesh->mTextureCoords[p];
+        delete[] pcMesh->mTextureCoords[p];
         pcMesh->mTextureCoords[p] = apvTextureCoords[p];
         ++p;
     }
     p = 0;
     while (pcMesh->HasVertexColors(p))
     {
-        delete pcMesh->mColors[p];
+        delete[] pcMesh->mColors[p];
         pcMesh->mColors[p] = apvColorSets[p];
         ++p;
     }

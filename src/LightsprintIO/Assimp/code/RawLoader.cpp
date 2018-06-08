@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -48,13 +50,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // internal headers
 #include "RawLoader.h"
-#include "ParsingUtils.h"
-#include "fast_atof.h"
-#include <boost/scoped_ptr.hpp>
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "../include/assimp/scene.h"
-
+#include <assimp/ParsingUtils.h>
+#include <assimp/fast_atof.h>
+#include <memory>
+#include <assimp/IOSystem.hpp>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/scene.h>
+#include <assimp/importerdesc.h>
 
 using namespace Assimp;
 
@@ -99,7 +101,7 @@ const aiImporterDesc* RAWImporter::GetInfo () const
 void RAWImporter::InternReadFile( const std::string& pFile,
     aiScene* pScene, IOSystem* pIOHandler)
 {
-    boost::scoped_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
+    std::unique_ptr<IOStream> file( pIOHandler->Open( pFile, "rb"));
 
     // Check whether we can read from the file
     if( file.get() == NULL) {
@@ -158,7 +160,7 @@ void RAWImporter::InternReadFile( const std::string& pFile,
             }
             if (num != 12 && num != 9)
             {
-                DefaultLogger::get()->error("A line may have either 9 or 12 floats and an optional texture");
+                ASSIMP_LOG_ERROR("A line may have either 9 or 12 floats and an optional texture");
                 continue;
             }
 
@@ -183,12 +185,11 @@ void RAWImporter::InternReadFile( const std::string& pFile,
             }
 
             // search in the list of meshes whether we have one with this texture
-            for (std::vector< MeshInformation >::iterator it = (*curGroup).meshes.begin(),
-                end = (*curGroup).meshes.end(); it != end; ++it)
+            for (auto &mesh : (*curGroup).meshes)
             {
-                if (length == (*it).name.length() && (length ? !::strcmp(sz,(*it).name.c_str()) : true))
+                if (length == mesh.name.length() && (length ? !::strcmp(sz, mesh.name.c_str()) : true))
                 {
-                    output = &(*it);
+                    output = &mesh;
                     break;
                 }
             }
@@ -223,13 +224,12 @@ void RAWImporter::InternReadFile( const std::string& pFile,
 
     // count the number of valid groups
     // (meshes can't be empty)
-    for (std::vector< GroupInformation >::iterator it = outGroups.begin(), end = outGroups.end();
-        it != end;++it)
+    for (auto & outGroup : outGroups)
     {
-        if (!(*it).meshes.empty())
+        if (!outGroup.meshes.empty())
         {
             ++pScene->mRootNode->mNumChildren;
-            pScene->mNumMeshes += (unsigned int)(*it).meshes.size();
+            pScene->mNumMeshes += (unsigned int) outGroup.meshes.size();
         }
     }
 
@@ -244,17 +244,19 @@ void RAWImporter::InternReadFile( const std::string& pFile,
     {
         cc = &pScene->mRootNode;
         pScene->mRootNode->mNumChildren = 0;
+    } else {
+        cc = new aiNode*[pScene->mRootNode->mNumChildren];
+        memset(cc, 0, sizeof(aiNode*) * pScene->mRootNode->mNumChildren);
+        pScene->mRootNode->mChildren = cc;
     }
-    else cc = pScene->mRootNode->mChildren = new aiNode*[pScene->mRootNode->mNumChildren];
 
     pScene->mNumMaterials = pScene->mNumMeshes;
     aiMaterial** mats = pScene->mMaterials = new aiMaterial*[pScene->mNumMaterials];
 
     unsigned int meshIdx = 0;
-    for (std::vector< GroupInformation >::iterator it = outGroups.begin(), end = outGroups.end();
-        it != end;++it)
+    for (auto & outGroup : outGroups)
     {
-        if ((*it).meshes.empty())continue;
+        if (outGroup.meshes.empty())continue;
 
         aiNode* node;
         if (pScene->mRootNode->mNumChildren)
@@ -262,14 +264,14 @@ void RAWImporter::InternReadFile( const std::string& pFile,
             node = *cc = new aiNode();
             node->mParent = pScene->mRootNode;
         }
-        else node = *cc;++cc;
-        node->mName.Set((*it).name);
+        else node = *cc;
+        node->mName.Set(outGroup.name);
 
         // add all meshes
-        node->mNumMeshes = (unsigned int)(*it).meshes.size();
+        node->mNumMeshes = (unsigned int) outGroup.meshes.size();
         unsigned int* pi = node->mMeshes = new unsigned int[ node->mNumMeshes ];
-        for (std::vector< MeshInformation >::iterator it2 = (*it).meshes.begin(),
-            end2 = (*it).meshes.end(); it2 != end2; ++it2)
+        for (std::vector< MeshInformation >::iterator it2 = outGroup.meshes.begin(),
+            end2 = outGroup.meshes.end(); it2 != end2; ++it2)
         {
             ai_assert(!(*it2).vertices.empty());
 

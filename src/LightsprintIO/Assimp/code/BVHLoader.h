@@ -4,7 +4,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -47,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_BVHLOADER_H_INC
 #define AI_BVHLOADER_H_INC
 
-#include "BaseImporter.h"
+#include <assimp/BaseImporter.h>
 
 struct aiNode;
 
@@ -82,7 +84,10 @@ class BVHLoader : public BaseImporter
         std::vector<ChannelType> mChannels;
         std::vector<float> mChannelValues; // motion data values for that node. Of size NumChannels * NumFrames
 
-        Node() { }
+        Node()
+        : mNode(nullptr)
+        { }
+
         explicit Node( const aiNode* pNode) : mNode( pNode) { }
     };
 

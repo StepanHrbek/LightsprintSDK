@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -47,31 +49,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // internal headers
 #include "3DSLoader.h"
 #include "TargetAnimation.h"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "StringComparison.h"
-#include <boost/scoped_array.hpp>
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/StringComparison.h>
+#include <memory>
 #include <cctype>
 
 using namespace Assimp;
+
+static const unsigned int NotSet = 0xcdcdcdcd;
 
 // ------------------------------------------------------------------------------------------------
 // Setup final material indices, generae a default material if necessary
 void Discreet3DSImporter::ReplaceDefaultMaterial()
 {
-
     // Try to find an existing material that matches the
     // typical default material setting:
     // - no textures
     // - diffuse color (in grey!)
     // NOTE: This is here to workaround the fact that some
     // exporters are writing a default material, too.
-    unsigned int idx = 0xcdcdcdcd;
+    unsigned int idx( NotSet );
     for (unsigned int i = 0; i < mScene->mMaterials.size();++i)
     {
-        std::string s = mScene->mMaterials[i].mName;
-        for (std::string::iterator it = s.begin(); it != s.end(); ++it)
-            *it = ::tolower(*it);
+        std::string &s = mScene->mMaterials[i].mName;
+        for ( std::string::iterator it = s.begin(); it != s.end(); ++it ) {
+            *it = static_cast< char >( ::tolower( *it ) );
+        }
 
         if (std::string::npos == s.find("default"))continue;
 
@@ -91,7 +95,9 @@ void Discreet3DSImporter::ReplaceDefaultMaterial()
         }
         idx = i;
     }
-    if (0xcdcdcdcd == idx)idx = (unsigned int)mScene->mMaterials.size();
+    if ( NotSet == idx ) {
+        idx = ( unsigned int )mScene->mMaterials.size();
+    }
 
     // now iterate through all meshes and through all faces and
     // find all faces that are using the default material
@@ -114,7 +120,7 @@ void Discreet3DSImporter::ReplaceDefaultMaterial()
             else if ( (*a) >= mScene->mMaterials.size())
             {
                 (*a) = idx;
-                DefaultLogger::get()->warn("Material index overflow in 3DS file. Using default material");
+                ASSIMP_LOG_WARN("Material index overflow in 3DS file. Using default material");
                 ++cnt;
             }
         }
@@ -122,12 +128,11 @@ void Discreet3DSImporter::ReplaceDefaultMaterial()
     if (cnt && idx == mScene->mMaterials.size())
     {
         // We need to create our own default material
-        D3DS::Material sMat;
+        D3DS::Material sMat("%%%DEFAULT");
         sMat.mDiffuse = aiColor3D(0.3f,0.3f,0.3f);
-        sMat.mName = "%%%DEFAULT";
         mScene->mMaterials.push_back(sMat);
 
-        DefaultLogger::get()->info("3DS: Generating default material");
+        ASSIMP_LOG_INFO("3DS: Generating default material");
     }
 }
 
@@ -142,12 +147,12 @@ void Discreet3DSImporter::CheckIndices(D3DS::Mesh& sMesh)
         {
             if ((*i).mIndices[a] >= sMesh.mPositions.size())
             {
-                DefaultLogger::get()->warn("3DS: Vertex index overflow)");
+                ASSIMP_LOG_WARN("3DS: Vertex index overflow)");
                 (*i).mIndices[a] = (uint32_t)sMesh.mPositions.size()-1;
             }
             if ( !sMesh.mTexCoords.empty() && (*i).mIndices[a] >= sMesh.mTexCoords.size())
             {
-                DefaultLogger::get()->warn("3DS: Texture coordinate index overflow)");
+                ASSIMP_LOG_WARN("3DS: Texture coordinate index overflow)");
                 (*i).mIndices[a] = (uint32_t)sMesh.mTexCoords.size()-1;
             }
         }
@@ -196,24 +201,25 @@ void CopyTexture(aiMaterial& mat, D3DS::Texture& texture, aiTextureType type)
 
     // Setup the texture blend factor
     if (is_not_qnan(texture.mTextureBlend))
-        mat.AddProperty<float>( &texture.mTextureBlend, 1, AI_MATKEY_TEXBLEND(type,0));
+        mat.AddProperty<ai_real>( &texture.mTextureBlend, 1, AI_MATKEY_TEXBLEND(type,0));
 
     // Setup the texture mapping mode
-    mat.AddProperty<int>((int*)&texture.mMapMode,1,AI_MATKEY_MAPPINGMODE_U(type,0));
-    mat.AddProperty<int>((int*)&texture.mMapMode,1,AI_MATKEY_MAPPINGMODE_V(type,0));
+    int mapMode = static_cast<int>(texture.mMapMode);
+    mat.AddProperty<int>(&mapMode,1,AI_MATKEY_MAPPINGMODE_U(type,0));
+    mat.AddProperty<int>(&mapMode,1,AI_MATKEY_MAPPINGMODE_V(type,0));
 
     // Mirroring - double the scaling values
     // FIXME: this is not really correct ...
     if (texture.mMapMode == aiTextureMapMode_Mirror)
     {
-        texture.mScaleU *= 2.f;
-        texture.mScaleV *= 2.f;
-        texture.mOffsetU /= 2.f;
-        texture.mOffsetV /= 2.f;
+        texture.mScaleU *= 2.0;
+        texture.mScaleV *= 2.0;
+        texture.mOffsetU /= 2.0;
+        texture.mOffsetV /= 2.0;
     }
 
     // Setup texture UV transformations
-    mat.AddProperty<float>(&texture.mOffsetU,5,AI_MATKEY_UVTRANSFORM(type,0));
+    mat.AddProperty<ai_real>(&texture.mOffsetU,5,AI_MATKEY_UVTRANSFORM(type,0));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -264,10 +270,10 @@ void Discreet3DSImporter::ConvertMaterial(D3DS::Material& oldMat,
     }
 
     // Opacity
-    mat.AddProperty<float>( &oldMat.mTransparency,1,AI_MATKEY_OPACITY);
+    mat.AddProperty<ai_real>( &oldMat.mTransparency,1,AI_MATKEY_OPACITY);
 
     // Bump height scaling
-    mat.AddProperty<float>( &oldMat.mBumpHeight,1,AI_MATKEY_BUMPSCALING);
+    mat.AddProperty<ai_real>( &oldMat.mBumpHeight,1,AI_MATKEY_BUMPSCALING);
 
     // Two sided rendering?
     if (oldMat.mTwoSided)
@@ -308,7 +314,8 @@ void Discreet3DSImporter::ConvertMaterial(D3DS::Material& oldMat,
         case D3DS::Discreet3DS::Blinn :
             eShading = aiShadingMode_Blinn; break;
     }
-    mat.AddProperty<int>( (int*)&eShading,1,AI_MATKEY_SHADING_MODEL);
+    int eShading_ = static_cast<int>(eShading);
+    mat.AddProperty<int>(&eShading_, 1, AI_MATKEY_SHADING_MODEL);
 
     // DIFFUSE texture
     if( oldMat.sTexDiffuse.mMapName.length() > 0)
@@ -358,7 +365,7 @@ void Discreet3DSImporter::ConvertMeshes(aiScene* pcOut)
 
     // we need to split all meshes by their materials
     for (std::vector<D3DS::Mesh>::iterator i =  mScene->mMeshes.begin(); i != mScene->mMeshes.end();++i)    {
-        boost::scoped_array< std::vector<unsigned int> > aiSplit(new std::vector<unsigned int>[mScene->mMaterials.size()]);
+        std::unique_ptr< std::vector<unsigned int>[] > aiSplit(new std::vector<unsigned int>[mScene->mMaterials.size()]);
 
         name.length = ASSIMP_itoa10(name.data,num++);
 
@@ -492,7 +499,7 @@ void Discreet3DSImporter::AddNodeToGraph(aiScene* pcSOut,aiNode* pcOut,
                         pvCurrent->x *= -1.f;
                         t2->x *= -1.f;
                     }
-                    DefaultLogger::get()->info("3DS: Flipping mesh X-Axis");
+                    ASSIMP_LOG_INFO("3DS: Flipping mesh X-Axis");
                 }
 
                 // Handle pivot point
@@ -568,11 +575,11 @@ void Discreet3DSImporter::AddNodeToGraph(aiScene* pcSOut,aiNode* pcOut,
         pcIn->aTargetPositionKeys.size() > 1)
     {
         aiAnimation* anim = pcSOut->mAnimations[0];
-        ai_assert(NULL != anim);
+        ai_assert(nullptr != anim);
 
         if (pcIn->aCameraRollKeys.size() > 1)
         {
-            DefaultLogger::get()->debug("3DS: Converting camera roll track ...");
+            ASSIMP_LOG_DEBUG("3DS: Converting camera roll track ...");
 
             // Camera roll keys - in fact they're just rotations
             // around the camera's z axis. The angles are given
@@ -592,7 +599,7 @@ void Discreet3DSImporter::AddNodeToGraph(aiScene* pcSOut,aiNode* pcOut,
 #if 0
         if (pcIn->aTargetPositionKeys.size() > 1)
         {
-            DefaultLogger::get()->debug("3DS: Converting target track ...");
+            ASSIMP_LOG_DEBUG("3DS: Converting target track ...");
 
             // Camera or spot light - need to convert the separate
             // target position channel to our representation
@@ -663,14 +670,14 @@ void Discreet3DSImporter::AddNodeToGraph(aiScene* pcSOut,aiNode* pcOut,
             nda->mRotationKeys = new aiQuatKey[nda->mNumRotationKeys];
 
             // Rotations are quaternion offsets
-            aiQuaternion abs;
+            aiQuaternion abs1;
             for (unsigned int n = 0; n < nda->mNumRotationKeys;++n)
             {
                 const aiQuatKey& q = pcIn->aRotationKeys[n];
 
-                abs = (n ? abs * q.mValue : q.mValue);
+                abs1 = (n ? abs1 * q.mValue : q.mValue);
                 nda->mRotationKeys[n].mTime  = q.mTime;
-                nda->mRotationKeys[n].mValue = abs.Normalize();
+                nda->mRotationKeys[n].mValue = abs1.Normalize();
             }
         }
 
@@ -689,7 +696,7 @@ void Discreet3DSImporter::AddNodeToGraph(aiScene* pcSOut,aiNode* pcOut,
     pcOut->mChildren = new aiNode*[pcIn->mChildren.size()];
 
     // Recursively process all children
-    const unsigned int size = pcIn->mChildren.size();
+    const unsigned int size = static_cast<unsigned int>(pcIn->mChildren.size());
     for (unsigned int i = 0; i < size;++i)
     {
         pcOut->mChildren[i] = new aiNode();
@@ -738,10 +745,10 @@ void Discreet3DSImporter::GenerateNodeGraph(aiScene* pcOut)
         //   |       |       |            |         |
         // MESH_0  MESH_1  MESH_2  ...  MESH_N    CAMERA_0 ....
         //
-        DefaultLogger::get()->warn("No hierarchy information has been found in the file. ");
+        ASSIMP_LOG_WARN("No hierarchy information has been found in the file. ");
 
         pcOut->mRootNode->mNumChildren = pcOut->mNumMeshes +
-            mScene->mCameras.size() + mScene->mLights.size();
+            static_cast<unsigned int>(mScene->mCameras.size() + mScene->mLights.size());
 
         pcOut->mRootNode->mChildren = new aiNode* [ pcOut->mRootNode->mNumChildren ];
         pcOut->mRootNode->mName.Set("<3DSDummyRoot>");

@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -50,8 +52,7 @@ struct aiScene;
 struct aiNode;
 struct aiMesh;
 
-namespace Assimp
-{
+namespace Assimp {
 
 // ------------------------------------------------------------------------------------------------
 /** Helper class to export a given scene to a STL file. */
@@ -60,15 +61,13 @@ class STLExporter
 {
 public:
     /// Constructor for a specific scene to export
-    STLExporter(const char* filename, const aiScene* pScene, bool binary = false);
-
-public:
+    STLExporter(const char* filename, const aiScene* pScene, bool exportPOintClouds, bool binary = false);
 
     /// public stringstreams to write all output into
     std::ostringstream mOutput;
 
 private:
-
+    void WritePointCloud(const std::string &name, const aiScene* pScene);
     void WriteMesh(const aiMesh* m);
     void WriteMeshBinary(const aiMesh* m);
 

@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -44,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define AI_FINDDEGENERATESPROCESS_H_INC
 
 #include "BaseProcess.h"
-#include "../include/assimp/mesh.h"
+#include <assimp/mesh.h>
 
 class FindDegeneratesProcessTest;
 namespace Assimp    {
@@ -53,14 +55,10 @@ namespace Assimp    {
 // ---------------------------------------------------------------------------
 /** FindDegeneratesProcess: Searches a mesh for degenerated triangles.
 */
-class ASSIMP_API FindDegeneratesProcess : public BaseProcess
-{
+class ASSIMP_API FindDegeneratesProcess : public BaseProcess {
 public:
-
     FindDegeneratesProcess();
     ~FindDegeneratesProcess();
-
-public:
 
     // -------------------------------------------------------------------
     // Check whether step is active
@@ -76,30 +74,56 @@ public:
 
     // -------------------------------------------------------------------
     // Execute step on a given mesh
-    void ExecuteOnMesh( aiMesh* mesh);
-
-
-    // -------------------------------------------------------------------
-    /** @brief Enable the instant removal of degenerated primitives
-     *  @param d hm ... difficult to guess what this means, hu!?
-     */
-    void EnableInstantRemoval(bool d) {
-        configRemoveDegenerates = d;
-    }
+    ///@returns true if the current mesh should be deleted, false otherwise
+    bool ExecuteOnMesh( aiMesh* mesh);
 
     // -------------------------------------------------------------------
-    /** @brief Check whether instant removal is currently enabled
-     *  @return ...
-     */
-    bool IsInstantRemoval() const {
-        return configRemoveDegenerates;
-    }
+    /// @brief Enable the instant removal of degenerated primitives
+    /// @param enabled  true for enabled.
+    void EnableInstantRemoval(bool enabled);
+
+    // -------------------------------------------------------------------
+    /// @brief Check whether instant removal is currently enabled
+    /// @return The instant removal state.
+    bool IsInstantRemoval() const;
+
+    // -------------------------------------------------------------------
+    /// @brief Enable the area check for triangles.
+    /// @param enabled  true for enabled.
+    void EnableAreaCheck( bool enabled );
+
+    // -------------------------------------------------------------------
+    /// @brief Check whether the area check is enabled.
+    /// @return The area check state.
+    bool isAreaCheckEnabled() const;
 
 private:
-
     //! Configuration option: remove degenerates faces immediately
-    bool configRemoveDegenerates;
+    bool mConfigRemoveDegenerates;
+    //! Configuration option: check for area
+    bool mConfigCheckAreaOfTriangle;
 };
+
+inline
+void FindDegeneratesProcess::EnableInstantRemoval(bool enabled) {
+    mConfigRemoveDegenerates = enabled;
 }
+
+inline
+bool FindDegeneratesProcess::IsInstantRemoval() const {
+    return mConfigRemoveDegenerates;
+}
+
+inline
+void FindDegeneratesProcess::EnableAreaCheck( bool enabled ) {
+    mConfigCheckAreaOfTriangle = enabled;
+}
+
+inline
+bool FindDegeneratesProcess::isAreaCheckEnabled() const {
+    return mConfigCheckAreaOfTriangle;
+}
+
+} // Namespace Assimp
 
 #endif // !! AI_FINDDEGENERATESPROCESS_H_INC

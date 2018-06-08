@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -47,15 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FBXParser.h"
 #include "FBXDocument.h"
 #include "FBXImporter.h"
-#include "FBXImportSettings.h"
 #include "FBXDocumentUtil.h"
-#include "FBXProperties.h"
-#include <boost/foreach.hpp>
 
 namespace Assimp {
 namespace FBX {
 
-    using namespace Util;
+using namespace Util;
 
 // ------------------------------------------------------------------------------------------------
 Deformer::Deformer(uint64_t id, const Element& element, const Document& doc, const std::string& name)
@@ -107,7 +106,7 @@ Cluster::Cluster(uint64_t id, const Element& element, const Document& doc, const
 
     // read assigned node
     const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(),"Model");
-    BOOST_FOREACH(const Connection* con, conns) {
+    for(const Connection* con : conns) {
         const Model* const mod = ProcessSimpleConnection<Model>(*con, false, "Model -> Cluster", element);
         if(mod) {
             node = mod;
@@ -143,7 +142,7 @@ Skin::Skin(uint64_t id, const Element& element, const Document& doc, const std::
     const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(),"Deformer");
 
     clusters.reserve(conns.size());
-    BOOST_FOREACH(const Connection* con, conns) {
+    for(const Connection* con : conns) {
 
         const Cluster* const cluster = ProcessSimpleConnection<Cluster>(*con, false, "Cluster -> Skin", element);
         if(cluster) {
@@ -159,8 +158,6 @@ Skin::~Skin()
 {
 
 }
-
-
 
 }
 }

@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -50,11 +52,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // internal headers
 #include "3DSLoader.h"
-#include "Macros.h"
-#include "../include/assimp/IOSystem.hpp"
-#include "../include/assimp/scene.h"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "StringComparison.h"
+#include <assimp/Macros.h>
+#include <assimp/IOSystem.hpp>
+#include <assimp/scene.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/importerdesc.h>
+#include <assimp/StringComparison.h>
 
 using namespace Assimp;
 
@@ -68,7 +71,7 @@ static const aiImporterDesc desc = {
     0,
     0,
     0,
-    "3ds prj"
+	"3ds prj"
 };
 
 
@@ -103,29 +106,31 @@ static const aiImporterDesc desc = {
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
 Discreet3DSImporter::Discreet3DSImporter()
-    : stream(),
-    mLastNodeIndex(),
-    mCurrentNode(),
-    mRootNode(),
-    mScene(),
-    mMasterScale(),
-    bHasBG(),
-    bIsPrj()
-{}
+: stream()
+, mLastNodeIndex()
+, mCurrentNode()
+, mRootNode()
+, mScene()
+, mMasterScale()
+, bHasBG()
+, bIsPrj() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-Discreet3DSImporter::~Discreet3DSImporter()
-{}
+Discreet3DSImporter::~Discreet3DSImporter() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
-bool Discreet3DSImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const
-{
+bool Discreet3DSImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const {
     std::string extension = GetExtension(pFile);
-    if(extension == "3ds" || extension == "prj" ) {
+	if(extension == "3ds" || extension == "prj") {
         return true;
     }
+
     if (!extension.length() || checkSig) {
         uint16_t token[3];
         token[0] = 0x4d4d;
@@ -168,7 +173,7 @@ void Discreet3DSImporter::InternReadFile( const std::string& pFile,
 
     // Initialize members
     mLastNodeIndex             = -1;
-    mCurrentNode               = new D3DS::Node();
+    mCurrentNode               = new D3DS::Node("UNNAMED");
     mRootNode                  = mCurrentNode;
     mRootNode->mHierarchyPos   = -1;
     mRootNode->mHierarchyIndex = -1;
@@ -182,22 +187,21 @@ void Discreet3DSImporter::InternReadFile( const std::string& pFile,
     ParseMainChunk();
 
     // Process all meshes in the file. First check whether all
-    // face indices haev valid values. The generate our
+    // face indices have valid values. The generate our
     // internal verbose representation. Finally compute normal
     // vectors from the smoothing groups we read from the
     // file.
-    for (std::vector<D3DS::Mesh>::iterator i = mScene->mMeshes.begin(),
-         end = mScene->mMeshes.end(); i != end;++i) {
-        if ((*i).mFaces.size() > 0 && (*i).mPositions.size() == 0)  {
+    for (auto &mesh : mScene->mMeshes) {
+        if (mesh.mFaces.size() > 0 && mesh.mPositions.size() == 0)  {
             delete mScene;
             throw DeadlyImportError("3DS file contains faces but no vertices: " + pFile);
         }
-        CheckIndices(*i);
-        MakeUnique  (*i);
-        ComputeNormalsWithSmoothingsGroups<D3DS::Face>(*i);
+        CheckIndices(mesh);
+        MakeUnique  (mesh);
+        ComputeNormalsWithSmoothingsGroups<D3DS::Face>(mesh);
     }
 
-    // Replace all occurences of the default material with a
+    // Replace all occurrences of the default material with a
     // valid material. Generate it if no material containing
     // DEFAULT in its name has been found in the file
     ReplaceDefaultMaterial();
@@ -208,7 +212,7 @@ void Discreet3DSImporter::InternReadFile( const std::string& pFile,
     ConvertScene(pScene);
 
     // Generate the node graph for the scene. This is a little bit
-    // tricky since we'll need to split some meshes into submeshes
+    // tricky since we'll need to split some meshes into sub-meshes
     GenerateNodeGraph(pScene);
 
     // Now apply the master scaling factor to the scene
@@ -254,8 +258,9 @@ void Discreet3DSImporter::ReadChunk(Discreet3DS::Chunk* pcOut)
     if (pcOut->Size - sizeof(Discreet3DS::Chunk) > stream->GetRemainingSize())
         throw DeadlyImportError("Chunk is too large");
 
-    if (pcOut->Size - sizeof(Discreet3DS::Chunk) > stream->GetRemainingSizeToLimit())
-        DefaultLogger::get()->error("3DS: Chunk overflow");
+    if (pcOut->Size - sizeof(Discreet3DS::Chunk) > stream->GetRemainingSizeToLimit()) {
+        ASSIMP_LOG_ERROR("3DS: Chunk overflow");
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -316,7 +321,7 @@ void Discreet3DSImporter::ParseEditorChunk()
         // print the version number
         char buff[10];
         ASSIMP_itoa10(buff,stream->GetI2());
-        DefaultLogger::get()->info(std::string("3DS file format version: ") + buff);
+        ASSIMP_LOG_INFO_F(std::string("3DS file format version: "), buff);
         }
         break;
     };
@@ -345,7 +350,7 @@ void Discreet3DSImporter::ParseObjectChunk()
     case Discreet3DS::CHUNK_MAT_MATERIAL:
 
         // Add a new material to the list
-        mScene->mMaterials.push_back(D3DS::Material());
+        mScene->mMaterials.push_back(D3DS::Material(std::string("UNNAMED_" + to_string(mScene->mMaterials.size()))));
         ParseMaterialChunk();
         break;
 
@@ -357,7 +362,7 @@ void Discreet3DSImporter::ParseObjectChunk()
         if (is_qnan(mClrAmbient.r))
         {
             // We failed to read the ambient base color.
-            DefaultLogger::get()->error("3DS: Failed to read ambient base color");
+            ASSIMP_LOG_ERROR("3DS: Failed to read ambient base color");
             mClrAmbient.r = mClrAmbient.g = mClrAmbient.b = 0.0f;
         }
         break;
@@ -401,11 +406,7 @@ void Discreet3DSImporter::ParseChunk(const char* name, unsigned int num)
     case Discreet3DS::CHUNK_TRIMESH:
         {
         // this starts a new triangle mesh
-        mScene->mMeshes.push_back(D3DS::Mesh());
-        D3DS::Mesh& m = mScene->mMeshes.back();
-
-        // Setup the name of the mesh
-        m.mName = std::string(name, num);
+        mScene->mMeshes.push_back(D3DS::Mesh(std::string(name, num)));
 
         // Read mesh chunks
         ParseMeshChunk();
@@ -459,20 +460,20 @@ void Discreet3DSImporter::ParseChunk(const char* name, unsigned int num)
         camera->mLookAt.x = stream->GetF4() - camera->mPosition.x;
         camera->mLookAt.y = stream->GetF4() - camera->mPosition.y;
         camera->mLookAt.z = stream->GetF4() - camera->mPosition.z;
-        float len = camera->mLookAt.Length();
-        if (len < 1e-5f) {
+        ai_real len = camera->mLookAt.Length();
+        if (len < 1e-5) {
 
             // There are some files with lookat == position. Don't know why or whether it's ok or not.
-            DefaultLogger::get()->error("3DS: Unable to read proper camera look-at vector");
-            camera->mLookAt = aiVector3D(0.f,1.f,0.f);
+            ASSIMP_LOG_ERROR("3DS: Unable to read proper camera look-at vector");
+            camera->mLookAt = aiVector3D(0.0,1.0,0.0);
 
         }
         else camera->mLookAt /= len;
 
         // And finally - the camera rotation angle, in counter clockwise direction
-        const float angle =  AI_DEG_TO_RAD( stream->GetF4() );
+        const ai_real angle =  AI_DEG_TO_RAD( stream->GetF4() );
         aiQuaternion quat(camera->mLookAt,angle);
-        camera->mUp = quat.GetMatrix() * aiVector3D(0.f,1.f,0.f);
+        camera->mUp = quat.GetMatrix() * aiVector3D(0.0,1.0,0.0);
 
         // Read the lense angle
         camera->mHorizontalFOV = AI_DEG_TO_RAD ( stream->GetF4() );
@@ -629,9 +630,9 @@ void Discreet3DSImporter::SkipTCBInfo()
     if (!flags) {
         // Currently we can't do anything with these values. They occur
         // quite rare, so it wouldn't be worth the effort implementing
-        // them. 3DS ist not really suitable for complex animations,
+        // them. 3DS is not really suitable for complex animations,
         // so full support is not required.
-        DefaultLogger::get()->warn("3DS: Skipping TCB animation info");
+        ASSIMP_LOG_WARN("3DS: Skipping TCB animation info");
     }
 
     if (flags & Discreet3DS::KEY_USE_TENS) {
@@ -680,7 +681,7 @@ void Discreet3DSImporter::ParseHierarchyChunk(uint16_t parent)
 
         if ( pcNode)
         {
-            // if the source is not a CHUNK_TRACKINFO block it wont be an object instance
+            // if the source is not a CHUNK_TRACKINFO block it won't be an object instance
             if (parent != Discreet3DS::CHUNK_TRACKINFO)
             {
                 mCurrentNode = pcNode;
@@ -689,8 +690,7 @@ void Discreet3DSImporter::ParseHierarchyChunk(uint16_t parent)
             pcNode->mInstanceCount++;
             instanceNumber = pcNode->mInstanceCount;
         }
-        pcNode = new D3DS::Node();
-        pcNode->mName = name;
+        pcNode = new D3DS::Node(name);
         pcNode->mInstanceNumber = instanceNumber;
 
         // There are two unknown values which we can safely ignore
@@ -733,7 +733,6 @@ void Discreet3DSImporter::ParseHierarchyChunk(uint16_t parent)
 
             // If object name is DUMMY, take this one instead
             if (mCurrentNode->mName == "$$$DUMMY")  {
-                //DefaultLogger::get()->warn("3DS: Skipping dummy object name for non-dummy object");
                 mCurrentNode->mName = std::string(sz);
                 break;
             }
@@ -744,7 +743,7 @@ void Discreet3DSImporter::ParseHierarchyChunk(uint16_t parent)
 
         if ( Discreet3DS::CHUNK_TRACKINFO != parent)
         {
-            DefaultLogger::get()->warn("3DS: Skipping pivot subchunk for non usual object");
+            ASSIMP_LOG_WARN("3DS: Skipping pivot subchunk for non usual object");
             break;
         }
 
@@ -806,7 +805,7 @@ void Discreet3DSImporter::ParseHierarchyChunk(uint16_t parent)
         {
         // roll keys are accepted for cameras only
         if (parent != Discreet3DS::CHUNK_TRACKCAMERA)   {
-            DefaultLogger::get()->warn("3DS: Ignoring roll track for non-camera object");
+            ASSIMP_LOG_WARN("3DS: Ignoring roll track for non-camera object");
             break;
         }
         bool sortKeys = false;
@@ -846,7 +845,7 @@ void Discreet3DSImporter::ParseHierarchyChunk(uint16_t parent)
         // CAMERA FOV KEYFRAME
     case Discreet3DS::CHUNK_TRACKFOV:
         {
-            DefaultLogger::get()->error("3DS: Skipping FOV animation track. "
+            ASSIMP_LOG_ERROR("3DS: Skipping FOV animation track. "
                 "This is not supported");
         }
         break;
@@ -986,7 +985,7 @@ void Discreet3DSImporter::ParseFaceChunk()
             }
         }
         if (0xcdcdcdcd == idx)  {
-            DefaultLogger::get()->error(std::string("3DS: Unknown material: ") + sz);
+            ASSIMP_LOG_ERROR_F( "3DS: Unknown material: ", sz);
         }
 
         // Now continue and read all material indices
@@ -996,7 +995,7 @@ void Discreet3DSImporter::ParseFaceChunk()
 
             // check range
             if (fidx >= mMesh.mFaceMaterials.size())    {
-                DefaultLogger::get()->error("3DS: Invalid face index in face material list");
+                ASSIMP_LOG_ERROR("3DS: Invalid face index in face material list");
             }
             else mMesh.mFaceMaterials[fidx] = idx;
         }}
@@ -1111,7 +1110,7 @@ void Discreet3DSImporter::ParseMaterialChunk()
 
         if (!cnt)   {
             // This may not be, we use the default name instead
-            DefaultLogger::get()->error("3DS: Empty material name");
+            ASSIMP_LOG_ERROR("3DS: Empty material name");
         }
         else mScene->mMaterials.back().mName = std::string(sz,cnt);
         }
@@ -1124,7 +1123,7 @@ void Discreet3DSImporter::ParseMaterialChunk()
         ParseColorChunk(pc);
         if (is_qnan(pc->r)) {
             // color chunk is invalid. Simply ignore it
-            DefaultLogger::get()->error("3DS: Unable to read DIFFUSE chunk");
+            ASSIMP_LOG_ERROR("3DS: Unable to read DIFFUSE chunk");
             pc->r = pc->g = pc->b = 1.0f;
         }}
         break;
@@ -1136,7 +1135,7 @@ void Discreet3DSImporter::ParseMaterialChunk()
         ParseColorChunk(pc);
         if (is_qnan(pc->r)) {
             // color chunk is invalid. Simply ignore it
-            DefaultLogger::get()->error("3DS: Unable to read SPECULAR chunk");
+            ASSIMP_LOG_ERROR("3DS: Unable to read SPECULAR chunk");
             pc->r = pc->g = pc->b = 1.0f;
         }}
         break;
@@ -1148,7 +1147,7 @@ void Discreet3DSImporter::ParseMaterialChunk()
         ParseColorChunk(pc);
         if (is_qnan(pc->r)) {
             // color chunk is invalid. Simply ignore it
-            DefaultLogger::get()->error("3DS: Unable to read AMBIENT chunk");
+            ASSIMP_LOG_ERROR("3DS: Unable to read AMBIENT chunk");
             pc->r = pc->g = pc->b = 0.0f;
         }}
         break;
@@ -1160,21 +1159,22 @@ void Discreet3DSImporter::ParseMaterialChunk()
         ParseColorChunk(pc);
         if (is_qnan(pc->r)) {
             // color chunk is invalid. Simply ignore it
-            DefaultLogger::get()->error("3DS: Unable to read EMISSIVE chunk");
+            ASSIMP_LOG_ERROR("3DS: Unable to read EMISSIVE chunk");
             pc->r = pc->g = pc->b = 0.0f;
         }}
         break;
 
     case Discreet3DS::CHUNK_MAT_TRANSPARENCY:
         {
-        // This is the material's transparency
-        float* pcf = &mScene->mMaterials.back().mTransparency;
-        *pcf = ParsePercentageChunk();
+            // This is the material's transparency
+            ai_real* pcf = &mScene->mMaterials.back().mTransparency;
+            *pcf = ParsePercentageChunk();
 
-        // NOTE: transparency, not opacity
-        if (is_qnan(*pcf))
-            *pcf = 1.0f;
-        else *pcf = 1.0f - *pcf * (float)0xFFFF / 100.0f;
+            // NOTE: transparency, not opacity
+            if (is_qnan(*pcf))
+                *pcf = ai_real( 1.0 );
+            else 
+                *pcf = ai_real( 1.0 ) - *pcf * (ai_real)0xFFFF / ai_real( 100.0 );
         }
         break;
 
@@ -1190,31 +1190,33 @@ void Discreet3DSImporter::ParseMaterialChunk()
 
     case Discreet3DS::CHUNK_MAT_SHININESS:
         { // This is the shininess of the material
-        float* pcf = &mScene->mMaterials.back().mSpecularExponent;
+        ai_real* pcf = &mScene->mMaterials.back().mSpecularExponent;
         *pcf = ParsePercentageChunk();
         if (is_qnan(*pcf))
-            *pcf = 0.0f;
-        else *pcf *= (float)0xFFFF;
+            *pcf = 0.0;
+        else *pcf *= (ai_real)0xFFFF;
         }
         break;
 
     case Discreet3DS::CHUNK_MAT_SHININESS_PERCENT:
         { // This is the shininess strength of the material
-        float* pcf = &mScene->mMaterials.back().mShininessStrength;
-        *pcf = ParsePercentageChunk();
-        if (is_qnan(*pcf))
-            *pcf = 0.0f;
-        else *pcf *= (float)0xffff / 100.0f;
+            ai_real* pcf = &mScene->mMaterials.back().mShininessStrength;
+            *pcf = ParsePercentageChunk();
+            if (is_qnan(*pcf))
+                *pcf = ai_real( 0.0 );
+            else 
+                *pcf *= (ai_real)0xffff / ai_real( 100.0 );
         }
         break;
 
     case Discreet3DS::CHUNK_MAT_SELF_ILPCT:
         { // This is the self illumination strength of the material
-        float f = ParsePercentageChunk();
-        if (is_qnan(f))
-            f = 0.0f;
-        else f *= (float)0xFFFF / 100.0f;
-        mScene->mMaterials.back().mEmissive = aiColor3D(f,f,f);
+            ai_real f = ParsePercentageChunk();
+            if (is_qnan(f))
+                f = ai_real( 0.0 );
+            else 
+                f *= (ai_real)0xFFFF / ai_real( 100.0 );
+            mScene->mMaterials.back().mEmissive = aiColor3D(f,f,f);
         }
         break;
 
@@ -1271,6 +1273,11 @@ void Discreet3DSImporter::ParseTextureChunk(D3DS::Texture* pcOut)
         break;
 
 
+    case Discreet3DS::CHUNK_PERCENTD:
+        // Manually parse the blend factor
+        pcOut->mTextureBlend = ai_real( stream->GetF8() );
+        break;
+
     case Discreet3DS::CHUNK_PERCENTF:
         // Manually parse the blend factor
         pcOut->mTextureBlend = stream->GetF4();
@@ -1278,7 +1285,7 @@ void Discreet3DSImporter::ParseTextureChunk(D3DS::Texture* pcOut)
 
     case Discreet3DS::CHUNK_PERCENTW:
         // Manually parse the blend factor
-        pcOut->mTextureBlend = (float)((uint16_t)stream->GetI2()) / 100.0f;
+        pcOut->mTextureBlend = (ai_real)((uint16_t)stream->GetI2()) / ai_real( 100.0 );
         break;
 
     case Discreet3DS::CHUNK_MAT_MAP_USCALE:
@@ -1286,7 +1293,7 @@ void Discreet3DSImporter::ParseTextureChunk(D3DS::Texture* pcOut)
         pcOut->mScaleU = stream->GetF4();
         if (0.0f == pcOut->mScaleU)
         {
-            DefaultLogger::get()->warn("Texture coordinate scaling in the x direction is zero. Assuming 1.");
+            ASSIMP_LOG_WARN("Texture coordinate scaling in the x direction is zero. Assuming 1.");
             pcOut->mScaleU = 1.0f;
         }
         break;
@@ -1295,7 +1302,7 @@ void Discreet3DSImporter::ParseTextureChunk(D3DS::Texture* pcOut)
         pcOut->mScaleV = stream->GetF4();
         if (0.0f == pcOut->mScaleV)
         {
-            DefaultLogger::get()->warn("Texture coordinate scaling in the y direction is zero. Assuming 1.");
+            ASSIMP_LOG_WARN("Texture coordinate scaling in the y direction is zero. Assuming 1.");
             pcOut->mScaleV = 1.0f;
         }
         break;
@@ -1337,7 +1344,7 @@ void Discreet3DSImporter::ParseTextureChunk(D3DS::Texture* pcOut)
 
 // ------------------------------------------------------------------------------------------------
 // Read a percentage chunk
-float Discreet3DSImporter::ParsePercentageChunk()
+ai_real Discreet3DSImporter::ParsePercentageChunk()
 {
     Discreet3DS::Chunk chunk;
     ReadChunk(&chunk);
@@ -1345,19 +1352,18 @@ float Discreet3DSImporter::ParsePercentageChunk()
     if (Discreet3DS::CHUNK_PERCENTF == chunk.Flag)
         return stream->GetF4();
     else if (Discreet3DS::CHUNK_PERCENTW == chunk.Flag)
-        return (float)((uint16_t)stream->GetI2()) / (float)0xFFFF;
+        return (ai_real)((uint16_t)stream->GetI2()) / (ai_real)0xFFFF;
     return get_qnan();
 }
 
 // ------------------------------------------------------------------------------------------------
 // Read a color chunk. If a percentage chunk is found instead it is read as a grayscale color
-void Discreet3DSImporter::ParseColorChunk(aiColor3D* out,
-    bool acceptPercent)
+void Discreet3DSImporter::ParseColorChunk( aiColor3D* out, bool acceptPercent )
 {
     ai_assert(out != NULL);
 
     // error return value
-    const float qnan = get_qnan();
+    const ai_real qnan = get_qnan();
     static const aiColor3D clrError = aiColor3D(qnan,qnan,qnan);
 
     Discreet3DS::Chunk chunk;
@@ -1385,13 +1391,16 @@ void Discreet3DSImporter::ParseColorChunk(aiColor3D* out,
     case Discreet3DS::CHUNK_LINRGBB:
         bGamma = true;
     case Discreet3DS::CHUNK_RGBB:
-        if (sizeof(char) * 3 > diff)    {
-            *out = clrError;
-            return;
+        {
+            if ( sizeof( char ) * 3 > diff ) {
+                *out = clrError;
+                return;
+            }
+            const ai_real invVal = ai_real( 1.0 ) / ai_real( 255.0 );
+            out->r = ( ai_real ) ( uint8_t ) stream->GetI1() * invVal;
+            out->g = ( ai_real ) ( uint8_t ) stream->GetI1() * invVal;
+            out->b = ( ai_real ) ( uint8_t ) stream->GetI1() * invVal;
         }
-        out->r = (float)(uint8_t)stream->GetI1() / 255.0f;
-        out->g = (float)(uint8_t)stream->GetI1() / 255.0f;
-        out->b = (float)(uint8_t)stream->GetI1() / 255.0f;
         break;
 
     // Percentage chunks are accepted, too.
@@ -1405,7 +1414,7 @@ void Discreet3DSImporter::ParseColorChunk(aiColor3D* out,
 
     case Discreet3DS::CHUNK_PERCENTW:
         if (acceptPercent && 1 <= diff) {
-            out->g = out->b = out->r = (float)(uint8_t)stream->GetI1() / 255.0f;
+            out->g = out->b = out->r = (ai_real)(uint8_t)stream->GetI1() / ai_real( 255.0 );
             break;
         }
         *out = clrError;

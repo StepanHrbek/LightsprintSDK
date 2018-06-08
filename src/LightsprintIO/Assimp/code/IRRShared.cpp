@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 
 All rights reserved.
 
@@ -49,10 +51,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if !(defined(ASSIMP_BUILD_NO_IRR_IMPORTER) && defined(ASSIMP_BUILD_NO_IRRMESH_IMPORTER))
 
 #include "IRRShared.h"
-#include "ParsingUtils.h"
-#include "fast_atof.h"
-#include "../include/assimp/DefaultLogger.hpp"
-#include "../include/assimp/material.h"
+#include <assimp/ParsingUtils.h>
+#include <assimp/fast_atof.h>
+#include <assimp/DefaultLogger.hpp>
+#include <assimp/material.h>
 
 
 using namespace Assimp;
@@ -177,14 +179,14 @@ void IrrlichtBase::ReadVectorProperty  (VectorProperty&  out)
             SkipSpaces(&ptr);
             if (',' != *ptr)
             {
-                DefaultLogger::get()->error("IRR(MESH): Expected comma in vector definition");
+                ASSIMP_LOG_ERROR("IRR(MESH): Expected comma in vector definition");
             }
             else SkipSpaces(ptr+1,&ptr);
             ptr = fast_atoreal_move<float>( ptr,(float&)out.value.y );
             SkipSpaces(&ptr);
             if (',' != *ptr)
             {
-                DefaultLogger::get()->error("IRR(MESH): Expected comma in vector definition");
+                ASSIMP_LOG_ERROR("IRR(MESH): Expected comma in vector definition");
             }
             else SkipSpaces(ptr+1,&ptr);
             ptr = fast_atoreal_move<float>( ptr,(float&)out.value.z );
@@ -358,7 +360,7 @@ aiMaterial* IrrlichtBase::ParseMaterial(unsigned int& matFlags)
                             matFlags = AI_IRRMESH_MAT_normalmap_ta;
                         }
                         else {
-                            DefaultLogger::get()->warn("IRRMat: Unrecognized material type: " + prop.value);
+                            ASSIMP_LOG_WARN("IRRMat: Unrecognized material type: " + prop.value);
                         }
                     }
 
@@ -389,9 +391,7 @@ aiMaterial* IrrlichtBase::ParseMaterial(unsigned int& matFlags)
 
                             // set the corresponding material flag
                             matFlags |= AI_IRRMESH_EXTRA_2ND_TEXTURE;
-                        }
-                        // or just as second diffuse texture
-                        else if (matFlags & AI_IRRMESH_MAT_solid_2layer)    {
+                        } else if (matFlags & AI_IRRMESH_MAT_solid_2layer)    {// or just as second diffuse texture
                             ++cnt;
                             s.Set(prop.value);
                             mat->AddProperty(&s,AI_MATKEY_TEXTURE_DIFFUSE(1));
@@ -399,19 +399,15 @@ aiMaterial* IrrlichtBase::ParseMaterial(unsigned int& matFlags)
 
                             // set the corresponding material flag
                             matFlags |= AI_IRRMESH_EXTRA_2ND_TEXTURE;
+                        } else {
+                            ASSIMP_LOG_WARN("IRRmat: Skipping second texture");
                         }
-                        else DefaultLogger::get()->warn("IRRmat: Skipping second texture");
-                    }
-
-                    else if (prop.name == "Texture3" && cnt == 2)
-                    {
+                    } else if (prop.name == "Texture3" && cnt == 2) {
                         // Irrlicht does not seem to use these channels.
                         ++cnt;
                         s.Set(prop.value);
                         mat->AddProperty(&s,AI_MATKEY_TEXTURE_DIFFUSE(nd+1));
-                    }
-                    else if (prop.name == "Texture4" && cnt == 3)
-                    {
+                    } else if (prop.name == "Texture4" && cnt == 3) {
                         // Irrlicht does not seem to use these channels.
                         ++cnt;
                         s.Set(prop.value);
@@ -497,7 +493,8 @@ aiMaterial* IrrlichtBase::ParseMaterial(unsigned int& matFlags)
                 break;
         }
     }
-    DefaultLogger::get()->error("IRRMESH: Unexpected end of file. Material is not complete");
+    ASSIMP_LOG_ERROR("IRRMESH: Unexpected end of file. Material is not complete");
+
     return mat;
 }
 

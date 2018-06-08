@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2008, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -41,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ASSIMP_Q3BSPFILEPARSER_H_INC
 #define ASSIMP_Q3BSPFILEPARSER_H_INC
 
-#include "BaseImporter.h"
+#include <assimp/BaseImporter.h>
 #include <string>
 
 namespace Assimp

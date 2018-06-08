@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -43,9 +45,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 #include <assimp/vector2.h>
 #include <assimp/vector3.h>
 #include <assimp/mesh.h>
+#include <assimp/IOStreamBuffer.h>
 
 namespace Assimp {
 
@@ -63,7 +67,7 @@ class ProgressHandler;
 
 /// \class  ObjFileParser
 /// \brief  Parser for a obj waveform file
-class ObjFileParser {
+class ASSIMP_API ObjFileParser {
 public:
     static const size_t Buffersize = 4096;
     typedef std::vector<char> DataArray;
@@ -71,24 +75,34 @@ public:
     typedef std::vector<char>::const_iterator ConstDataArrayIt;
 
 public:
-    /// \brief  Constructor with data array.
-    ObjFileParser(std::vector<char> &Data,const std::string &strModelName, IOSystem* io, ProgressHandler* progress);
-    /// \brief  Destructor
+    /// @brief  The default constructor.
+    ObjFileParser();
+    /// @brief  Constructor with data array.
+    ObjFileParser( IOStreamBuffer<char> &streamBuffer, const std::string &modelName, IOSystem* io, ProgressHandler* progress, const std::string &originalObjFileName);
+    /// @brief  Destructor
     ~ObjFileParser();
-    /// \brief  Model getter.
+    /// @brief  If you want to load in-core data.
+    void setBuffer( std::vector<char> &buffer );
+    /// @brief  Model getter.
     ObjFile::Model *GetModel() const;
 
-private:
+protected:
     /// Parse the loaded file
-    void parseFile();
+    void parseFile( IOStreamBuffer<char> &streamBuffer );
     /// Method to copy the new delimited word in the current line.
     void copyNextWord(char *pBuffer, size_t length);
     /// Method to copy the new line.
-    void copyNextLine(char *pBuffer, size_t length);
+//    void copyNextLine(char *pBuffer, size_t length);
+    /// Get the number of components in a line.
+    size_t getNumComponentsInDataDefinition();
     /// Stores the vector
     void getVector( std::vector<aiVector3D> &point3d_array );
     /// Stores the following 3d vector.
     void getVector3( std::vector<aiVector3D> &point3d_array );
+    /// Stores the following homogeneous vector as a 3D vector
+    void getHomogeneousVector3( std::vector<aiVector3D> &point3d_array );
+    /// Stores the following two 3d vectors on the line.
+    void getTwoVectors3( std::vector<aiVector3D> &point3d_array_a, std::vector<aiVector3D> &point3d_array_b );
     /// Stores the following 3d vector.
     void getVector2(std::vector<aiVector2D> &point2d_array);
     /// Stores the following face.
@@ -133,7 +147,7 @@ private:
     //! Iterator to end position of buffer
     DataArrayIt m_DataItEnd;
     //! Pointer to model instance
-    ObjFile::Model *m_pModel;
+    std::unique_ptr<ObjFile::Model> m_pModel;
     //! Current line (for debugging)
     unsigned int m_uiLine;
     //! Helper buffer
@@ -142,7 +156,8 @@ private:
     IOSystem *m_pIO;
     //! Pointer to progress handler
     ProgressHandler* m_progress;
-    /// Path to the current model
+    /// Path to the current model, name of the obj file where the buffer comes from
+    const std::string m_originalObjFileName;
 };
 
 }   // Namespace Assimp

@@ -2,7 +2,9 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2018, assimp team
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -46,8 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef AI_MD5PARSER_H_INCLUDED
 #define AI_MD5PARSER_H_INCLUDED
 
-#include "../include/assimp/types.h"
-#include "ParsingUtils.h"
+#include <assimp/types.h>
+#include <assimp/ParsingUtils.h>
 #include <vector>
 #include <stdint.h>
 
@@ -370,14 +372,14 @@ public:
     // -------------------------------------------------------------------
     /** Report a specific error message and throw an exception
      *  @param error Error message to be reported
-     *  @param line Index of the line where the error occured
+     *  @param line Index of the line where the error occurred
      */
     AI_WONT_RETURN static void ReportError (const char* error, unsigned int line) AI_WONT_RETURN_SUFFIX;
 
     // -------------------------------------------------------------------
     /** Report a specific warning
      *  @param warn Warn message to be reported
-     *  @param line Index of the line where the error occured
+     *  @param line Index of the line where the error occurred
      */
     static void ReportWarning (const char* warn, unsigned int line);
 
