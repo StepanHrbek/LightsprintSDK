@@ -1644,10 +1644,10 @@ reload_skybox:
 				_chdir("../../data/scenes/SmallLuxGpu");
 				saveScene("scene.scn");
 #if defined(_M_X64) || defined(_LP64)
-				_spawnl(_P_NOWAIT,"../../../bin/x64/slg4.exe","../../../bin/x64/slg4.exe","scene.cfg",nullptr);
+				_spawnl(_P_NOWAIT,"../../../bin/x64/luxcoreui.exe","../../../bin/x64/luxcoreui.exe","scene.cfg",nullptr);
 				_chdir("../../../bin/x64");
 #else
-				_spawnl(_P_NOWAIT,"../../../bin/win32/slg4.exe","../../../bin/win32/slg4.exe","scene.cfg",nullptr);
+				_spawnl(_P_NOWAIT,"../../../bin/win32/luxcoreui.exe","../../../bin/win32/luxcoreui.exe","scene.cfg",nullptr);
 				_chdir("../../../bin/win32");
 #endif
 			}
