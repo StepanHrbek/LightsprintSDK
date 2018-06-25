@@ -245,12 +245,27 @@ public:
 				{	
 					for (unsigned t=0;t<numTriangles;t++)
 						memcpy(&mesh->triangle[t][0],&aimesh->mFaces[t].mIndices[0],sizeof(RRMesh::Triangle));
-					memcpy(mesh->position,aimesh->mVertices,numVertices*sizeof(RRVec3));
-					memcpy(mesh->normal,aimesh->mNormals,numVertices*sizeof(RRVec3));
-					if (tangents)
+					if (sizeof(ai_real)==sizeof(RRReal))
 					{
-						memcpy(mesh->tangent,aimesh->mTangents,numVertices*sizeof(RRVec3));
-						memcpy(mesh->bitangent,aimesh->mBitangents,numVertices*sizeof(RRVec3));
+						// memcpy if both assimp and lightsprint use the same float type
+						memcpy(mesh->position,aimesh->mVertices,numVertices*sizeof(RRVec3));
+						memcpy(mesh->normal,aimesh->mNormals,numVertices*sizeof(RRVec3));
+						if (tangents)
+						{
+							memcpy(mesh->tangent,aimesh->mTangents,numVertices*sizeof(RRVec3));
+							memcpy(mesh->bitangent,aimesh->mBitangents,numVertices*sizeof(RRVec3));
+						}
+					}
+					else
+					{
+						// convert between doubles and floats
+						for (unsigned v=0;v<numVertices;v++)
+						{
+							mesh->position[v] = convertPos(aimesh->mVertices[v]);
+							mesh->normal[v] = convertDir(aimesh->mNormals[v]);
+							if (tangents) mesh->tangent[v] = convertDir(aimesh->mTangents[v]);
+							if (tangents) mesh->bitangent[v] = convertDir(aimesh->mBitangents[v]);
+						}
 					}
 					for (unsigned uv=0;uv<numTexcoords;uv++)
 						for (unsigned v=0;v<numVertices;v++)
