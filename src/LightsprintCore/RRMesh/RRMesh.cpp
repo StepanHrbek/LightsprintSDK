@@ -618,6 +618,16 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			numReports[0]++;
 			RRReporter::report(WARN,"degen: getTriangleBody(%d).side2==0\n",i);
 		}
+		if (triangleBody.side1.length()>1e15f)
+		{
+			numReports[0]++;
+			RRReporter::report(WARN,"huge: getTriangleBody(%d).side1.length()=%f\n",i,triangleBody.side1.length());
+		}
+		if (triangleBody.side2.length()>1e15f)
+		{
+			numReports[0]++;
+			RRReporter::report(WARN,"huge: getTriangleBody(%d).side2.length()==%f\n",i,triangleBody.side2.length());
+		}
 
 		// triangleBody equals triangle
 		Vertex vertex[3];
@@ -676,11 +686,14 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 		TriangleNormals triangleNormals;
 		TriangleNormals triangleNormalsFlat;
 		getTriangleNormals(i,triangleNormals);
-		RRMesh::getTriangleNormals(i,triangleNormalsFlat);
 		bool nanOrInf = false;
 		bool denormalized = false;
 		bool badDirection = false;
 		bool notOrthogonal = false;
+		bool badTriangleNormalsFlat = !IS_VEC3(orthogonalTo(triangleBody.side1,triangleBody.side2).normalizedSafe());
+		if (!badTriangleNormalsFlat) // if normal is bad, don't call RRMesh::getTriangleNormals, it would assert
+			RRMesh::getTriangleNormals(i,triangleNormalsFlat);
+
 		for (unsigned j=0;j<3;j++)
 		{
 			if (!IS_VEC3(triangleNormals.vertex[j].normal)) nanOrInf = true;
@@ -689,7 +702,8 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			if (fabs(size2(triangleNormals.vertex[j].normal)-1)>0.1f) denormalized = true;
 			if (fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
 			if (fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
-			if (dot(triangleNormals.vertex[j].normal,triangleNormalsFlat.vertex[0].normal)<0) {badDirection = true;	numBadNormalDirections++;}
+			if (badTriangleNormalsFlat) nanOrInf = true; else
+				if (dot(triangleNormals.vertex[j].normal,triangleNormalsFlat.vertex[0].normal)<0) {badDirection = true;	numBadNormalDirections++;}
 			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
 			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
 			if (fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
