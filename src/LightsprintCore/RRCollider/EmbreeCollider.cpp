@@ -167,6 +167,8 @@ class EmbreeCollider : public RRCollider
 					if (RTCHitN_instID(_args->hit,_args->N,i,0)<contextEx->objects->size())
 					{
 						rrRayLocal.hitObject = (*contextEx->objects)[RTCHitN_instID(_args->hit,_args->N,i,0)];
+						if (!rrRayLocal.hitObject->enabled)
+							goto continue_ray;
 						worldMatrix = rrRayLocal.hitObject->getWorldMatrix();
 					}
 					else
@@ -209,6 +211,7 @@ class EmbreeCollider : public RRCollider
 
 				if (!rrRayLocal.collisionHandler->collides(rrRayLocal))
 				{
+				continue_ray:
 					_args->valid[i] = 0;
 				}
 
