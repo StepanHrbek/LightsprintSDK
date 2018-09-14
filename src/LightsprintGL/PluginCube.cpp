@@ -96,7 +96,14 @@ public:
 			rr::RRVec3(0,-RR_PI/2,RR_PI/2), // TOP
 			rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
 			rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
-			*/
+			// if we capture empty scene with skybox, we get sky rotated by 90 degrees:
+			rr::RRVec3(RR_PI,0,RR_PI), // BACK
+			rr::RRVec3(0,0,RR_PI), // FRONT
+			rr::RRVec3(0,RR_PI/2,RR_PI*1/2), // BOTTOM
+			rr::RRVec3(0,-RR_PI/2,RR_PI*3/2), // TOP
+			rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
+			rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
+			/**/
 		};
 		char s_scissor[6] =
 		{

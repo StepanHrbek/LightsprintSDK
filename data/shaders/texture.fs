@@ -88,6 +88,7 @@ void main()
 		// [#42]
 		#ifdef CUBE_TO_EQUIRECTANGULAR
 			// [#55] rotated so that render of empty scene with equirectangular environment E is E
+			// [#64] texture.fs (rasterizer) should match getPositionInViewport (selection) and getRay (CPU pathtracer). but it does not. i was not able to calculate correct direction here
 			direction.y = sin(RR_PI*(uv.y-0.5));
 			direction.x = sin(RR_PI*(2.0*uv.x+1.5)) * sqrt(1.0-direction.y*direction.y);
 			direction.z = sqrt(max(1.0-direction.x*direction.x-direction.y*direction.y,0.0)); // max() fixes center lines on intel

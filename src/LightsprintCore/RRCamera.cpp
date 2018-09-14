@@ -973,6 +973,7 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 	RRVec2 posInWindow(0);
 	if (panoramaMode==PM_EQUIRECTANGULAR)
 	{
+		// [#64] getPositionInViewport (selection) should match getRay (CPU pathtracer) and texture.fs (rasterizer)
 		direction.normalize();
 		RRReal y = asin(direction.y)*2/RR_PI;
 		RRReal x = 0.5f - asin( direction.x / sqrt(1-direction.y*direction.y) ) / RR_PI;
@@ -1159,12 +1160,13 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir, boo
 	bool result = false;
 	if (panoramaMode==PM_EQUIRECTANGULAR)
 	{
+		// [#64] getRay (called from CPU pathtracer) should match getPositionInViewport (selection) and texture.fs (rasterizer)
 		RRVec3 direction;
 		direction.y = sin(RR_PI/2*posInWindow.y);
-		direction.x = sin(RR_PI*(-posInWindow.x+0.5f)) * sqrt(1-direction.y*direction.y);
+		direction.x = sin(RR_PI*(-posInWindow.x+1)) * sqrt(1-direction.y*direction.y);
 		direction.z = 1-direction.x*direction.x-direction.y*direction.y;
 		direction.z = sqrt(RR_MAX(0,direction.z));
-		if (posInWindow.x<0)
+		if (posInWindow.x<0.5f && posInWindow.x>-0.5f)
 			direction.z = -direction.z;
 		rayDir = direction;
 		result = true;
@@ -1391,16 +1393,16 @@ void RRCamera::updateProjection()
 	}
 	else
 	{
-		projectionMatrix[0] = 1/(tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2)*aspect);
+		projectionMatrix[0] = 1/(tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2)*aspect); // 2.0*n/(r-l)
 		projectionMatrix[1] = 0;
 		projectionMatrix[2] = 0;
 		projectionMatrix[3] = 0;
 		projectionMatrix[4] = 0;
-		projectionMatrix[5] = 1/tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2);
+		projectionMatrix[5] = 1/tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2); // 2.0*n/(t-b)
 		projectionMatrix[6] = 0;
 		projectionMatrix[7] = 0;
-		projectionMatrix[8] = screenCenter.x;
-		projectionMatrix[9] = screenCenter.y;
+		projectionMatrix[8] = screenCenter.x; // (r+l)/(r-l)
+		projectionMatrix[9] = screenCenter.y; // (t+b)/(t-b);
 		projectionMatrix[10] = (afar+anear)/(anear-afar);
 		projectionMatrix[11] = -1;
 		projectionMatrix[12] = 0;
