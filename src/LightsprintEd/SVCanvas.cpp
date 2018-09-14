@@ -1837,6 +1837,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			solver->getRenderer()->getTextureRenderer()->render2D(rr_gl::getTexture(pathTracedBuffer,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&tp,0,0,1,1);
 			glClear(GL_DEPTH_BUFFER_BIT); // necessary for selection plugin
 
+			// setup blending for panorama plugin, to _add_ contours to pathTracedBuffer
+			rr_gl::PreserveFlag p1(GL_BLEND,true);
+			rr_gl::glBlendFunc(GL_ONE, GL_ONE);
+
 			// copy&paste-d plugins that make sense with pathtracer
 
 			// selection plugin
@@ -1852,6 +1856,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppSelection.wireframe = true;
 			if (selectedObjects.size() && !_takingSshot && !svs.renderStereo && !svs.renderPanorama)
 				pluginChain = &ppSelection;
+
+			// panorama plugin (only for proper render of selection contours in panorama modes)
+			rr_gl::PluginParamsPanorama ppPanorama(pluginChain);
+			if (svs.renderPanorama)
+				pluginChain = &ppPanorama;
 
 			// lens flare plugin
 			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,solver,64);
