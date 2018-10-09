@@ -43,7 +43,7 @@ public:
 	virtual unsigned getDepth()                                      const {return 6;}
 	virtual RRBufferFormat getFormat()                               const {return environment0?environment0->getFormat():BF_RGBA;}
 	virtual bool getScaled()                                         const {return environment0?environment0->getScaled():false;}
-	virtual unsigned getBufferBytes()                                const {return sizeof(*this);}
+	virtual size_t getBufferBytes()                                  const {return sizeof(*this);}
 	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace)const {report("getElement");return RRVec4(0);}
 	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const {report("getElementAtPosition");return RRVec4(0);}
 	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const;

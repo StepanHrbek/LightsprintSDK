@@ -33,7 +33,7 @@ public:
 	virtual unsigned getDepth() const override {return depth;}
 	virtual RRBufferFormat getFormat() const override {return format;}
 	virtual bool getScaled() const override {return scaled;}
-	virtual unsigned getBufferBytes() const override;
+	virtual size_t getBufferBytes() const override;
 	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const override;
 	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const override;
 	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const override;

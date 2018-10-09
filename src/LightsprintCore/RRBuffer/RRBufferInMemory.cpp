@@ -41,7 +41,7 @@ static unsigned getBitsPerPixel(RRBufferFormat format)
 	return 0;
 }
 
-static unsigned getBufferSize(RRBufferFormat _format, unsigned _width, unsigned _height, unsigned _depth)
+static size_t getBufferSize(RRBufferFormat _format, unsigned _width, unsigned _height, unsigned _depth)
 {
 	switch (_format)
 	{
@@ -56,7 +56,10 @@ static unsigned getBufferSize(RRBufferFormat _format, unsigned _width, unsigned 
 			// no alignment
 			break;
 	}
-	return _width * _height * _depth * getBitsPerPixel(_format) / 8;
+	size_t result = size_t(_width) * _height * _depth * getBitsPerPixel(_format) / 8;
+	if (result>UINT_MAX)
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Huge buffer (over 4GiB).\n"));
+	return result;
 }
 
 unsigned RRBuffer::getElementBits() const
@@ -64,7 +67,7 @@ unsigned RRBuffer::getElementBits() const
 	return getBitsPerPixel(getFormat());
 }
 
-unsigned RRBuffer::getBufferBytes() const
+size_t RRBuffer::getBufferBytes() const
 {
 	return getBufferSize(getFormat(),getWidth(),getHeight(),getDepth());
 }
@@ -148,7 +151,7 @@ void RRBufferInMemory::operator delete(void* p, std::size_t n)
 };
 
 
-unsigned RRBufferInMemory::getBufferBytes() const
+size_t RRBufferInMemory::getBufferBytes() const
 {
 	return data ? RRBuffer::getBufferBytes() : 0;
 }
@@ -186,7 +189,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 //		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Float buffer used for data in custom scale (screen colors). Maybe you can save space by using integer buffer.\n"));
 	}
 
-	unsigned bytesTotal = getBufferSize(_format,_width,_height,_depth);
+	size_t bytesTotal = getBufferSize(_format,_width,_height,_depth);
 
 	// alloc/free data
 	if (!data || !_data || _data==RR_GHOST_BUFFER || width!=_width || height!=_height || depth!=_depth || format!=_format)

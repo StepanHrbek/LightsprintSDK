@@ -238,7 +238,7 @@ namespace rr
 		//
 		//! In case of video, size of one uncompressed frame is calculated.
 		//! In case of RR_GHOST_BUFFER, 0 is returned as no memory is allocated.
-		virtual unsigned getBufferBytes() const;
+		virtual size_t getBufferBytes() const;
 		//! \return Number of bits in one element, e.g. 96 for BF_RGBF, implementation defined for BF_DEPTH.
 		virtual unsigned getElementBits() const;
 		//! Returns value addressed by given integer coordinate.
