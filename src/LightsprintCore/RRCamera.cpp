@@ -53,7 +53,7 @@ RRCamera::RRCamera()
 	// stereo
 	stereoMode = SM_MONO;
 	stereoSwap = false;
-	eyeSeparation = 0.08f;
+	eyeSeparation = 0.064f;
 	displayDistance = 0.5f;
 
 	// panorama
@@ -90,7 +90,7 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 	// stereo
 	stereoMode = SM_MONO;
 	stereoSwap = false;
-	eyeSeparation = 0.08f;
+	eyeSeparation = 0.064f;
 	displayDistance = 0.5f;
 
 	// panorama
@@ -133,7 +133,7 @@ RRCamera::RRCamera(RRLight& _light)
 	// stereo
 	stereoMode = SM_MONO;
 	stereoSwap = false;
-	eyeSeparation = 0.08f;
+	eyeSeparation = 0.064f;
 	displayDistance = 0.5f;
 
 	// panorama
@@ -1328,7 +1328,7 @@ unsigned RRCamera::fixInvalidValues()
 		+ makeFinite(yawPitchRollRad[2],0)
 		
 		// stereo
-		+ makeFinite(eyeSeparation,0.08f)
+		+ makeFinite(eyeSeparation,0.064f)
 		+ makeFinite(displayDistance,0.5f)
 
 		// panorama
