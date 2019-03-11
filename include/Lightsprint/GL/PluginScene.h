@@ -31,12 +31,11 @@ class RR_GL_API PluginParamsScene : public PluginParams
 {
 public:
 	//! Source of static and dynamic objects and illumination. Direct lights from solver are ignored if you set #lights differently.
+	//! You can request renderer to update illumination buffers with data from solver.
 	rr::RRSolver* solver;
 
-	//! Objects to be rendered, or nullptr for all objects from solver.
-	//! \n nullptr: All objects from solver are rendered. You can request renderer to update illumination buffers with data from solver.
-	//! \n non-nullptr: Given objects are rendered. Possible request to update illumination buffers at render time is ignored.
-	//! \n When rendering all objects from solver, it is recommended to pass nullptr rather than collection of all objects, as it could be faster.
+	//! Objects to be rendered along with all objects from solver.
+	//! Illumination buffers can't be updated at render time.
 	const rr::RRObjects* objects;
 
 	//!  Set of lights, source of direct illumination in rendered scene.

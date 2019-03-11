@@ -276,23 +276,27 @@ public:
 		multiObjects.clear();
 		if (_.solver)
 			multiObjects.push_back(_.solver->getMultiObject());
-		for (unsigned pass=0;pass<3;pass++)
+		for (int pass=-1;pass<3;pass++)
 		{
 			const rr::RRObjects* objects;
 			switch (pass)
 			{
+				case -1:
+					if (!_.objects) continue;
+					objects = _.objects;
+					break;
 				case 0:
-					if (_.objects) {objects = _.objects; break;}
+					if (!_.solver) continue;
 					if (needsIndividualStaticObjectsForEverything) continue;
 					objects = &multiObjects;
 					break;
 				case 1:
-					if (_.objects) continue;
+					if (!_.solver) continue;
 					if (!needsIndividualStaticObjectsForEverything && !needsIndividualStaticObjectsOnlyForBlending) continue;
 					objects = &_.solver->getStaticObjects();
 					break;
 				case 2:
-					if (_.objects) continue;
+					if (!_.solver) continue;
 					if (_.uberProgramSetup.FORCE_2D_POSITION) continue;
 					objects = &_.solver->getDynamicObjects();
 					break;
