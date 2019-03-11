@@ -41,7 +41,7 @@ public:
 	//! It does not change FOV, screenCenter, eyeSeparation.
 	//! It is less flexible, but simpler alternative to getPose().
 	void updateCamera(rr::RRCamera& camera);
-	
+
 	//! Releases HMD, so it can be acquired by other programs.
 	virtual ~VRDevice() {};
 
