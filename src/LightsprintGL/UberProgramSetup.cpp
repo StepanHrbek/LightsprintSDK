@@ -599,9 +599,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (shadowmap)
 		{
 			// set depth texture
-			char name[] = "shadowMap0";
-			name[9] = '0'+i;
-			program->sendTexture(name,shadowmap);
+			const char* name[] = { "shadowMap0","shadowMap1","shadowMap2","shadowMap3","shadowMap4","shadowMap5","shadowMap6","shadowMap7","shadowMap8","shadowMap9" };
+			//char name[] = "shadowMap0"; // [#66] danger: we must not pass different names with the same pointer, because Program hashes pointer only, not name
+			//name[9] = '0'+i;
+			program->sendTexture(name[i],shadowmap);
 			// set matrix
 			rr::RRCamera lightInstance;
 			light->getShadowmapCamera(firstInstance+i,lightInstance);
@@ -611,9 +612,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 #define MULT_MATRIX(a,_b,c,ctype) { const double* b = _b; for (unsigned i=0;i<4;i++) for (unsigned j=0;j<4;j++) c[4*i+j] = (ctype)( b[4*i]*a[j] + b[4*i+1]*a[4+j] + b[4*i+2]*a[8+j] + b[4*i+3]*a[12+j] ); }
 			MULT_MATRIX(m1,lightInstance.getProjectionMatrix(),m2,double);
 			MULT_MATRIX(m2,lightInstance.getViewMatrix(),m3,float);
-			char name2[] = "textureMatrix0";
-			name2[13] = '0'+i;
-			program->sendUniform(name2,m3,false,4);
+			const char* name2[] = { "textureMatrix0","textureMatrix1","textureMatrix2","textureMatrix3","textureMatrix4","textureMatrix5","textureMatrix6","textureMatrix7","textureMatrix8","textureMatrix9" };
+			//char name2[] = "textureMatrix0"; // [#66] danger: we must not pass different names with the same pointer, because Program hashes pointer only, not name
+			//name2[13] = '0'+i;
+			program->sendUniform(name2[i],m3,false,4);
 		}
 	}
 	if (SHADOW_COLOR)
@@ -623,9 +625,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (shadowmap)
 		{
 			// set color texture
-			char name[] = "shadowColorMap0";
-			name[14] = '0'+i;
-			program->sendTexture(name,shadowmap);
+			const char* name[] = { "shadowColorMap0","shadowColorMap1","shadowColorMap2","shadowColorMap3","shadowColorMap4","shadowColorMap5","shadowColorMap6","shadowColorMap7","shadowColorMap8","shadowColorMap9" };
+			//char name[] = "shadowColorMap0"; // [#66] danger: we must not pass different names with the same pointer, because Program hashes pointer only, not name
+			//name[14] = '0'+i;
+			program->sendTexture(name[i],shadowmap);
 		}
 	}
 

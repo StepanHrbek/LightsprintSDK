@@ -187,7 +187,8 @@ private:
 	bool linked;
 	unsigned nextTextureUnit; // texture unit to be used in next setTexture()
 	signed char assignedTextureUnit[16]; // indexed by code
-	std::unordered_map<std::string,int> locationCache; // accelerates getLoc()
+	std::unordered_map<const char*,int> locationCache; // accelerates getLoc(). [#66] hashing string was slow, now we hash pointer only, so it must be unique, don't generate different uniform names to single buffer
+	std::unordered_map<const char*,bool> existsCache; // accelerates uniformExists(). -"-
 };
 
 }; // namespace

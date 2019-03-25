@@ -257,7 +257,7 @@ void Program::sendUniformArray(const char* name, int count, const rr::RRVec4* x)
 
 int Program::getLoc(const char* name)
 {
-	std::unordered_map<std::string,int>::iterator i = locationCache.find(name);
+	std::unordered_map<const char*,int>::iterator i = locationCache.find(name);
 	if (i!=locationCache.end())
 	{
 		return i->second;
@@ -271,9 +271,16 @@ int Program::getLoc(const char* name)
 	return loc;
 }
 
-bool Program::uniformExists(const char* uniformName)
+bool Program::uniformExists(const char* name)
 {
-	return glGetUniformLocation(handle, uniformName)!=-1;
+	std::unordered_map<const char*,bool>::iterator i = existsCache.find(name);
+	if (i!=existsCache.end())
+	{
+		return i->second;
+	}
+	bool exists = glGetUniformLocation(handle, name)!=-1;
+	existsCache[name] = exists;
+	return exists;
 }
 
 
