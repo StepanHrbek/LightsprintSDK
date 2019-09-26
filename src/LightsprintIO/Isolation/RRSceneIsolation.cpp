@@ -109,17 +109,20 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 
 bool saveIsolated(const RRScene* scene, const RRString& filename)
 {
-	if (!scene || !s_isolationEnabled)
-	{
-		return false;
-	}
-
 	// prepare filenames
 	// temp.rr3 must be in the same directory, otherwise relative texture paths would fail
 	bf::path output = RR_RR2PATH(filename);
 	char name[15];
 	sprintf(name,"temp%04d.rr3",rand()%10000);
 	bf::path temp = output.parent_path() / name;
+
+	if (!scene || !s_isolationEnabled || (output.extension().string()==".rr3" || output.extension().string()==".RR3"))
+	{
+		// when non-isolated save to rr3 fails, isolated save is attempted
+		// here we abort it immediately
+		// [#14] we can't easily unregister rr3 from isolated save, : symbol matches everything
+		return false;
+	}
 
 	// save temp.rr3
 	scene->save(RR_PATH2RR(temp));
