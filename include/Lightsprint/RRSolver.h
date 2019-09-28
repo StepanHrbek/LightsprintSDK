@@ -971,6 +971,11 @@ namespace rr
 			//! Use only given types of materials.
 			RRMaterial::BrdfType brdfTypes;
 
+			//! Flags to disable features. So far ignored by cpu pathtracer, used only by optix.
+			bool useEmittance;
+			bool useBump;
+			bool useTextures;
+
 			// how many bounces before given optimization kicks in?
 			unsigned useFlatNormalsSinceDepth; // unbiased = UINT_MAX
 			unsigned useSolverDirectSinceDepth; // unbiased = UINT_MAX
@@ -983,6 +988,9 @@ namespace rr
 			PathTracingParameters()
 			{
 				brdfTypes = RRMaterial::BRDF_ALL;
+				useEmittance = true;
+				useBump = true;
+				useTextures = true;
 				useFlatNormalsSinceDepth = UINT_MAX;
 				useSolverDirectSinceDepth = UINT_MAX;
 				useSolverIndirectSinceDepth = UINT_MAX;
