@@ -507,7 +507,7 @@ public:
 		aiReleasePropertyStore(propertyStore);
 		if (!aiscene)
 		{
-			RRReporter::report(ERRO,aiGetErrorString());
+			RRReporter::report(ERRO,"%s\n",aiGetErrorString());
 			return nullptr;
 		}
 		RRSceneAssimp* scene = new RRSceneAssimp;
