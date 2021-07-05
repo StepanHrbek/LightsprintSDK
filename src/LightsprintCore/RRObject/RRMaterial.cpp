@@ -21,7 +21,7 @@
 					// prevents errors from limited float precision:
 					// - test\cuberefl-car.rr3   - car reflection has banding visible if shininess>1'000'000
 					// - 2015-03!bake\boris2.rr3 - floor lightmap contains bright dots (hooks reflect some photons with reflectance>>1) if shininess>500'000
-#define MIN_ROUGHNESS (1/MAX_SHININESS)
+#define MIN_ROUGHNESS (1.f/MAX_SHININESS)
 					// prevents errors from limited float precision:
 					// - BLINN_TORRANCE_SPARROW  - generates #IND if roughness<1/100'000'000
 					// - test\cuberefl-car.rr3   - car reflection is too bright if roughness<1/2'000'000
