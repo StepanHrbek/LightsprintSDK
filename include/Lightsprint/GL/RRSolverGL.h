@@ -141,7 +141,7 @@ namespace rr_gl
 		void* ddiBufferStorage;
 		unsigned ddiBufferStoragePbo;
 		// - with ARB_pixel_buffer_object (core in 2.1)
-		enum {DDI_PBOS=4}; // 1-3 is not enough to prevent stalls, 5 or more reduces radeon fps (reason unknown)
+		enum {DDI_PBOS=4}; // 1-3 is not enough to prevent stalls, 3-4 optimal with RX580, 5 or more reduces radeon fps (reason unknown)
 		GLuint ddiPbo[DDI_PBOS];
 		unsigned ddiPboWidth[DDI_PBOS];
 		unsigned ddiPboHeight[DDI_PBOS];
