@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug DLL|Win32">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug DLL|x64">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|Win32">
+      <Configuration>Debug static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|x64">
+      <Configuration>Debug static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|Win32">
+      <Configuration>Release DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|x64">
+      <Configuration>Release DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|Win32">
+      <Configuration>Release static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|x64">
+      <Configuration>Release static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}</ProjectGuid>
+    <RootNamespace>LightsmarkBackend</RootNamespace>
+  </PropertyGroup>
+  <Import Project="..\..\src\configs\rr_app.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
+    <TargetName>backend</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
+    <TargetName>backend</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AnimationEditor.cpp" />
+    <ClCompile Include="AnimationFrame.cpp" />
+    <ClCompile Include="AnimationScene.cpp" />
+    <ClCompile Include="DemoPlayer.cpp" />
+    <ClCompile Include="DynamicObjects.cpp" />
+    <ClCompile Include="Level.cpp" />
+    <ClCompile Include="LightsmarkBackend.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AnimationEditor.h" />
+    <ClInclude Include="AnimationFrame.h" />
+    <ClInclude Include="AnimationScene.h" />
+    <ClInclude Include="DemoPlayer.h" />
+    <ClInclude Include="DynamicObjects.h" />
+    <ClInclude Include="Level.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LightsmarkBackend.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Lightsmark2007\Lightsmark2007.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LightsprintGL\LightsprintGL.vs2019.vcxproj">
+      <Project>{2d2907c3-3e69-234a-306c-243c989a3411}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\LightsprintIO\LightsprintIO.vs2019.vcxproj">
+      <Project>{98765432-1234-11d0-8d11-00a0c91bc942}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
