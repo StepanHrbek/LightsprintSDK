@@ -745,6 +745,8 @@ void main()
 	//
 	// light direct
 
+	// [#68] light for OpenGL rasterizer
+
 	#ifdef LIGHT_DIRECT
 		// calculate worldLightDirFromPixel and lightDirect for true direct light
 		#if defined(LIGHT_DIRECTIONAL)

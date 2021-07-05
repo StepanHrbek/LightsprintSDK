@@ -341,6 +341,7 @@ const RRLight& RRLight::operator=(const RRLight& a)
 	return *this;
 }
 
+// [#68] light for CPU pathtracer
 RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace* colorSpace) const
 {
 	RR_ASSERT(IS_VEC3(color));
