@@ -24,7 +24,7 @@
 
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 #define DDI_READBACK_DELAY // support for delayDDI
-#define DDI_READBACK_SPLIT // split delayed readback into 3 frames
+//#define DDI_READBACK_SPLIT // split delayed readback into 3 frames
 //#define AMD_PINNED_MEMORY // use AMD_pinned_memory extension when available (did not yet see better fps, but it improves behavior in GPUPerf)
 //#define ARB_BUFFER_STORAGE // use ARB_buffer_storage/GL 4.4 when available (did not yet see better fps)
 
