@@ -129,7 +129,8 @@ static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Prop
 	wxPGProperty* propColor = prop->GetPropertyByName(_("color"));
 	if ((!propColor || material.color==rr::RRVec3(0)) && !material.texture) // !propColor catches bumpMap, it does not have color, needs either texture or none
 	{
-		prop->SetValueImage(*(wxBitmap*)nullptr);
+		wxBitmap none;
+		prop->SetValueImage(none);
 		prop->SetValueFromString(_("none"));
 	}
 	else
