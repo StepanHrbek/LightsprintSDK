@@ -37,7 +37,7 @@ RRRay* RRRay::create(unsigned n)
 	return new RRRay[n]();
 }
 
-bool RRRay::convertHitFromMultiToSingleObject(RRSolver* solver)
+bool RRRay::convertHitFromMultiToSingleObject(const RRSolver* solver)
 {
 	if (!solver || !hitObject || hitObject!=solver->getMultiObject() || hitTriangle==UINT_MAX)
 		return false;
