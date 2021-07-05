@@ -24,7 +24,8 @@ set CPU=
 if x%BITS%==x64 set CPU=_x64
 cd %WX%\build\msw
 if exist %SETENVBAT% (
-	call %SETENVBAT% >%ERR%
+	call %SETENVBAT%
+	rem od cca 2020 minuly radek nesmim presmerovat do >%ERR%, nasledujici presmerovani by reklo ze err uz je pouzivan jinym procesem. ze by windows antimalware skenoval soubory?
 
 	echo Building wxWidgets %COMPILER% %BITS%bit Debug static...
 	nmake -f makefile.vc USE_OPENGL=1 COMPILER_PREFIX=%COMPILER%%CPU% BUILD=debug >%ERR% 2>&1
