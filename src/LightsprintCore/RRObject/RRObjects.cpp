@@ -715,8 +715,8 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 					RRMeshArrays* arrays = dynamic_cast<RRMeshArrays*>(const_cast<RRMesh*>(mesh));
 					if (arrays)
 					{
-						// inserts arrays. without this, meshes without texcoords would not be inserted and unwrap not built
-						meshes[arrays].begin();
+						// meshes[arrays] inserts arrays, so even meshes without texcoords are inserted and can have stuff deleted
+						meshes[arrays];
 
 						if (deleteUnusedUvChannels)
 						{

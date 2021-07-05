@@ -682,9 +682,7 @@ unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, 
 					RRMeshArrays* arrays = dynamic_cast<RRMeshArrays*>(const_cast<RRMesh*>(mesh));
 					if (arrays)
 					{
-						// inserts arrays. without this, meshes without texcoords would not be inserted and unwrap not built
-						meshes[arrays].begin();
-
+						// meshes[arrays] inserts arrays, so even meshes without texcoords are inserted and have unwrap built
 						meshes[arrays].objectName = object->name;
 
 						for (unsigned channel=0;channel<arrays->texcoord.size();channel++)
