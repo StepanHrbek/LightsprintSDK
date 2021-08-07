@@ -11,7 +11,9 @@
 
 #include "RRMeshFilter.h"
 #include <cmath>
-#include <cstdlib> // qsort
+//#include <cstdlib> // qsort
+#include <algorithm> // std::sort
+#include <execution> // std::sort
 #include <cstring> // memset
 
 namespace rr
@@ -154,7 +156,25 @@ public:
 		// there will be a few insertions and deletions instead of tons of swaps)
 		// sorting by position.x should give the same results, with different vertex order
 		if (mergingPossible)
-			qsort(sortedVertices,numVertices,sizeof(Vertex*),comparePositionNormal);
+			//qsort(sortedVertices,numVertices,sizeof(Vertex*),comparePositionNormal);
+			std::sort(std::execution::par_unseq, sortedVertices, sortedVertices+numVertices,
+				[](const Vertex* v1, const Vertex* v2)
+				{
+					if (v1->position.x < v2->position.x) return true;
+					if (v1->position.x > v2->position.x) return false;
+					if (v1->position.y < v2->position.y) return true;
+					if (v1->position.y > v2->position.y) return false;
+					if (v1->position.z < v2->position.z) return true;
+					if (v1->position.z > v2->position.z) return false;
+					if (v1->normal.x < v2->normal.x) return true;
+					if (v1->normal.x > v2->normal.x) return false;
+					if (v1->normal.y < v2->normal.y) return true;
+					if (v1->normal.y > v2->normal.y) return false;
+					if (v1->normal.z < v2->normal.z) return true;
+					if (v1->normal.z > v2->normal.z) return false;
+					return false;
+				}
+			);
 		// expensive expressions moved out of for cycle
 		bool stitchOnlyIdenticalNormals = maxRadiansBetweenNormalsToStitch==0;
 		float minNormalDotNormalToStitch = cos(maxRadiansBetweenNormalsToStitch);
