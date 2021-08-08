@@ -8,19 +8,32 @@ namespace rr
 
 \page main_news What's new
 
-\section news148 ------------------------------------ 2018.0x.xx -------------------------------------
+\section news148 ------------------------------------ 2021.08.08 -------------------------------------
 
 NEWS
 
-- order of magnitude faster ray-scene intersections in scenes with many dynamic objects
-  (pathtracing used to be slower with dynamic objects, now there's no difference between static/dynamic)
-- embree updated to 3.1.0
-  - we include only 64bit embree, 32bit SDK runs without embree
-  - if you use SDK in 32bit, consider building 32bit embree for faster intersections
-  - embree3.dll prebuilt by Intel depends on tbb.dll which depends on msvc[p|r]120.dll
-- openvr updated to 1.07
-- assimp updated to git head from 2018-06-08
-- RRCollider::update() added
+- faster
+  - order of magnitude faster ray-scene intersections in scenes with many dynamic objects
+    (pathtracing used to be slower with dynamic objects, now there's no difference between static/dynamic)
+  - first RRSolver::calculate() after changing static scene with 10M vertices optimized from multiple seconds to less than second
+- third party components updated (mostly in 2018)
+  - \ref tpl_embree updated to 3.1.0
+    - we include only 64bit embree, 32bit SDK runs without embree
+    - if you use SDK in 32bit, consider building 32bit embree for faster intersections
+    - embree3.dll prebuilt by Intel depends on tbb.dll which depends on msvc[p|r]120.dll
+  - \ref tpl_openvr updated to 1.07
+  - \ref tpl_assimp updated to git head from 2018-06-08
+  - \ref tpl_boost updated to 1.76
+  - LuxCoreUI replaces SmallLuxGPU pathtracer
+- misc
+  - rr_gl::VRDevice::resMultiplier and "Preferences / Stereo / Supersampling" added
+  - RRCollider::update() added
+  - bin\install_vs_visualizers.bat added to simplify installing visualizers into Visual Studio
+
+CHANGES
+
+- rr_gl::PluginParamsScene renders both solver contents and collection of objects, not just one of them
+- default RRCamera::eyeSeparation changed to 64mm
 
 
 \section news147 ------------------------------------ 2017.03.14 -------------------------------------

@@ -1,12 +1,8 @@
 
-   LIGHTSMARK 2017                                           v3.0, 2017-0x-xx
+   LIGHTSMARK 20xx                                           v3.0, 20xx-xx-xx
 _____________________________________________________________________________
 
    Lightsmark is a free GPU benchmark.
-
-   This is anniversary release. It does not change contents, so it is kind of
-   retro by now, but it evolves to be better benchmark - more platforms and
-   more fair scores.
 
    Details and updates: http://dee.cz/lightsmark
 
@@ -14,7 +10,7 @@ _____________________________________________________________________________
 History
 _______
 
-   2017
+   20xx
    - update global illumination in every frame (lower fps,
      but smoother framerate and more fair scores)
    - reduce importance of CPU, thus making it GPU benchmark
