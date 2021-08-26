@@ -1,6 +1,7 @@
 // pred releasem
 // - vypnout SUPPORT_COLLADA/MGF/OBJ
 // - prepnout FACTOR_FORMAT na 0
+// - vypnout OpenMP v rr_release.props, masivne zrychluje geforce (todo: otestovat radeon)
 #define MAX_INSTANCES              10  // max number of light instances aproximating one area light
 unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
@@ -144,7 +145,7 @@ rr_gl::UberProgramSetup uberProgramGlobalSetup;
 int winWidth = 0;
 int winHeight = 0;
 bool needLightmapCacheUpdate = false;
-int wireFrame = 0;
+bool wireFrame = false;
 int showHelp = 0; // 0=none, 1=help
 int showLightViewFrustum = 0;
 bool modeMovingEye = 0;
