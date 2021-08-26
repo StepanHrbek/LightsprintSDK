@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug DLL|Win32">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug DLL|x64">
+      <Configuration>Debug DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|Win32">
+      <Configuration>Debug static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug static|x64">
+      <Configuration>Debug static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|Win32">
+      <Configuration>Release DLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release DLL|x64">
+      <Configuration>Release DLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|Win32">
+      <Configuration>Release static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release static|x64">
+      <Configuration>Release static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1A354CD4-2F21-93DE-51B9-88DA14A602BF}</ProjectGuid>
+    <RootNamespace>LightsprintGL</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="..\..\src\configs\rr_lib.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\Lightsprint\Ed\Ed.h" />
+    <ClInclude Include="SVApp.h" />
+    <ClInclude Include="SVCanvas.h" />
+    <ClInclude Include="SVCustomProperties.h" />
+    <ClInclude Include="SVDialogs.h" />
+    <ClInclude Include="SVEntity.h" />
+    <ClInclude Include="SVEntityIcons.h" />
+    <ClInclude Include="SVFrame.h" />
+    <ClInclude Include="SVGIProperties.h" />
+    <ClInclude Include="SVLightmapViewer.h" />
+    <ClInclude Include="SVLightProperties.h" />
+    <ClInclude Include="SVLog.h" />
+    <ClInclude Include="SVMaterialProperties.h" />
+    <ClInclude Include="SVObjectProperties.h" />
+    <ClInclude Include="SVProperties.h" />
+    <ClInclude Include="SVRayLog.h" />
+    <ClInclude Include="SVSaveLoad.h" />
+    <ClInclude Include="SVSceneProperties.h" />
+    <ClInclude Include="SVSceneTree.h" />
+    <ClInclude Include="SVUserProperties.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SVApp.cpp" />
+    <ClCompile Include="SVCanvas.cpp" />
+    <ClCompile Include="SVCustomProperties.cpp" />
+    <ClCompile Include="SVDialogs.cpp" />
+    <ClCompile Include="SVEntityIcons.cpp" />
+    <ClCompile Include="SVFrame.cpp" />
+    <ClCompile Include="SVGIProperties.cpp" />
+    <ClCompile Include="SVLightmapViewer.cpp" />
+    <ClCompile Include="SVLightProperties.cpp" />
+    <ClCompile Include="SVLog.cpp" />
+    <ClCompile Include="SVMaterialProperties.cpp" />
+    <ClCompile Include="SVObjectProperties.cpp" />
+    <ClCompile Include="SVRayLog.cpp" />
+    <ClCompile Include="SVSaveLoad.cpp" />
+    <ClCompile Include="SVSceneProperties.cpp" />
+    <ClCompile Include="SVSceneTree.cpp" />
+    <ClCompile Include="SVUserProperties.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2019.vcxproj">
+      <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LightsprintGL\LightsprintGL.vs2019.vcxproj">
+      <Project>{2d2907c3-3e69-234a-306c-243c989a3411}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
