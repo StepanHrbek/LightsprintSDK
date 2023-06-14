@@ -29,7 +29,7 @@ namespace rr
 	//!
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//!
-	//! \section s1 Creating instances
+	//! \section sm1 Creating instances
 	//!
 	//! %RRMesh has built-in support for standard mesh formats used by
 	//! rendering APIs - vertex and index buffers using triangle lists or
@@ -49,18 +49,18 @@ namespace rr
 	//! For other mesh formats (heightfield, realtime generated etc), 
 	//! you may easily derive from %RRMesh and create your own mesh adaptor.
 	//!
-	//! \section s2 Optimizations
+	//! \section sm2 Optimizations
 	//!
 	//! %RRMesh may help you with mesh optimizations if requested,
 	//! for example by removing duplicate vertices or degenerated triangles.
 	//! 
-	//! \section s3 Constancy
+	//! \section sm3 Constancy
 	//!
 	//! All data provided by %RRMesh must be constant in time.
 	//! Built-in importers guarantee constancy if you don't change
 	//! their vertex/index buffers. Constancy of mesh copy is guaranteed always.
 	//!
-	//! \section s4 Indexing
+	//! \section sm4 Indexing
 	//!
 	//! %RRMesh operates with two types of vertex and triangle indices.
 	//! -# PostImport indices, always 0..num-1 (where num=getNumTriangles
@@ -88,7 +88,7 @@ namespace rr
 	//! -# valid PostImport numbers are easy to ensure on caller side.
 	//! -# such queries are very critical for performance.
 	//!
-	//! \section s5_frontback Front/back side
+	//! \section sm5_frontback Front/back side
 	//!
 	//! For correct lighting, it's important to know where front and back
 	//! sides of triangle are.
@@ -168,7 +168,7 @@ namespace rr
 		//! so result is completely undefined for invalid t (possible crash).
 		//!
 		//! Order of vertices in triangle has influence on what side of triangle is front, which is important for lighting.
-		//! See more details in \ref s5_frontback.
+		//! See more details in \ref sm5_frontback.
 		virtual void         getTriangle(unsigned t, Triangle& out) const = 0;
 
 
@@ -221,7 +221,7 @@ namespace rr
 		//! Writes tangent bases in triangle vertices to out. Normals are part of bases.
 		//
 		//! Tangent bases are used by global illumination solver and renderer.
-		//! Normals should point to front side hemisphere, see \ref s5_frontback.
+		//! Normals should point to front side hemisphere, see \ref sm5_frontback.
 		//! \n Default implementation writes all vertex normals equal to triangle plane normal
 		//! and constructs appropriate tangent space.
 		//! \param t Index of triangle. Valid t is in range <0..getNumTriangles()-1>.

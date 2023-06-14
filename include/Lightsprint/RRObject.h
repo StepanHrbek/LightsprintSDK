@@ -23,7 +23,7 @@ namespace rr
 	//  RRObject
 	//! Common interface for all proprietary object formats.
 	//
-	//! \section s1 Provided information
+	//! \section so1 Provided information
 	//! %RRObject provides information about
 	//! - materials and their assignment to faces, see #faceGroups
 	//! - transformation matrix, see getWorldMatrix() and setWorldMatrix()
@@ -33,7 +33,7 @@ namespace rr
 	//! - object illumination, see #illumination
 	//! - object name, see #name
 	//!
-	//! \section s3 Links between objects
+	//! \section so2 Links between objects
 	//! solver and RRScene -> RRObjects -> RRObject -> RRCollider -> RRMesh
 	//! \n where A -> B means that
 	//!  - A has pointer to B

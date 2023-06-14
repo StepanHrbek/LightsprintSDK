@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 	// First, we have to load scene to memory.
 	rr::RRScene scene(sceneFilename);
 	// If you already have scene in memory in your own data structures, write adapter
-	// (see "doc/Lightsprint.chm/Integration" page) and adapt it to RRObjects and RRLights here.
+	// (see "doc/html/index.html" Integration page) and adapt it to RRObjects and RRLights here.
 
 	// Send scene to GI solver
 	rr::RRSolver* solver = new rr::RRSolver();

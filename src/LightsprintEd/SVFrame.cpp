@@ -1659,7 +1659,7 @@ reload_skybox:
 
 		case ME_HELP: svs.renderHelp = !svs.renderHelp; break;
 		case ME_SDK_HELP:
-			wxLaunchDefaultApplication(convertSlashes(svs.pathToData+"../doc/Lightsprint.chm"));
+			wxLaunchDefaultApplication(convertSlashes(svs.pathToData+"../doc/html/index.html"));
 			break;
 		case ME_SUPPORT:
 			wxLaunchDefaultApplication(wxString::Format("mailto:support@lightsprint.com?Subject=Bug in build %s %s%d %d",__DATE__,

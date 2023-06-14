@@ -42,10 +42,10 @@ namespace rr
 	//!
 	//! Custom access to GPU and your renderer is not implemented here.
 	//! You may implement it in your RRSolver subclass
-	//! or use RRRealtimeRadioosityGL, that implements GPU access using OpenGL 2.0.
+	//! or use rr_gl::RRSolverGL, that implements GPU access using OpenGL 2.0.
 	//!
-	//! Sample RealtimeRadiosity shows both typical usage scenarios,
-	//! rendering with realtime global illumination and precalculations.
+	//! \ref samples_realtime "Sample RealtimeRadiosity" shows both typical usage
+	//! scenarios, rendering with realtime global illumination and precalculations.
 	//!
 	//! It is not allowed to create and use multiple instances at the same time.
 	//!
@@ -197,7 +197,7 @@ namespace rr
 			}
 		};
 
-		//! Sets static contents of scene, all static objects at once. Only objects with !RRObject::isDynamic are taken, the rest is ignored.
+		//! Sets static contents of scene, all static objects at once. Only objects with ! RRObject::isDynamic are taken, the rest is ignored.
 		//
 		//! Solver creates internal set of static objects, by taking only those of your objects with isDynamic=false,
 		//! you can query accepted objects by getStaticObjects(). Solver preserves your order of static objects.

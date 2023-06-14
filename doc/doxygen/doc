@@ -7,11 +7,11 @@ namespace rr
 \brief Documentation only.
 
 
-\mainpage Lightsprint SDK
+\mainpage notitle
 
  \image html intro.jpg
 
- \section root_welcome Welcome to Lightsprint Software Development Kit
+ <h1>Welcome to Lightsprint Software Development Kit</h1>
  - \subpage main_introduction
  - \subpage main_news
  - \subpage main_scenarios
@@ -19,24 +19,24 @@ namespace rr
  - \subpage main_deployment
  - \subpage main_credits
 
- \section root_integrations Integrations
+ <h1>Integrations</h1>
  - \subpage main_vr
  - \subpage main_vs
  - \subpage main_gamebryo3
  - \subpage main_gamebryo26
  - \subpage main_ue3
 
- \section root_artists_guide GI techniques
+ <h1>GI techniques</h1>
  - \subpage main_techniques
 
- \section root_programmers_guide Programmer's guide
+ <h1>Programmer's guide</h1>
  - \subpage main_building
  - \subpage main_inputs
  - \subpage main_data_access
  - \subpage main_conventions "Conventions (units, scale, floats...)"
  - \subpage main_api
 
- \section root_samples Samples etc
+ <h1>Samples etc</h1>
  - \subpage main_samples
  - \subpage main_trouble
 
@@ -726,7 +726,7 @@ Material formats (1)
   We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=120
   It fixes Visual Studio 2010 compilation.
 
-  \section oc_patch5 Patch6
+  \section oc_patch6 Patch6
   SDK supports import of additional camera types, patch not created yet.
 
 
@@ -801,7 +801,7 @@ Material formats (1)
 \page tpl_fragments code fragments
   - .3ds .bsp and .mgf loaders contain 3rd party open source code
   - optional, remove loaders by deleting <code>\#define SUPPORT_3DS, \#define SUPPORT_QUAKE3, \#define SUPPORT_MGF</code> in <code>src/LightsprintIO/supported_formats.h</code>
-  - for copyright information, see headers of individual files in src/LightsprintIO/*
+  - for copyright information, see headers of individual files in src/LightsprintIO/ *.*
 
 \page tpl_gamebryo Gamebryo
   - www: <a href="http://emergent.net">Gamebryo</a>
@@ -819,7 +819,7 @@ Material formats (1)
 \page tpl_bunny Bunny Benchmark framework
   - Bunny Benchmark sample contains framework code and data provided by benchmark author
   - framework must be present in order to get comparable results
-  - for copyright information, see headers of individual files in samples/BunnyBenchmark/*
+  - for copyright information, see headers of individual files in samples/BunnyBenchmark/ *.*
 
 
 
@@ -853,8 +853,8 @@ Material formats (1)
   Integration needs access only to small subset of SDK's files.
   For example in case of Unreal Engine 3 integration,
   the only new file for artists is LightsprintCore.vs2005.dll.
-  Artists may also need documentation (doc/Lightsprint.chm) to
-  check brief \ref root_artists_guide.
+  Artists may also need documentation (doc/html) to
+  check \ref main_techniques "artist's guide" for used techniques.
   Programmers should include relevant files into game's engine/toolchain,
   so that artists get integration next time they update,
   without any additional effort.
@@ -3152,7 +3152,7 @@ rr::RRVector<*>{
    0.01 and 100 units), so using meters may give you advantage in typical scenes.
    \n\n
    If it's possible, existing scene adapters adapt your scene from custom
-   units to meters. (Source code of adapters is in src/LightsprintIO/*)
+   units to meters. (Source code of adapters is in src/LightsprintIO/ *.*)
 
  \section gscale Scale
    Lightsprint libraries support all types of scaled objects:
@@ -3230,7 +3230,7 @@ rr::RRVector<*>{
 
  \section core_api API
 
- Namespace: rr
+ Namespace: ::rr
 
  <hr>
 
@@ -3517,7 +3517,7 @@ rr::RRVector<*>{
   </td><td>
   \image html samples/SceneViewer_4.jpg edit objects/lights/materials
   </td></tr></table>
- - single function call: sceneViewer(), you can run it from your code to visualize data
+ - single function call: rr_ed::sceneViewer(), you can run it from your code to visualize data
  - realtime GI: freely move all lights, no precalculations
  - precomputed GI: test build/load/save lightmaps
  - edit materials, manipulate objects
