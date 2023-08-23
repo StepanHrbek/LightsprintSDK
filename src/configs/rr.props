@@ -21,11 +21,11 @@
     <LibraryPath>..\..\lib\$(Platform);$(LibraryPath)</LibraryPath>
     <OutDir Condition="'$(ConfigurationType)'!='StaticLibrary'">..\..\bin\$(Platform)\</OutDir>
     <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir>..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <TargetName Condition="'$(Configuration)'=='Release DLL'">$(ProjectName)</TargetName>
-    <TargetName Condition="'$(Configuration)'=='Release static'">$(ProjectName)_sr</TargetName>
-    <TargetName Condition="'$(Configuration)'=='Debug DLL'">$(ProjectName)_dd</TargetName>
-    <TargetName Condition="'$(Configuration)'=='Debug static'">$(ProjectName)_sd</TargetName>
+    <IntDir>..\..\tmp\$(ProjectName).$(PlatformToolset)\$(Configuration).$(Platform)\</IntDir>
+    <TargetName Condition="'$(Configuration)'=='Release DLL'">$(ProjectName).$(PlatformToolset)</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Release static'">$(ProjectName).$(PlatformToolset)_sr</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Debug DLL'">$(ProjectName).$(PlatformToolset)_dd</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Debug static'">$(ProjectName).$(PlatformToolset)_sd</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Bscmake>
@@ -36,6 +36,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>RR_LIB_COMPILER="$(PlatformToolset)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>

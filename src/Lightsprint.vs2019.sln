@@ -8,39 +8,39 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "realtime rendering samples"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "offline rendering samples", "offline rendering samples", "{DC77EDC9-4CFB-438A-92BE-DA33ED8C8D96}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsmarkBackend.vs2019", "LightsmarkBackend\LightsmarkBackend.vs2019.vcxproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsmarkBackend", "LightsmarkBackend\LightsmarkBackend.vcxproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintGL.vs2019", "LightsprintGL\LightsprintGL.vs2019.vcxproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintGL", "LightsprintGL\LightsprintGL.vcxproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows.vs2019", "..\samples\PenumbraShadows\PenumbraShadows.vs2019.vcxproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PenumbraShadows", "..\samples\PenumbraShadows\PenumbraShadows.vcxproj", "{E86C82E4-AF66-BC30-0AC4-8B3CB1E9C0F3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity.vs2019", "..\samples\RealtimeRadiosity\RealtimeRadiosity.vs2019.vcxproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeRadiosity", "..\samples\RealtimeRadiosity\RealtimeRadiosity.vcxproj", "{A66C8AE0-F669-45B0-BEC4-0C7B9C0B1EF2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightmaps.vs2019", "..\samples\Lightmaps\Lightmaps.vs2019.vcxproj", "{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightmaps", "..\samples\Lightmaps\Lightmaps.vcxproj", "{C61A01E3-A561-65A1-EE22-2C3B4CAB2EFA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuildLightmaps.vs2019", "..\samples\BuildLightmaps\BuildLightmaps.vs2019.vcxproj", "{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuildLightmaps", "..\samples\BuildLightmaps\BuildLightmaps.vcxproj", "{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps.vs2019", "..\samples\CPULightmaps\CPULightmaps.vs2019.vcxproj", "{396A4522-9173-ABCD-23AA-91827364ABEE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPULightmaps", "..\samples\CPULightmaps\CPULightmaps.vcxproj", "{396A4522-9173-ABCD-23AA-91827364ABEE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark.vs2019", "..\samples\BunnyBenchmark\BunnyBenchmark.vs2019.vcxproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark", "..\samples\BunnyBenchmark\BunnyBenchmark.vcxproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore.vs2019", "LightsprintCore\LightsprintCore.vs2019.vcxproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore", "LightsprintCore\LightsprintCore.vcxproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh.vs2019", "..\samples\HelloMesh\HelloMesh.vs2019.vcxproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh", "..\samples\HelloMesh\HelloMesh.vcxproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider.vs2019", "..\samples\HelloCollider\HelloCollider.vs2019.vcxproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider", "..\samples\HelloCollider\HelloCollider.vcxproj", "{E2577A53-4812-1091-E37F-794832BA1DFE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiMeshCollider.vs2019", "..\samples\MultiMeshCollider\MultiMeshCollider.vs2019.vcxproj", "{A227AA12-51AE-F012-A334-A2690FBC1DFA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiMeshCollider", "..\samples\MultiMeshCollider\MultiMeshCollider.vcxproj", "{A227AA12-51AE-F012-A334-A2690FBC1DFA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights.vs2019", "..\samples\RealtimeLights\RealtimeLights.vs2019.vcxproj", "{AFCEB39A-138F-36C2-60DA-3851702EF5C1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights", "..\samples\RealtimeLights\RealtimeLights.vcxproj", "{AFCEB39A-138F-36C2-60DA-3851702EF5C1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer.vs2019", "..\samples\SceneViewer\SceneViewer.vs2019.vcxproj", "{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer", "..\samples\SceneViewer\SceneViewer.vcxproj", "{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MovingSun.vs2019", "..\samples\MovingSun\MovingSun.vs2019.vcxproj", "{2691A4C3-6413-8964-A425-B51468532572}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MovingSun", "..\samples\MovingSun\MovingSun.vcxproj", "{2691A4C3-6413-8964-A425-B51468532572}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2019", "LightsprintIO\LightsprintIO.vs2019.vcxproj", "{98765432-1234-11D0-8D11-00A0C91BC942}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO", "LightsprintIO\LightsprintIO.vcxproj", "{98765432-1234-11D0-8D11-00A0C91BC942}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd.vs2019", "LightsprintEd\LightsprintEd.vs2019.vcxproj", "{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd", "LightsprintEd\LightsprintEd.vcxproj", "{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsmarkFrontend", "LightsmarkFrontend\LightsmarkFrontend.vcxproj", "{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}"
 EndProject
@@ -50,7 +50,7 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LightsmarkSetup", "Lightsma
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88} = {5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "%OCULUS_DIR%\Projects\Windows\VS2019\LibOVR.vcxproj", "{EA50E705-5113-49E5-B105-2512EDC8DDC6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "%OCULUS_DIR%\Projects\Windows\LibOVR.vcxproj", "{EA50E705-5113-49E5-B105-2512EDC8DDC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

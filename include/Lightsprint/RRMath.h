@@ -32,27 +32,6 @@
 
 // autolink library when external project includes this header
 #ifdef _MSC_VER
-
-	#if _MSC_VER<1400
-		#define RR_LIB_COMPILER "vs2003"
-	#elif _MSC_VER<1500
-		#define RR_LIB_COMPILER "vs2005"
-	#elif _MSC_VER<1600
-		#define RR_LIB_COMPILER "vs2008"
-	#elif _MSC_VER<1700
-		#define RR_LIB_COMPILER "vs2010"
-	#elif _MSC_VER<1800
-		#define RR_LIB_COMPILER "vs2012"
-	#elif _MSC_VER<1900
-		#define RR_LIB_COMPILER "vs2013"
-	#elif _MSC_VER<1910
-		#define RR_LIB_COMPILER "vs2015"
-	#elif _MSC_VER<1920
-		#define RR_LIB_COMPILER "vs2017"
-	#else
-		#define RR_LIB_COMPILER "vs2019"
-	#endif
-
 	#if !defined(RR_MANUAL_LINK) && !defined(RR_BUILD)
 		#ifdef RR_STATIC
 			// use static library
