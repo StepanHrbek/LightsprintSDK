@@ -32,7 +32,7 @@ xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\redist\x8
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\redist\x64\Microsoft.VC120.CRT"    x64
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\redist\x64\Microsoft.VC120.OpenMP" x64
 
-rem Visual C++ 2015, 2017, 2019 runtimes should be the same
+rem Visual C++ 2015, 2017, 2019, 2022 runtimes should be the same
 
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x86\Microsoft.VC140.CRT"    win32
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\x86\Microsoft.VC140.OpenMP" win32
@@ -45,3 +45,9 @@ xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC
 
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.29.30036\x64\Microsoft.VC142.CRT"    x64
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.29.30036\x64\Microsoft.VC142.OpenMP" x64
+
+xcopy /D /S /Y "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.34.31931\x86\Microsoft.VC143.CRT"    win32
+xcopy /D /S /Y "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.34.31931\x86\Microsoft.VC143.OpenMP" win32
+
+xcopy /D /S /Y "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.34.31931\x64\Microsoft.VC143.CRT"    x64
+xcopy /D /S /Y "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.34.31931\x64\Microsoft.VC143.OpenMP" x64

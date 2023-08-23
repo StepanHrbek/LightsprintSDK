@@ -325,10 +325,7 @@ Material formats (1)
  - for baking and pathtracing, 3D API is not needed
 
  Compilers
- - Visual C++ 2015.1 (32bit, 64bit) (note: 2015.2 fails compiling .rr3 import in LightsprintIO, fix promised for 2015.3)
- - Visual C++ 2013.5 (32bit, 64bit)
- - Visual C++ 2012.5 (32bit, 64bit)
- - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
+ - Visual C++ (2010, 2012, 2013, 2015, 2017, 2019, 2022) (32bit, 64bit)
  - GCC (32bit, 64bit)
  - Clang (64bit)
 
@@ -3061,9 +3058,10 @@ Material formats (1)
 
  Lightsprint SDK works with Visual Studio out of the box, but it's possible to improve visualizations of Lightsprint types in debugger.
 
- \section vs_2012 Visual Studio 2012 - 2015
+ \section vs_2012 Visual Studio 2012 - 2022
 
  To improve visualizations, copy our <code>Lightsprint.SDK.natvis</code> file to Visual Studio folder <code>Common7/Packages/Debugger/Visualizers</code>.
+ <code>bin/install_vs_visualizers.bat</code> can do it for you, when run as an administrator.
 
  \section vs_2010 Visual Studio 2010
 
