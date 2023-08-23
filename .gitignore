@@ -1,6 +1,10 @@
 \!*
 /bin
+/doc/html
+/include/Windows/libav*
+/include/Windows/libsw*
 /lib
+/src/.vs
 /tmp
 *.opendb
 *.opensdf
