@@ -17,7 +17,7 @@ namespace rr
  - \subpage main_scenarios
  - \subpage main_features
  - \subpage main_deployment
- - \subpage main_credits
+ - \subpage main_3rdparty
 
  <h1>Integrations</h1>
  - \subpage main_vr
@@ -332,8 +332,8 @@ Material formats (1)
  Library configurations
  - Release DLL/so
  - Debug DLL/so
- - Release static (source code license only)
- - Debug static (source code license only)
+ - Release static
+ - Debug static
 
 
 
@@ -394,7 +394,7 @@ Material formats (1)
  - files are 2-6x smaller than in other formats
  - supports saving
  - supports instances
- - full import/export source code included with commercial license
+ - full import/export source code
 
  \section rr3_data .rr3 contents
  .rr3 contains all data present in RRScene with these exceptions:
@@ -424,7 +424,7 @@ Material formats (1)
  - supports both fixed point and floating point precisions
  - loads 1-10x faster than other formats
  - file sizes are comparable to other formats with losless compression (i.e. smaller than formats without compression, bigger than formats with lossy compression)
- - full import/export source code included with commercial license
+ - full import/export source code
 
  \section rrbuffer_data .rrbuffer contents
  .rrbuffer contains all static data present in standard RRBuffer (i.e. 2d textures, cubemaps, vertex buffers, but not video)
@@ -434,7 +434,7 @@ Material formats (1)
  \section rrmaterial_benefits .rrmaterial benefits
  - supports all material features supported by Lightsprint solvers
  - smaller filesizes, and faster loads/saves
- - full import/export source code included with commercial license
+ - full import/export source code
 
  \section rrmaterial_data .rrmaterial contents
  .rrmaterial contains all data present in RRMaterials, i.e. description of materials, with links to textures, or embedded textures
@@ -442,7 +442,7 @@ Material formats (1)
 
 
 
-\page main_credits Third party components
+\page main_3rdparty Third party components
 
  Lightsprint integrated into game engine can work without any third party component.
 
@@ -828,9 +828,9 @@ Material formats (1)
 
  \section deploy_setup Setup
 
-  Lightsprint SDK does not need any setup, environment variables, registry entries etc.
-  It works from any location in filesystem (local disk or network).
-  \n Only source code licensees might need few environment variables for build system to locate \ref main_credits.
+  Lightsprint SDK binaries don't not need any setup, environment variables, registry entries etc.
+  They work from any location in filesystem (local disk or network).
+  \n Only source code might need few environment variables for build system to locate \ref main_3rdparty.
 
  \section deploy_programmers Deployment - game programmers
 
