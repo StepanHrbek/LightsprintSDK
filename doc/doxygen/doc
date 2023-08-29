@@ -526,8 +526,6 @@ Material formats (1)
    - other platforms: not used
 
   \section wx_building Installing/building
-   Only for LightsprintEd source code licensees:
-   You will need wxWidgets when rebuilding LightsprintEd from source code, follow instructions
    - Windows
     - Get \ref tpl_wx source code from wxWidgets.org svn trunk.
     - If you use one version of Visual Studio and target only win32,
@@ -548,7 +546,6 @@ Material formats (1)
    - Ubuntu: install with <code>sudo apt-get install libwxgtk2.9-dev</code>
 
   \section wx_removing Removing
-   Only for LightsprintEd source code licensees:
    If you don't have time building wxWidgets or simply don't need sceneViewer() function,
    you can build the rest of Lightsprint SDK without wxWidgets
    - unload or remove LightsprintEd project from solution
@@ -636,7 +633,6 @@ Material formats (1)
 
 
   \section boost_build Installing/building boost
-   You need boost when building Ligtsprint libraries from source code,
    - Windows: <a href="http://www.boost.org/doc/libs/release/more/getting_started/windows.html">installation instructions</a>
    - OSX: install with <code>sudo port install boost -python27</code>
    - Ubuntu: install with <code>sudo apt-get install libboost-dev libboost-serialization-dev libboost-filesystem-dev</code>
@@ -824,22 +820,15 @@ Material formats (1)
 
 \page main_deployment Deployment
 
-  It can't be easier.
-
- \section deploy_setup Setup
-
-  Lightsprint SDK binaries don't not need any setup, environment variables, registry entries etc.
-  They work from any location in filesystem (local disk or network).
-  \n Only source code might need few environment variables for build system to locate \ref main_3rdparty.
-
  \section deploy_programmers Deployment - game programmers
 
   Programmers need access to complete SDK.
-  For programmers evaluating Lightsprint SDK,
-  deployment consists of unpacking SDK archive to any location.
-  After acquiring full license, the easiest deployment technique is
+  The easiest company-wide deployment technique is
   to put Lightsprint SDK under your version control system,
+  possibly as a submodule,
   so that all programmers get it via regular source code update.
+
+  For 3rd party libraries and tools that need to be installed, see \ref main_building.
 
   Programmers integrate Lightsprint SDK into toolchain or engine for artists and players.
 
@@ -1161,13 +1150,24 @@ Material formats (1)
 
   Setting up third party libraries
   - \ref tpl_boost
-  - \ref tpl_openvr (you need it only if you build LightsprintGL from source code)
-  - \ref tpl_oculus (you need it only if you build LightsprintGL from source code)
-  - \ref tpl_wx (you need it only if you build LightsprintEd from source code)
-  - \ref tpl_ffmpeg (you need it only if you build LightsprintIO from source code)
+  - \ref tpl_openvr (optional, for steamvr based virtual reality)
+  - \ref tpl_oculus (optional, for oculus based virtual reality)
+  - \ref tpl_wx     (optional, for scene editor \ref rr_ed::sceneViewer())
+  - \ref tpl_ffmpeg (optional, for audio/video decoding)
 
-  Lightsprint SDK includes solutions for all supported Visual C++ compilers,
-  simply open solution and build.
+  Setting up Microsoft based development environment
+  - install Visual Studio Community (2022)
+	- winget install Microsoft.VisualStudio.2022.Community
+  - optionally install Doxygen
+	- winget install doxygen
+	- only needed to build html documentation
+  - optionally install Microsoft Visual Studio Installer Projects (2022) 
+	- https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects
+	- only needed for Lightsmark installer project
+  - optionally install \ref main_vs "visualizers" for our data types
+	- as an administrator: bin/install_vs_visualizers.bat
+	- only needed for easier debugging
+  - open solution at src/Lightsprint.vs2022.sln to build, run, debug...
 
  \section building_linux Others
 
