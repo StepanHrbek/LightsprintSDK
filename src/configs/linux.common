@@ -7,8 +7,9 @@ CPP_FLAGS += -std=c++11 # rvalue references, lambda
 CORE_DEPS = \
 	-lgomp \
 	-lpthread \
-	-lboost_system \
-	-lboost_regex
+	-lboost_chrono \
+	-lboost_date_time \
+	-lboost_thread
 
 #	-lembree.2.4.0
 
@@ -18,15 +19,17 @@ CORE_LIBS = \
 
 GL_DEPS = \
 	-lGL \
-	-lGLEW \
+	-lGLEW
 
 GL_LIBS = \
 	$(GL_DEPS) \
 	../../$(LIB_DIR)/$(CONFIG)/libLightsprintGL.$(LIB_EXT)
 
 ED_DEPS = \
+	-lboost_serialization \
+	-lboost_thread \
 	-lGLU \
-	`wx-config --libs aui,gl,propgrid` \
+	`wx-config --libs aui,gl,propgrid`
 
 ED_LIBS = \
 	$(ED_DEPS) \
@@ -36,7 +39,7 @@ IO_DEPS = \
 	-lboost_iostreams \
 	-lboost_locale \
 	-lboost_serialization \
-	-lboost_thread \
+	-lboost_zlib \
 	-lassimp \
 	-lfreeimage \
 	-lportaudio \
@@ -44,7 +47,7 @@ IO_DEPS = \
 	-lavdevice \
 	-lavformat \
 	-lavutil \
-	-lswscale \
+	-lswscale
 
 IO_LIBS = \
 	$(IO_DEPS) \

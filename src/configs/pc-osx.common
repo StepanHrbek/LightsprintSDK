@@ -23,8 +23,9 @@ LINK_FLAGS += -L../../bin/pc-osx
 
 CORE_DEPS = \
 	-lstdc++ \
-	-lboost_system-mt \
-	-lboost_regex-mt \
+	-lboost_chrono-mt \
+	-lboost_date_time-mt \
+	-lboost_thread-mt \
 	-lembree.2.4.0
 
 #	-lgomp # not yet supported by LLVM
@@ -48,8 +49,6 @@ ED_DEPS = \
 	-lwx_osx_cocoau-3.0.0.2.0 \
 	-lwx_osx_cocoau_gl-3.0.0.2.0 \
 	-lboost_serialization-mt \
-	-lboost_iostreams-mt \
-	-lboost_locale-mt \
 	-lboost_thread-mt \
 	-framework IOKit \
 	-framework Cocoa
@@ -65,10 +64,10 @@ ED_LIBS = \
 
 IO_DEPS = \
 	-lassimp \
-	-lboost_serialization-mt \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
-	-lboost_thread-mt \
+	-lboost_serialization-mt \
+	-lboost_zlib-mt \
 	-lfreeimage \
 	-lportaudio \
 	-lavcodec \
