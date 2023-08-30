@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news149 ------------------------------------ 2023.xx.xx -------------------------------------
+
+NEWS
+
+- Lightsprint SDK is free and open source
+
+CHANGES
+
+- One .vcxproj shared by all supported Visual Studio versions.
+
+
 \section news148 ------------------------------------ 2021.08.08 -------------------------------------
 
 NEWS
