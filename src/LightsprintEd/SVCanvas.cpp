@@ -40,11 +40,11 @@
 #endif
 #include <cctype>
 #include <boost/thread.hpp>
-#include <boost/filesystem.hpp> // extension()==".gsa"
+#include <filesystem> // extension()==".gsa"
 
 //#define SUPPORT_GL_ES
 
-namespace bf = boost::filesystem;
+namespace bf = std::filesystem;
 
 #define canvasWindow (svframe->m_canvasWindow)
 #define canvasGetSize() canvasWindow->GetSize()

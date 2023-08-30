@@ -202,7 +202,7 @@ namespace rr
 	// String conversion macros.
 	//
 	// RR     - RRString
-	// PATH   - boost::filesystem:path
+	// PATH   - std::filesystem:path
 	// STD    - std::string
 	// STDW   - std::wstring
 	// WX     - wxString

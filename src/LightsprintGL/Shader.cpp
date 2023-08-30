@@ -14,12 +14,7 @@
 #include "Shader.h"
 #include "Lightsprint/RRDebug.h"
 #include <sstream>
-#ifdef RR_LINKS_BOOST
-	#include <boost/filesystem/fstream.hpp>
-	namespace bf = boost::filesystem;
-#else
-	#include <fstream>
-#endif
+#include <fstream>
 
 namespace rr_gl
 {
@@ -39,11 +34,7 @@ Shader* Shader::create(const char* defines, const rr::RRString& filename, GLenum
 	source[2] = defines?defines:"";
 	try
 	{
-#ifdef RR_LINKS_BOOST
-		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
-#else
 		std::ifstream ifs(RR_RR2STD(filename),std::ios::in|std::ios::binary);
-#endif
 		std::stringstream buffer;
 		buffer << ifs.rdbuf();
 		std::string s = buffer.str();

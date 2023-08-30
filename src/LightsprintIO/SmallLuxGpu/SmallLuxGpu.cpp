@@ -14,9 +14,9 @@
 #include <set>
 #include "SmallLuxGpu.h"
 #include "Lightsprint/RRScene.h"
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+#include <fstream>
+namespace bf = std::filesystem;
 
 using namespace rr;
 
@@ -164,7 +164,7 @@ bool savePly(const RRObject* object, const RRString& filename)
 	}
 	try
 	{
-		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc); // binary because valid .ply needs 0a on first line, 0d 0a is wrong
+		std::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc); // binary because valid .ply needs 0a on first line, 0d 0a is wrong
 		if (!ofs || ofs.bad())
 		{
 			rr::RRReporter::report(rr::WARN,"File %ls can't be created, object not saved.\n",filename.w_str());
@@ -245,7 +245,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 	}
 	try
 	{
-		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::trunc);
+		std::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{
 			rr::RRReporter::report(rr::WARN,"File %ls can't be created, scene not saved.\n",filename.w_str());
@@ -333,7 +333,8 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				if (!originalIsAscii)
 				{
 					// non-ascii filename, copy file to ascii filename
-					bf::copy_file(RR_RR2PATH((*i)->filename),asciiFilename);
+					std::error_code ec;
+					bf::copy_file(RR_RR2PATH((*i)->filename),asciiFilename,ec);
 					ofs << "scene.textures.tex" << textrueIndex << ".file = " << asciiFilename << "\n";
 				}
 				else

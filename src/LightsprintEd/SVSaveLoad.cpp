@@ -23,15 +23,15 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <filesystem>
+#include <fstream>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #ifdef _WIN32
 	#include <GL/wglew.h> // wglSwapInterval
 #endif
 
-namespace bf = boost::filesystem;
+namespace bf = std::filesystem;
 
 namespace boost
 {
@@ -257,9 +257,9 @@ bool UserPreferences::save() const
 {
 	try
 	{
-		boost::system::error_code ec;
+		std::error_code ec;
 		bf::create_directories(RR_WX2PATH(suggestPreferencesDirectory()),ec);
-		bf::ofstream ofs(RR_WX2PATH(suggestPreferencesFilename()));
+		std::ofstream ofs(RR_WX2PATH(suggestPreferencesFilename()));
 		if (!ofs || ofs.bad())
 		{
 			rr::RRReporter::report(rr::WARN,"File %ls can't be created, preferences not saved.\n",RR_WX2WCHAR(suggestPreferencesFilename()));
@@ -282,7 +282,7 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 {
 	try
 	{
-		bf::ifstream ifs(RR_WX2PATH(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
+		std::ifstream ifs(RR_WX2PATH(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		if (!ifs || ifs.bad())
 		{
 			// don't warn, we attempt to load prefs each time, without knowing the file exists

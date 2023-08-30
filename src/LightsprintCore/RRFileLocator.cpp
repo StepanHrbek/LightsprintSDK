@@ -14,15 +14,13 @@
 // single global variable shared by all libraries that include RRSerialization.h
 RR_API class SerializationRuntime* g_serializationRuntime = nullptr;
 
-#ifdef RR_LINKS_BOOST
-
 #include <vector>
 #include <map>
 #include <boost/algorithm/string.hpp> // split, is_any_of
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <filesystem>
+#include <fstream>
 #include <regex>
-namespace bf = boost::filesystem;
+namespace bf = std::filesystem;
 
 namespace rr
 {
@@ -142,20 +140,23 @@ protected:
 //		RRReporter::report(INF3,"   newRef=%s\n",newReference.string().c_str());
 //		RRReporter::report(INF3,"   filename          =%s\n",filename.string().c_str());
 		bf::path relativeFilename = relative(filename,oldReference.parent_path());
-		bf::path relocatedFilename = bf::absolute(relativeFilename,system_complete(newReference.parent_path())).normalize();
+		std::error_code ec;
+		bf::path relocatedFilename = bf::absolute(bf::absolute(newReference.parent_path(),ec)/relativeFilename,ec);
 //		RRReporter::report(INF3,"   relativeFilename  =%s\n",relativeFilename.string().c_str());
 //		RRReporter::report(INF3,"   step1             =%s\n",newReference.parent_path().string().c_str());
-//		RRReporter::report(INF3,"   step2             =%s\n",system_complete(newReference.parent_path()).string().c_str());
+//		RRReporter::report(INF3,"   step2             =%s\n",(bf::absolute(newReference.parent_path(),ec)/relativeFilename).string().c_str());
 //		RRReporter::report(INF3,"   relocatedFilename =%s\n",relocatedFilename.string().c_str());
 		return relocatedFilename;
 	}
 
+	// can we use bf::relative() instead?
 	static bf::path relative(bf::path file, bf::path base)
 	{
 //		RRReporter::report(INF3,"     file            =%s\n",file.string().c_str());
 //		RRReporter::report(INF3,"     base            =%s\n",base.string().c_str());
-		file = bf::system_complete(file).relative_path().normalize();
-		base = bf::system_complete(base).relative_path().normalize();
+		std::error_code ec;
+		file = bf::absolute(file,ec).relative_path();
+		base = bf::absolute(base,ec).relative_path();
 		bf::path::const_iterator itBase = base.begin();
 		bf::path::const_iterator itFile = file.begin();
 		while ((itBase!=base.end()) && (itFile!=file.end()) && (*itBase==*itFile))
@@ -217,7 +218,7 @@ bool RRFileLocator::exists(const RRString& filename) const
 	if (filename=="c@pture")
 		return true;
 
-	boost::system::error_code ec;
+	std::error_code ec;
 	return bf::exists(RR_RR2PATH(filename),ec);
 }
 
@@ -247,60 +248,5 @@ RRFileLocator* RRFileLocator::create()
 {
 	return new FileLocator;
 }
-
-#else //!RR_LINKS_BOOST
-
-#include <cstdio>
-#include <climits> // UINT_MAX
-
-namespace rr
-{
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// RRFileLocator
-
-bool RRFileLocator::exists(const RRString& filename) const
-{
-	if (filename=="c@pture")
-		return true;
-
-	FILE* f = fopen(RR_RR2CHAR(filename),"rb");
-	if (f)
-	{
-		fclose(f);
-		return true;
-	}
-	return false;
-}
-
-RRString RRFileLocator::getLocation(const RRString& originalFilename, unsigned attemptNumber) const
-{
-	return attemptNumber ? "" : originalFilename;
-}
-
-RRString RRFileLocator::getLocation(const RRString& originalFilename, const RRString& fallbackFilename) const
-{
-	for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
-	{
-		RRString location = getLocation(originalFilename,attempt);
-		if (location.empty())
-			return fallbackFilename;
-		bool exists = this->exists(location);
-		RRReporter::report(INF3," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
-		if (exists)
-		{
-			return location;
-		}
-	}
-	return "";
-}
-
-RRFileLocator* RRFileLocator::create()
-{
-	return new RRFileLocator;
-}
-
-#endif //!RR_LINKS_BOOST
 
 } //namespace

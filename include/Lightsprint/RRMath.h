@@ -51,10 +51,6 @@
 	#endif
 #endif
 
-#ifndef __ANDROID__
-	#define RR_LINKS_BOOST // if not defined, we use header-only parts of boost, giving up optional features like proper handling of unicode filenames
-#endif
-
 #include <cfloat>
 #include <cmath>
 

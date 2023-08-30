@@ -23,7 +23,6 @@ LINK_FLAGS += -L../../bin/pc-osx
 
 CORE_DEPS = \
 	-lstdc++ \
-	-lboost_filesystem-mt \
 	-lboost_system-mt \
 	-lboost_regex-mt \
 	-lembree.2.4.0

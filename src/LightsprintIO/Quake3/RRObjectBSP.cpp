@@ -18,8 +18,8 @@
 #include <cstdio>
 #include <vector>
 #include "RRObjectBSP.h"
-#include <boost/filesystem.hpp> // parent_path()
-namespace bf = boost::filesystem;
+#include <filesystem> // parent_path()
+namespace bf = std::filesystem;
 
 #define PACK_VERTICES // reindex vertices, remove unused ones (optimization that makes vertex buffers smaller)
 

@@ -14,8 +14,8 @@
 
 #include <string>
 
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+namespace bf = std::filesystem;
 
 #ifdef _WIN32
 	#include <windows.h>
@@ -100,7 +100,7 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 	RRScene* scene = new RRScene(RR_PATH2RR(temp),textureLocator,aborting);
 
 	// delete temp.rr3
-	boost::system::error_code ec;
+	std::error_code ec;
 	bf::remove(temp,ec);
 
 	// done
@@ -131,7 +131,7 @@ bool saveIsolated(const RRScene* scene, const RRString& filename)
 	callSelf(temp,output);
 
 	// delete temp.rr3
-	boost::system::error_code ec;
+	std::error_code ec;
 	bf::remove(temp,ec);
 
 	// done

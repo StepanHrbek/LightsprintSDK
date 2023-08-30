@@ -12,8 +12,8 @@
 #include "SVObjectProperties.h"
 #include "SVLightProperties.h"
 #include "SVLog.h"
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+namespace bf = std::filesystem;
 
 namespace rr_ed
 {

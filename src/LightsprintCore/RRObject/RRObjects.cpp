@@ -13,12 +13,8 @@
 #include "RRObjectMulti.h"
 #include <unordered_set>
 #include <unordered_map>
-#ifdef RR_LINKS_BOOST
-	#include <boost/filesystem.hpp>
-	namespace bf = boost::filesystem;
-#else
-	#include "Lightsprint/RRFileLocator.h"
-#endif
+#include <filesystem>
+namespace bf = std::filesystem;
 
 #define REALTIME_VBUF_FORMAT BF_RGBF
 #define REALTIME_VBUF_SCALED false
@@ -990,22 +986,13 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			object->recommendLayerParameters(layerParameters);
-#ifdef RR_LINKS_BOOST
-			boost::system::error_code ec;
+			std::error_code ec;
 			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec) || !(buffer=RRBuffer::load(layerParameters.actualFilename,nullptr)) )
-#else
-			RRFileLocator fl;
-			if ( !fl.exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,nullptr)) )
-#endif
 			{
 				// if it fails, try to load per-vertex format
 				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = 0;
 				object->recommendLayerParameters(layerParameters);
-#ifdef RR_LINKS_BOOST
 				if (bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec))
-#else
-				if (fl.exists(layerParameters.actualFilename))
-#endif
 					buffer = RRBuffer::load(layerParameters.actualFilename.c_str());
 			}
 			if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
@@ -1044,16 +1031,14 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 			if (buffer)
 			{
 				// create destination directories
-#ifdef RR_LINKS_BOOST
 				if (!directoryCreated)
 				{
 					bf::path prefix(RR_RR2PATH(path));
 					prefix.remove_filename();
-					boost::system::error_code ec;
+					std::error_code ec;
 					bf::exists(prefix,ec) || bf::create_directories(prefix,ec);
 					directoryCreated = true;
 				}
-#endif
 
 				numBuffers++;
 				RRObject::LayerParameters layerParameters;
@@ -1106,7 +1091,6 @@ unsigned RRObjects::layerDeleteFromMemory(int layerNumber) const
 unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ext) const
 {
 	unsigned result = 0;
-#ifdef RR_LINKS_BOOST
 	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 	{
 		rr::RRObject::LayerParameters layerParameters;
@@ -1114,14 +1098,13 @@ unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ex
 		layerParameters.suggestedExt = ext;
 		(*this)[objectIndex]->recommendLayerParameters(layerParameters);
 		bf::path path(RR_RR2PATH(layerParameters.actualFilename));
-		boost::system::error_code ec;
+		std::error_code ec;
 		if (bf::exists(path,ec))
 		{
 			if (bf::remove(path,ec))
 				result++;
 		}
 	}
-#endif
 	return result;
 }
 

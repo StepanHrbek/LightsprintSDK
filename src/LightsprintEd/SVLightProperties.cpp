@@ -10,8 +10,8 @@
 #include "SVLightProperties.h"
 #include "SVCustomProperties.h"
 #include "SVFrame.h" // updateSceneTree()
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+namespace bf = std::filesystem;
 
 // for sun direction presented as altitude+azimuth
 #define ANGLEX2ALT(pitch) RR_RAD2DEG(-(pitch))

@@ -61,7 +61,7 @@ namespace rr
 		//! Tests whether this exact file or directory exists.
 		//
 		//! Only one test is made, without trying other possible locations.
-		//! Default implementation is based on boost::filesystem::exists(), you are free to override it.
+		//! Default implementation is based on std::filesystem::exists(), you are free to override it.
 		virtual bool exists(const RRString& filename) const;
 
 		//! Returns possible file location.

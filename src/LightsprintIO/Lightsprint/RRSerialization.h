@@ -21,10 +21,10 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 #include <unordered_set>
-#include <boost/filesystem.hpp> // is_complete
+#include <filesystem> // is_complete
 #include <boost/locale.hpp> // boost::locale::normalize()
 
-namespace bf = boost::filesystem;
+namespace bf = std::filesystem;
 
 //------------------------- runtime declaration --------------------------------
 
@@ -361,7 +361,8 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 	{
 		// saved paths must be absolute, necessary for proper relocation at load time
 		// saved type must be RRString (saving std::string and loading RRString works if scene has at least 1 light or material, fails in empty scene)
-		rr::RRString absolute = RR_PATH2RR(bf::system_complete(RR_RR2PATH(a.filename)));
+		std::error_code ec;
+		rr::RRString absolute = RR_PATH2RR(bf::absolute(RR_RR2PATH(a.filename),ec));
 		ar & make_nvp("filename",(a.isStub() || a.filename=="c@pture")?a.filename:absolute); // otherwise "c@pture" would be saved as "c:/foo/c@pture"
 	}
 }

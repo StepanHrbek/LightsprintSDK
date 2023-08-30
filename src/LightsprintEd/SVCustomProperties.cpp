@@ -12,8 +12,8 @@
 #include "wx/colordlg.h"
 #include "SVFrame.h" // needed by ButtonProperty
 #include "SVSceneTree.h" // needed by ButtonProperty
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+namespace bf = std::filesystem;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -426,7 +426,7 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 FileComboData::FileComboData(const wxString& dir)
 {
 	fileDir = dir;
-	boost::system::error_code ec;
+	std::error_code ec;
 	bf::directory_iterator end_itr;
 	for (bf::directory_iterator itr(RR_WX2PATH(fileDir),ec); itr!=end_itr; ++itr)
 	{

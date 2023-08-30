@@ -7,7 +7,6 @@ CPP_FLAGS += -std=c++11 # rvalue references, lambda
 CORE_DEPS = \
 	-lgomp \
 	-lpthread \
-	-lboost_filesystem \
 	-lboost_system \
 	-lboost_regex
 

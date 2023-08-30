@@ -30,8 +30,8 @@
 #ifdef __WXMAC__
 	#include <ApplicationServices/ApplicationServices.h> // TransformProcessType
 #endif
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+namespace bf = std::filesystem;
 
 namespace rr_ed
 {

@@ -10,10 +10,10 @@
 #include "SVApp.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+namespace bf = std::filesystem;
 
-#define NORMALIZED(x) RR_PATH2RR(bf::system_complete(RR_RR2PATH(x)).make_preferred()) // make paths absolute
+#define NORMALIZED(x) RR_PATH2RR(bf::absolute(RR_RR2PATH(x),ec).make_preferred()) // make paths absolute
 
 namespace rr_ed
 {
@@ -80,7 +80,8 @@ public:
 	{
 #ifdef __APPLE__
 		// current dir is wrong here, fix it
-		bf::current_path(s_initPath);
+		std::error_code ec;
+		bf::current_path(s_initPath,ec);
 #endif
 		svframe = SVFrame::Create(s_svs);
 		return true;
@@ -103,7 +104,8 @@ static wxAppConsole *wxCreateApp()
 	wxAppConsole::CheckBuildOptions(WX_BUILD_OPTIONS_SIGNATURE,"SceneViewer");
 #ifdef __APPLE__
 	// this is the last place with current dir still ok, remember it
-	s_initPath = bf::current_path();
+	std::error_code ec;
+	s_initPath = bf::current_path(ec);
 #endif
 	return new SVApp;
 }
@@ -117,6 +119,7 @@ void sceneViewer(rr::RRSolver* _inputSolver, const rr::RRString& _inputFilename,
 	if (_inputSolver && _inputSolver->aborting) return;
 
 	// set initial values (user may change them interactively in scene viewer)
+	std::error_code ec;
 	s_svs = SceneViewerStateEx();
 	if (_svs) s_svs.SceneViewerState::operator=(*_svs);
 	if (!_inputFilename.empty())

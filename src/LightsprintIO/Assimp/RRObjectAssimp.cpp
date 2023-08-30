@@ -18,9 +18,9 @@
 #include "include/assimp/postprocess.h"
 #include "include/assimp/scene.h"
 #include "include/assimp/material.inl"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
-namespace bf = boost::filesystem;
+namespace bf = std::filesystem;
 
 using namespace rr;
 

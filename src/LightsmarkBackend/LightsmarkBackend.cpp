@@ -123,8 +123,8 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #ifdef BACKGROUND_THREAD
 	#include <thread>
 #endif
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#include <filesystem>
+namespace bf = std::filesystem;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1712,7 +1712,7 @@ void parseOptions(int argc, const char*const*argv)
 {
 	int i,tmp;
 	bool badArgument = false;
-	boost::system::error_code ec;
+	std::error_code ec;
 
 	for (i=1; i<argc; i++)
 	{

@@ -23,14 +23,12 @@
 // ImageCache
 #include <unordered_map>
 #ifdef _MSC_VER
+	#define NOMINMAX
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
-#ifdef RR_LINKS_BOOST
-	#include <boost/filesystem.hpp>
-	namespace bf = boost::filesystem;
-#else
-	#include "Lightsprint/RRFileLocator.h"
-#endif
+
+#include <filesystem>
+namespace bf = std::filesystem;
 
 namespace rr
 {
@@ -1011,13 +1009,8 @@ public:
 	RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 	{
 		bool sixfiles = wcsstr(filename.w_str(),L"%s")!=nullptr;
-#ifdef RR_LINKS_BOOST
-		boost::system::error_code ec;
+		std::error_code ec;
 		bool exists = !sixfiles && bf::exists(RR_RR2PATH(filename),ec);
-#else
-		RRFileLocator fl;
-		bool exists = !sixfiles && fl.exists(filename);
-#endif
 
 		Cache::iterator i = cache.find(RR_RR2STDW(filename));
 		if (i!=cache.end())
@@ -1028,9 +1021,7 @@ public:
 					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
 				&& (sixfiles
 					|| !exists // for example c@pture is virtual file, it does not exist on disk, but still we cache it
-#ifdef RR_LINKS_BOOST
-					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str(),ec) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str()))
-#endif
+					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str(),ec) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str(),ec))
 					)
 				)
 			{
@@ -1038,11 +1029,7 @@ public:
 				bool cached2dCross = i->second.buffer->getType()==BT_2D_TEXTURE && (i->second.buffer->getWidth()*3==i->second.buffer->getHeight()*4 || i->second.buffer->getWidth()*4==i->second.buffer->getHeight()*3);
 				bool cachedCube = i->second.buffer->getType()==BT_CUBE_TEXTURE;
 				if ((cached2dCross && cubeSideName)
-#ifdef RR_LINKS_BOOST
 					|| (cachedCube && !cubeSideName && bf::path(RR_RR2PATH(filename)).extension()!=".rrbuffer")) // .rrbuffer is the only format that can produce cube even with cubeSideName=nullptr, exclude it from test here
-#else
-					|| (cachedCube && !cubeSideName))
-#endif
 					RRReporter::report(WARN,"You broke image cache by loading %ls as both 2d and cube.\n",filename.w_str());
 
 				// image is already in memory and it was not modified since load, use it
@@ -1058,10 +1045,8 @@ public:
 		{
 			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
-#ifdef RR_LINKS_BOOST
-			value.fileTimeWhenLoaded = exists ? bf::last_write_time(filename.w_str(),ec) : 0;
+			value.fileTimeWhenLoaded = exists ? bf::last_write_time(filename.w_str(),ec) : bf::file_time_type::min();
 			value.fileSizeWhenLoaded = exists ? bf::file_size(filename.w_str(),ec) : 0;
-#endif
 		}
 		return value.buffer;
 	}
@@ -1100,10 +1085,8 @@ protected:
 		RRBuffer* buffer;
 		unsigned bufferVersionWhenLoaded;
 		// attributes critical for Toolbench plugin, "Bake from cache" must not load images from cache if they did change on disk.
-#ifdef RR_LINKS_BOOST
-		std::time_t fileTimeWhenLoaded;
-		boost::uintmax_t fileSizeWhenLoaded;
-#endif
+		bf::file_time_type fileTimeWhenLoaded;
+		std::uintmax_t fileSizeWhenLoaded;
 	};
 	typedef std::unordered_map<std::wstring,Value> Cache;
 	Cache cache;

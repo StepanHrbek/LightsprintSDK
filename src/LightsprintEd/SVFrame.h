@@ -10,8 +10,6 @@
 #ifndef SVFRAME_H
 #define SVFRAME_H
 
-#define BOOST_NO_CXX11_SCOPED_ENUMS // prevents OSX/clang linker error undefined symbol boost::filesystem::detail::copy_file
-
 #include "Lightsprint/Ed/Ed.h"
 #include "SVCanvas.h"
 #include "SVDialogs.h"
