@@ -32,8 +32,10 @@
 #include "RRBufferFFmpeg.h"
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
-#include <boost/chrono.hpp> // we use boost only because of vs2010/12,
-#include <boost/thread.hpp> // otherwise we would include <chrono>, <condition_variable>, <mutex>, <thread> and replace boost:: with std::
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 #include <cstdio>
 #include <cstdlib>
 #include <queue>
@@ -121,13 +123,13 @@ public:
 	// for packet queues, pop is blocking
 	void push(C c)
 	{
-		boost::lock_guard<boost::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.push(c);
 		cond.notify_one();
 	}
 	C blocking_pop(bool& aborting)
 	{
-		boost::unique_lock<boost::mutex> lock(mutex);
+		std::unique_lock<std::mutex> lock(mutex);
 		while (!aborting)
 		{
 			if (!queue.empty())
@@ -144,7 +146,7 @@ public:
 	// for image queue, push is blocking
 	void blocking_push(C c, bool& aborting)
 	{
-		boost::unique_lock<boost::mutex> lock(mutex);
+		std::unique_lock<std::mutex> lock(mutex);
 		while (!aborting && queue.size()>=MAX_IMAGE_QUEUE_LENGTH)
 			cond.wait(lock); // blocking [#50]
 		queue.push(c);
@@ -153,7 +155,7 @@ public:
 	C pop_older(double seconds)
 	{
 		C result = nullptr;
-		boost::lock_guard<boost::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		while (!queue.empty() && (queue.front()->pts<seconds || !queue.front()->dbg_numImagesSinceSeek)) // always pop if it is first frame after seek
 		{
 			delete result;
@@ -167,7 +169,7 @@ public:
 
 	void clear()
 	{
-		boost::lock_guard<boost::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		while (!queue.empty())
 		{
 			delete queue.front();
@@ -186,8 +188,8 @@ public:
 
 private:
 	std::queue<C> queue;
-	boost::mutex mutex;
-	boost::condition_variable cond;
+	std::mutex mutex;
+	std::condition_variable cond;
 };
 
 
@@ -262,7 +264,7 @@ public:
 		av_register_all();		
 		open_file(_filename); // we can call this from demux_thread, but we prefer blocking until width/height/duration are known
 		if (hasAudio() || hasVideo()) // hasXxx works only after open_file()
-			demux_thread = boost::thread(&FFmpegPlayer::demux_proc, this);
+			demux_thread = std::thread(&FFmpegPlayer::demux_proc, this);
 	}
 
 	virtual ~FFmpegPlayer()
@@ -439,7 +441,7 @@ public:
 			}
 			else
 			{
-				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 		}
 
@@ -595,7 +597,7 @@ public:
 			if (std::min(hasVideo()?video_packetQueue.size():1000,hasAudio()?audio_packetQueue.size():1000)>MAX_PACKET_QUEUE_LENGTH || !demux_working)
 			{
 				// queues are full, sleep
-				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			else
 			{
@@ -725,7 +727,7 @@ public:
 					audio_avCodecContext = open_stream(audio_streamIndex);
 				if (audio_avCodecContext)
 				{
-					audio_thread = boost::thread(&FFmpegPlayer::audio_proc,this);
+					audio_thread = std::thread(&FFmpegPlayer::audio_proc,this);
 				}
 			}
 			if (video_streamIndex==-1 && avFormatContext->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO)
@@ -745,7 +747,7 @@ public:
 					width = video_avCodecContext->width;
 					height = video_avCodecContext->height;
 					format = rrFormats[idx];
-					video_thread = boost::thread(&FFmpegPlayer::video_proc,this);
+					video_thread = std::thread(&FFmpegPlayer::video_proc,this);
 				}
 			}
 		}
@@ -826,19 +828,19 @@ public:
 	bool              aborting;               // changed by main thread, signal to all background threads
 
 	// demux
-	boost::thread     demux_thread;           // set once by ctor, feeds video and audio threads from file
+	std::thread       demux_thread;           // set once by ctor, feeds video and audio threads from file
 	bool              demux_working;          // set on start, cleared when demux reaches end of stream, set on seek
 	AVFormatContext*  avFormatContext;        // set once by ctor
 
 	// ffmpeg audio (producer)
-	boost::thread     audio_thread;           // set once by ctor, decodes audio packets and feeds portaudio
+	std::thread       audio_thread;           // set once by ctor, decodes audio packets and feeds portaudio
 	int               audio_streamIndex;      // set once by ctor
 	AVStream*         audio_avStream;         // set once by ctor
 	AVCodecContext*   audio_avCodecContext;   // set once by ctor
 	Queue<AVPacketWrapper*> audio_packetQueue;// changed by demux_thread and audio_thread
 
 	// ffmpeg video (producer)
-	boost::thread     video_thread;           // set once by ctor, decodes video packets and feeds image_ready
+	std::thread       video_thread;           // set once by ctor, decodes video packets and feeds image_ready
 	int               video_streamIndex;      // set once by ctor
 	AVStream*         video_avStream;         // set once by ctor
 	AVCodecContext*   video_avCodecContext;   // set once by ctor
