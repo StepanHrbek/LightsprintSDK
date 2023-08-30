@@ -16,7 +16,8 @@ NEWS
 
 CHANGES
 
-- One .vcxproj shared by all supported Visual Studio versions.
+- SDK ends support of VS2010, 2012, 2013, 2015.
+- One .vcxproj shared by all supported Visual Studio versions (we are down to VS2017, 2019, 2022).
 
 
 \section news148 ------------------------------------ 2021.08.08 -------------------------------------

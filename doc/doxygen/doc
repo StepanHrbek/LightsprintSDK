@@ -325,7 +325,7 @@ Material formats (1)
  - for baking and pathtracing, 3D API is not needed
 
  Compilers
- - Visual C++ (2010, 2012, 2013, 2015, 2017, 2019, 2022) (32bit, 64bit)
+ - Visual C++ (2017, 2019, 2022) (32bit, 64bit)
  - GCC (32bit, 64bit)
  - Clang (64bit)
 
@@ -3058,46 +3058,10 @@ Material formats (1)
 
  Lightsprint SDK works with Visual Studio out of the box, but it's possible to improve visualizations of Lightsprint types in debugger.
 
- \section vs_2012 Visual Studio 2012 - 2022
+ \section vs_2012 Visual Studio 2017 - 2022
 
  To improve visualizations, copy our <code>Lightsprint.SDK.natvis</code> file to Visual Studio folder <code>Common7/Packages/Debugger/Visualizers</code>.
  <code>bin/install_vs_visualizers.bat</code> can do it for you, when run as an administrator.
-
- \section vs_2010 Visual Studio 2010
-
- To improve visualizations, open Visual Studio file <code>Common7/Packages/Debugger/autoexp.dat</code> and insert following blocks of text
- - into [AutoExpand] section
-   \code
-rr::RRVec2=<x>,<y>
-rr::RRVec3=<x>,<y>,<z>
-rr::RRVec4=<x>,<y>,<z>,<w>
-rr::RRString=<str>
-   \endcode
- - into [Visualizer] section
-   \code
-rr::RRVector<*>{
-	children
-	(
-		#array
-		(
-			expr :		($c.c)[$i],
-			size :		$c.numUsed
-		)
-	)
-	preview
-	(
-		#(
-			"[", $e.numUsed , "](",
-			#array
-			(
-				expr :	($c.c)[$i],
-				size :	$c.numUsed
-			),
-			")"
-		)
-	)
-}
-   \endcode
 
 
 

@@ -46,10 +46,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="RRBuffer\RRBufferBlend.cpp" />
-    <ClCompile Include="RRCamera.cpp">
-      <!-- workaround for vs2010 release, it would crash with default sync, set async -->
-      <ExceptionHandling Condition="('$(DefaultPlatformToolset)'=='') And ( ('$(Configuration)|$(Platform)'=='Release static|Win32') Or ('$(Configuration)|$(Platform)'=='Release DLL|Win32') )">Async</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRCamera.cpp" />
     <ClCompile Include="RRCollider\bsp.cpp" />
     <ClCompile Include="RRCollider\EmbreeCollider.cpp" />
     <ClCompile Include="RRCollider\geometry.cpp" />
