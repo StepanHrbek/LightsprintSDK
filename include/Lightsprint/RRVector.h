@@ -13,21 +13,6 @@
 
 #include "RRDebug.h"
 
-#ifdef __GNUC__ // gcc4 fails with our RRVector
-
-#include <vector>
-
-namespace rr
-{
-
-//! Shortcut for std::vector.
-template<class C>
-class RRVector : public std::vector<C>
-{
-};
-
-#else
-
 #include <cstdlib>
 #include <cstring> // memcpy
 
@@ -243,8 +228,6 @@ protected:
 	unsigned numAllocated;
 	unsigned numUsed;
 };
-
-#endif
 
 } // namespace
 
