@@ -214,7 +214,7 @@ struct LoadersAndSavers2 : public LoadersAndSavers1<RRClass>
 		__except(EXCEPTION_EXECUTE_HANDLER)
 		{
 			RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"%s import crashed.\n",classname));
-			return false;
+			return nullptr;
 		}
 #endif
 	}
