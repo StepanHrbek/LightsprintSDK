@@ -14,13 +14,17 @@
 // (they are not included in SDK to simplify testing, nearly everyone has DirectX runtime installed, better not add redundant dll)
 #define DYNAMIC_LOAD // tries to load d3d[x]9.dll only when building unwrap, fails gracefully
 //#define ERROR_STRINGS // makes code depend on dx lib, don't use
+#define ABORTABLE // makes unwrapping abortable, uses boost::thread and boost::chrono
 
+#include <algorithm>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <boost/thread.hpp>
+#ifdef ABORTABLE
+	#include <boost/thread.hpp>
+#endif
 #include "Windows/d3dx9/D3DX9Mesh.h" // here we include our copy of Direct3DX9 headers, so that installing legacy packages (DirectX SDK) is not necessary
 #include "Lightsprint/RRObject.h"
 
@@ -305,7 +309,7 @@ void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvCh
 	rrMesh->unwrapHeight = resolution;
 }
 
-#if _MSC_VER>=1600
+#ifdef ABORTABLE
 
 static void abortable(std::function<void ()> f, bool& aborting)
 {
@@ -318,12 +322,12 @@ static void abortable(std::function<void ()> f, bool& aborting)
 #define BEGIN_ABORTABLE_SECTION abortable([&](){
 #define END_ABORTABLE_SECTION },aborting);
 
-#else
+#else // !ABORTABLE
 
 #define BEGIN_ABORTABLE_SECTION
 #define END_ABORTABLE_SECTION
 
-#endif
+#endif // !ABORTABLE
 
 bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const UvChannels& keepChannels, unsigned mapSize, float gutter, float pixelsPerWorldUnit, unsigned minTrianglesForFastUnwrap, bool& aborting)
 {
