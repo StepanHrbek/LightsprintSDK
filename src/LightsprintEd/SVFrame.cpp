@@ -89,7 +89,7 @@ static wxIcon* loadIcon(const wxString& filename)
 
 bool g_alphaSplashOn = false;
 
-#if defined(_WIN32) && _MSC_VER>=1400
+#if defined(_WIN32)
 
 class AlphaSplashScreen
 {
@@ -203,7 +203,7 @@ private:
 	HWND hWnd;
 };
 
-#else // ! (defined(_WIN32) && _MSC_VER>=1400)
+#else // ! (defined(_WIN32)
 
 class AlphaSplashScreen
 {
@@ -228,7 +228,7 @@ private:
 	wxSplashScreen* splash;
 };
 
-#endif // ! (defined(_WIN32) && _MSC_VER>=1400)
+#endif // ! (defined(_WIN32)
 
 
 /////////////////////////////////////////////////////////////////////////////

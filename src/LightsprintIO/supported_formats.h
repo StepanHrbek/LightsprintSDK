@@ -28,11 +28,6 @@
 
 // Actual support depends on your operating system, compiler etc.
 
-// Assimp does not compile in Visual Studio 2010, 2012.
-#if defined(SUPPORT_ASSIMP) && defined(_MSC_VER) && _MSC_VER<1800
-	#undef SUPPORT_ASSIMP
-#endif
-
 // DirectShow exists only in Windows.
 #if defined(SUPPORT_DIRECTSHOW) && !defined(_WIN32)
 	#undef SUPPORT_DIRECTSHOW
