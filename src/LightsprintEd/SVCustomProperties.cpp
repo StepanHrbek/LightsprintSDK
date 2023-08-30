@@ -415,7 +415,7 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 		? (buffer->filename.empty()
 			? wxString::Format("(%dx%d embedded)",buffer->getWidth(),buffer->getHeight())
 			: wxString(RR_RR2WX(buffer->filename)))
-		:"(no texture)";
+		: wxString("(no texture)");
 }
 
 

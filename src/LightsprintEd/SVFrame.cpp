@@ -845,7 +845,7 @@ void SVFrame::UpdateMenuBar()
 
 wxString convertExtensionsToWx(wxString extensions, bool allFormats)
 {
-	wxString wxextensions = allFormats ? _("All formats")+"|"+extensions : "";
+	wxString wxextensions = allFormats ? _("All formats")+"|"+extensions : wxString();
 	while (!extensions.empty())
 	{
 		size_t i = extensions.find(';');

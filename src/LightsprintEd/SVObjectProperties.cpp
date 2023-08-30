@@ -117,7 +117,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 static void updateStringResolution(wxPGProperty* property, rr::RRBuffer* buffer)
 {
 	updateString(property,(!buffer)
-		? ""
+		? wxString()
 		: ((buffer->getType()==rr::BT_2D_TEXTURE
 			? wxString::Format("%d*%d map",buffer->getWidth(),buffer->getHeight())
 			: (buffer->getType()==rr::BT_CUBE_TEXTURE
