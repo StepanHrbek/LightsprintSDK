@@ -118,7 +118,7 @@ namespace COLLADAFW
         String getName ( size_t index ) const
         {
 			COLLADABU_ASSERT ( index <= mInputInfosArray.getCount() );
-            if ( index >= mInputInfosArray.getCount () ) return 0;
+            if ( index >= mInputInfosArray.getCount () ) return String();
             return mInputInfosArray[index]->mName;
         }
 

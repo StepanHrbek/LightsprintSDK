@@ -50,7 +50,7 @@ namespace COLLADAFW
             if (CG_RENDER_STATES_XREF[i] == state)
                 return CG_RENDER_STATE_NAMES[i];
         }
-        return NULL;
+        return String();
     }
 
     // -------------------------------
