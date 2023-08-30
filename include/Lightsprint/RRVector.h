@@ -11,22 +11,6 @@
 #ifndef RRVECTOR_H
 #define RRVECTOR_H
 
-#ifndef __has_extension
-  #define __has_extension(x) 0 // stub for LLVM macro on non-LLVM compilers
-#endif
-
-#ifndef __ANDROID__ // android has these features disabled temporarily, current toolchains fail to compile parts of SDK
-
-#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=3) || __has_extension(cxx_rvalue_references)
-	#define RR_SUPPORTS_RVALUE_REFERENCES
-#endif
-
-#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7) || __has_extension(cxx_lambdas)
-	#define RR_HAS_LAMBDAS
-#endif
-
-#endif //!__ANDROID__
-
 #include "RRDebug.h"
 
 #ifdef __GNUC__ // gcc4 fails with our RRVector
@@ -104,7 +88,6 @@ public:
 		}
 		return *this;
 	}
-#ifdef RR_SUPPORTS_RVALUE_REFERENCES
 	//! Local replacement for std::swap
 	template <class T> void swap(T& a, T& b)
 	{
@@ -128,7 +111,6 @@ public:
 		swap(numUsed,a.numUsed);
 		return *this;
 	}
-#endif
 	//! Resizes vector, adding or removing elements at the end.
 	//! Does not destruct removed elements (unlike std::vector).
 	void resize(unsigned newSize, C initial=C())

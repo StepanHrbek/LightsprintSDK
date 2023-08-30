@@ -990,12 +990,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 				{
 					ObjectInfo info;
 					info.object = object;
-#ifdef RR_SUPPORTS_RVALUE_REFERENCES
 					info.faceGroups = std::move(object->faceGroups);
-#else
-					info.faceGroups = object->faceGroups;
-					object->faceGroups.clear();
-#endif
 					infos.push_back(info);
 				}
 			}
@@ -1049,11 +1044,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 
 		// unhide objects with current illumination
 		for (unsigned i=0;i<infos.size();i++)
-#ifdef RR_SUPPORTS_RVALUE_REFERENCES
 			infos[i].object->faceGroups = std::move(infos[i].faceGroups);
-#else
-			infos[i].object->faceGroups = infos[i].faceGroups;
-#endif
 
 		// copy texture to buffer (only necessary before save, can be skipped otherwise)
 		cubeTexture->copyTextureToBuffer();

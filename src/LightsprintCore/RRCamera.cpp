@@ -13,16 +13,8 @@
 #include <cstdlib> // rand
 #include "Lightsprint/RRCamera.h"
 #include "Lightsprint/RRObject.h"
-	#include "Lightsprint/RRSolver.h"
-
-#ifdef RR_HAS_LAMBDAS
-	#include <functional> // blendAkima
-	// VS2010 crashes when compiling this in release win32, unless we set "C++ Exceptions" to "Yes with SEH exceptions"
-#else
-	#pragma message ( "Skipping Akima interpolation, requires C++11 compiler." )
-	// not recognized by msvc 2005, 2008:
-	//#warning Skipping Akima interpolation, requires C++11 compiler.
-#endif
+#include "Lightsprint/RRSolver.h"
+#include <functional> // blendAkima
 
 namespace rr
 {
@@ -718,8 +710,6 @@ void RRCamera::blendLinear(const RRCamera& sample0, const RRCamera& sample1, flo
 	updateProjection();
 }
 
-#ifdef RR_HAS_LAMBDAS
-
 //static inline float abs(float a)
 //{
 //	return fabs(a);
@@ -925,23 +915,6 @@ void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* 
 	updateView(true,true);
 	updateProjection();
 }
-
-#else // !RR_HAS_LAMBDAS
-
-void RRMatrix3x4::blendAkima(unsigned numSamples, const RRMatrix3x4** samples, const RRReal* times, RRReal time)
-{
-	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"blendAkima() not supported by this compiler, requires lambdas.\n"));
-}
-void RRLight::blendAkima(unsigned numSamples, const RRLight** samples, const RRReal* times, RRReal time)
-{
-	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"blendAkima() not supported by this compiler, requires lambdas.\n"));
-}
-void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* times, float time)
-{
-	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"blendAkima() not supported by this compiler, requires lambdas.\n"));
-}
-
-#endif // !RR_HAS_LAMBDAS
 
 
 ////////////////////////////////////////////////////////////////////////

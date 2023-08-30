@@ -388,11 +388,9 @@ namespace rr
 	class RR_API RRMaterials : public RRVector<RRMaterial*>
 	{
 	public:
-#ifdef RR_SUPPORTS_RVALUE_REFERENCES
 		// Inherits move ctor and operator.
 		using RRVector::RRVector;
 		using RRVector::operator=;
-#endif
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Loaders/Savers

@@ -443,11 +443,10 @@ namespace rr
 	class RRLights : public RRVector<RRLight*>
 	{
 	public:
-#ifdef RR_SUPPORTS_RVALUE_REFERENCES
 		// Inherits move ctor and operator.
 		using RRVector::RRVector;
 		using RRVector::operator=;
-#endif
+
 		virtual ~RRLights() {};
 	};
 
