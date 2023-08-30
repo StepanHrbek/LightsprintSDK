@@ -42,10 +42,6 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_EMBREE;RR_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- we only need LanguageStandard for vs2019 and newer but >= does not work on strings
-           <LanguageStandard Condition="'$(DefaultPlatformToolset)'>='v160'">stdcpp17</LanguageStandard>
-       -->
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
