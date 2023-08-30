@@ -8,9 +8,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define GI_UPDATE_QUALITY          5 // default is 3, increase to 5 fixes book in first 5 seconds
 #define GI_UPDATE_INTERVAL         -1 // start GI update as often as possible (but can be affected by MAX_LIGHT_UPDATE_FREQUENCY)
-#if !defined(_MSC_VER) || _MSC_VER>=1700 // <thread> not supported in VS2010 and older
-	#define BACKGROUND_THREAD      // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
-#endif
+#define BACKGROUND_THREAD          // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
 #define DDI_EVERY_FRAME            1 // 1=slower but equal frame times, 0=faster but unequal frame times
 #define MAIN_MULTIPLIER            0.7f
 #define INDIRECT_MULTIPLIER        pow(2.3f,2.22f) // i think lightsmark 2007/8 used to boost indirect 2x in sRGB. current multiplier works in linear, so pow is necessary to keep level
