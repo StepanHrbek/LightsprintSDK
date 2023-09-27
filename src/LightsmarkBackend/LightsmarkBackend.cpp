@@ -1,7 +1,13 @@
-// pred releasem
-// - vypnout SUPPORT_COLLADA/MGF/OBJ
-// - prepnout FACTOR_FORMAT na 0
-// - vypnout OpenMP v rr_release.props, masivne zrychluje geforce (todo: otestovat radeon)
+// Lightsmark backend
+//
+// This has been main() of multiple demos in 200x, so pieces of commented out code are everywhere.
+// I'm gonna clean it up, leave only support for Lightsmark (and possibly 3+1).
+//
+// Optimizations before release
+// - turn off unused IO (SUPPORT_COLLADA/MGF/OBJ..)
+// - switch FACTOR_FORMAT to 0
+// - turn off OpenMP in rr_release.props, massively speeds up geforce (todo: test radeon)
+
 #define MAX_INSTANCES              10  // max number of light instances aproximating one area light
 unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
