@@ -1,7 +1,7 @@
 // Lightsmark backend
 //
 // This has been main() of multiple demos in 200x, so pieces of commented out code are everywhere.
-// I'm gonna clean it up, leave only support for Lightsmark (and possibly 3+1).
+// I'm gonna clean it up a bit, leave only Lightsmark (and possibly 3+1).
 //
 // Optimizations before release
 // - turn off unused IO (SUPPORT_COLLADA/MGF/OBJ..)
@@ -31,17 +31,8 @@ unsigned INSTANCES_PER_PASS;
 //#define CORNER_LOGO
 //#define PRODUCT_NAME "3+1"
 //#define CFG_FILE "3+1.cfg"
-//#define CFG_FILE "LightsprintDemo.cfg"
-//#define CFG_FILE "Candella.cfg"
 #define PRODUCT_NAME "Lightsmark 2017"
 #define CFG_FILE "Lightsmark.cfg"
-//#define CFG_FILE "mgf.cfg"
-//#define CFG_FILE "test.cfg"
-//#define CFG_FILE "eg-flat1.cfg"
-//#define CFG_FILE "eg-quake.cfg"
-//#define CFG_FILE "eg-sponza.cfg"
-//#define CFG_FILE "eg-sponza-sun.cfg"
-//#define CFG_FILE "Lowpoly.cfg"
 int fullscreen = 1;
 int resolutionx = 1920;
 int resolutiony = 1080;
