@@ -479,61 +479,6 @@ static void drawHelpMessage(int screen)
 	if (!screen && !showTimingInfo) return; // nothing to draw
 //	if (!big && gameOn) return;
 
-/* misto glutu pouzije truetype fonty z windows
-	static bool fontInited = false;
-	if (!fontInited)
-	{
-		fontInited = true;
-		HFONT font = CreateFont(	-24,							// Height Of Font
-			0,								// Width Of Font
-			0,								// Angle Of Escapement
-			0,								// Orientation Angle
-			FW_THIN,						// Font Weight
-			FALSE,							// Italic
-			FALSE,							// Underline
-			FALSE,							// Strikeout
-			ANSI_CHARSET,					// Character Set Identifier
-			OUT_TT_PRECIS,					// Output Precision
-			CLIP_DEFAULT_PRECIS,			// Clipping Precision
-			ANTIALIASED_QUALITY,			// Output Quality
-			FF_DONTCARE|DEFAULT_PITCH,		// Family And Pitch
-			"Arial");					// Font Name
-		SelectObject(wglGetCurrentDC(), font); 
-		wglUseFontBitmaps(wglGetCurrentDC(), 0, 127, 1000); 
-		glListBase(1000); 
-		glNewList(999,GL_COMPILE);
-
-		// set state
-		ambientProgram->useIt();
-		rr_gl::glDisable(GL_DEPTH_TEST);
-		glPushMatrix();
-		glLoadIdentity();
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		gluOrtho2D(0, winWidth, winHeight, 0);
-		// box
-		rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		rr_gl::glEnable(GL_BLEND);
-		glColor4f(0.0,0.0,0.0,0.6);
-		glRecti(RR_MIN(winWidth-30,500), 30, 30, RR_MIN(winHeight-30,100));
-		rr_gl::glDisable(GL_BLEND);
-		// text
-		glColor3f(1,1,1);
-		output(100,60,"For more information on Realtime Global Illumination");
-		output(100,80,"or Penumbra Shadows, visit http://lightsprint.com");
-		// restore state
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		rr_gl::glEnable(GL_DEPTH_TEST);
-
-		glEndList();
-	}
-
-	glCallList(999);
-	return;*/
-
 	static const char* message[3][30] = 
 	{
 		{
