@@ -20,7 +20,7 @@
 #endif
 #include "../RRSolver/report.h"
 #include "../RRMathPrivate.h"
-	#include <boost/random/linear_congruential.hpp>
+#include <boost/random/linear_congruential.hpp>
 
 //#define SMALL_SHOOTERS_MORE_IMPORTANT
 
