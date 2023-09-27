@@ -573,32 +573,6 @@ static void drawHelpMessage(int screen)
 		"'C'   - expand shadow frustum far clip plane",*/
 		nullptr,
 		}
-/*
-		,{
-		"Works of following people were used in Lightsprint Demo:",
-		"",
-		"  - Stepan Hrbek, Daniel Sykora  : realtime global illumination",
-		"  - Mark Kilgard, Nate Robins    : GLUT library",
-		"  - Milan Ikits, Marcelo Magallon: GLEW library",
-		"  - many contributors            : FreeImage library",
-		"  - libav and FFmpeg authors     : FFmpeg library",
-		"  - Matthew Fairfax              : 3ds loader",
-		"  - Nicolas Baudrey              : bsp loader",
-		"  - Vojta Nedved                 : \"Difficult life\" music",
-		"  - Anthony Butler               : \"The Soremill\" scene",
-		"  - David Cherry                 : \"Mortal Wounds\" scene",
-		"  - Q                            : \"Triangulation\" scene",
-		"  - Petr Stastny                 : \"Koupelna\" scene",
-		"  - Sirda                        : \"Black man\", \"Man in hat\"",
-		"  - orillionbeta                 : \"I Robot\" model",
-		"  - ?                            : \"Woman statue\" model",
-		"  - flipper42                    : \"Jessie\" model",
-		"  - atp creations                : \"Scary frog alien\" model",
-		"  - Stora_tomtefar               : \"Viking\" model",
-		"  - Amethyst7                    : \"Purple Nebula\" skybox",
-		nullptr
-		}
-*/
 	};
 	int i;
 
