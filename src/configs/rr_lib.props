@@ -9,7 +9,7 @@
   <Import Project="rr.props" />
   <ItemDefinitionGroup>
     <Link>
-      <ImportLibrary>..\..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>$(PropSheetPath)..\..\lib\$(Platform)\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
