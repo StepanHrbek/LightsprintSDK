@@ -509,13 +509,7 @@ static void drawHelpMessage(int screen)
 		" 'a'   - cycle through linear, rectangular and circular area light",
 		" 's'   - change spotlight",
 		" 'w'   - toggle wire frame",
-		"",
-		"'p'   - narrow shadow frustum field of view",
-		"'P'   - widen shadow frustum field of view",
-		"'n'   - compress shadow frustum near clip plane",
-		"'N'   - expand shadow frustum near clip plane",
-		"'c'   - compress shadow frustum far clip plane",
-		"'C'   - expand shadow frustum far clip plane",*/
+*/
 		nullptr,
 		}
 	};
@@ -1060,22 +1054,7 @@ void keyboard(unsigned char c, int x, int y)
 		case 'W':
 			toggleWireFrame();
 			return;
-		case 'n':
-			light.anear *= 0.8;
-			needDepthMapUpdate = 1;
-			break;
-		case 'N':
-			light.anear /= 0.8;
-			needDepthMapUpdate = 1;
-			break;
-		case 'c':
-			light.afar *= 1.2;
-			needDepthMapUpdate = 1;
-			break;
-		case 'C':
-			light.afar /= 1.2;
-			needDepthMapUpdate = 1;
-			break;*/
+*/
 		case 'l':
 			uberProgramGlobalSetup.LIGHT_INDIRECT_DETAIL_MAP = !uberProgramGlobalSetup.LIGHT_INDIRECT_DETAIL_MAP;
 			break;
