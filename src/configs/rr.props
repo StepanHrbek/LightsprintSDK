@@ -19,7 +19,7 @@
   <PropertyGroup>
     <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
     <IncludePath>$(PropSheetPath)..\..\include;$(PropSheetPath)..\..\include\Windows;$(BOOST_DIR);$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;$(OCULUS_DIR)\Include;$(OCULUS_DIR)Kernel\Src;$(OPENVR_DIR)\Headers;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PropSheetPath)..\..\lib\$(Platform);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_DIR)\stage\lib;$(PropSheetPath)..\..\lib\$(Platform);$(LibraryPath)</LibraryPath>
     <OutDir Condition="'$(ConfigurationType)'!='StaticLibrary'">$(PropSheetPath)..\..\bin\$(Platform)\</OutDir>
     <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">$(PropSheetPath)..\..\lib\$(Platform)\</OutDir>
     <IntDir>$(PropSheetPath)..\..\tmp\$(ProjectName).$(PlatformToolset)\$(Configuration).$(Platform)\</IntDir>
