@@ -573,7 +573,8 @@ RRMeshArrays* RRMeshArrays::rectangle()
 {
 	RRMeshArrays* arrays = new RRMeshArrays;
 
-	enum {W=1,H=1,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
+	constexpr int W=1, H=1;
+	enum {TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
 	rr::RRVector<unsigned> texcoords;
 	texcoords.push_back(0);
 	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
@@ -673,7 +674,8 @@ RRMeshArrays* RRMeshArrays::sphere()
 {
 	RRMeshArrays* arrays = new RRMeshArrays;
 
-	enum {W=30,H=15,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
+	constexpr int W=30, H=15;
+	enum {TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
 	rr::RRVector<unsigned> texcoords;
 	texcoords.push_back(0);
 	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
@@ -708,7 +710,8 @@ RRMeshArrays* RRMeshArrays::cylinder()
 {
 	RRMeshArrays* arrays = new RRMeshArrays;
 
-	enum {W=30,TRIANGLES=(W-2)+W+W+(W-2),VERTICES=W+(W+1)+(W+1)+W};
+	constexpr int W=30;
+	enum {TRIANGLES=(W-2)+W+W+(W-2),VERTICES=W+(W+1)+(W+1)+W};
 	rr::RRVector<unsigned> texcoords;
 	texcoords.push_back(0);
 	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);

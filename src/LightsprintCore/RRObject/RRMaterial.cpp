@@ -282,8 +282,8 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRColorSpace* colorSpa
 		{
 			switch (uniformTextureAction)
 			{
-				case UTA_DELETE: delete texture;
-				case UTA_NULL: texture = nullptr;
+				case UTA_DELETE: delete texture; [[fallthrough]];
+				case UTA_NULL: texture = nullptr; [[fallthrough]];
 				case UTA_KEEP:
 				default:;
 			}
@@ -350,7 +350,7 @@ static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInA
 		// video changes in time, ignore current frame and blend
 		return 1;
 	}
-	enum {size = 16};
+	constexpr int size = 16;
 	unsigned width = transmittanceTexture->getWidth();
 	unsigned height = transmittanceTexture->getHeight();
 	for (unsigned i=0;i<size;i++)
@@ -446,7 +446,7 @@ void RRMaterial::updateBumpMapType()
 	else
 	{
 		unsigned numElements = bumpMap.texture->getNumElements();
-		enum {LOOKUPS=23};
+		constexpr int LOOKUPS=23;
 		RRVec3 sum(0);
 		for (unsigned i=0;i<LOOKUPS;i++)
 		{
@@ -682,7 +682,7 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 				response.colorOut = RRVec3((response.dirIn==response.dirOut)?1.f:0.f);
 				break;
 			}
-			// intentionally no break
+			[[fallthrough]];
 		case BRDF_SPECULAR:
 			{
 				RRVec3 specularReflectance_colorLinear = specularReflectance.colorLinear;
@@ -778,7 +778,7 @@ void RRMaterial::sampleResponse(Response& response, const RRVec3& randomness, Br
 					response.brdfType = type;
 					break;
 				}
-				// intentionally no break
+				[[fallthrough]];
 		case BRDF_SPECULAR:
 			{
 				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);

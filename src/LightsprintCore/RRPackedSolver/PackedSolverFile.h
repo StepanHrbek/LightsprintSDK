@@ -259,11 +259,8 @@ class PackedSkyTriangleFactor
 {
 public:
 	//! Sky is divided into patches that emit light separately
-	enum
-	{
-		NUM_PATCHES=13,
-		NUM_EQUAL_SIZE_PATCHES=24
-	};
+	static constexpr int NUM_PATCHES = 13;
+	static constexpr int NUM_EQUAL_SIZE_PATCHES = 24;
 
 	struct UnpackedFactor
 	{

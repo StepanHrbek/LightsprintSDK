@@ -33,7 +33,7 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 #define PRODUCT_NAME "Lightsmark 2017"
 #define CFG_FILE "Lightsmark.cfg"
-int fullscreen = 1;
+bool fullscreen = true;
 int resolutionx = 1920;
 int resolutiony = 1080;
 bool resolutionSet = false; // false = not set from cmdline, use default 1920x1080 and fallback to 1024x768
@@ -1617,7 +1617,7 @@ void parseOptions(int argc, const char*const*argv)
 		if (!strcmp("editor", argv[i]))
 		{
 			supportEditor = 1;
-			fullscreen = 0;
+			fullscreen = false;
 			showTimingInfo = 1;
 		}
 		else
@@ -1633,12 +1633,12 @@ void parseOptions(int argc, const char*const*argv)
 		else
 		if (!strcmp("window", argv[i]))
 		{
-			fullscreen = 0;
+			fullscreen = false;
 		}
 		else
 		if (!strcmp("fullscreen", argv[i]))
 		{
-			fullscreen = 1;
+			fullscreen = true;
 		}
 		else
 		if (!strcmp("stability=low", argv[i]))

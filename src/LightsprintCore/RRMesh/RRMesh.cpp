@@ -220,7 +220,7 @@ RRReal RRMesh::getAverageVertexDistance() const
 	RRVec3 v1;
 	getVertex(0,v1);
 	RRReal distanceSum = 0;
-	enum {TESTS=1000};
+	constexpr int TESTS=1000;
 	for (unsigned i=0;i<TESTS;i++)
 	{
 		RRVec3 v2;
