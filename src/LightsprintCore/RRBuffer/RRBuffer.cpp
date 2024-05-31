@@ -7,6 +7,7 @@
 // Generic buffer code, shared by all implementations.
 // --------------------------------------------------------------------------
 
+#include <climits> // UINT_MAX
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

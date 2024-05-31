@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
+#include <climits> // UINT_MAX
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
