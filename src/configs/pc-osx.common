@@ -5,8 +5,8 @@ BITS = 64
 #CXX = g++
 #CPP_FLAGS += -fopenmp -D_OPENMP # apple clang still has no openmp
 #CXX = -Wno-unused-value
-C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++11 from CPP_FLAGS 
-CPP_FLAGS += -std=c++11 # rvalue references, lambda
+C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++17 from CPP_FLAGS 
+CPP_FLAGS += -std=c++17 # filesystem
 CPP_FLAGS += -ftemplate-depth=256 # prevents “recursive template instantiation exceeded maximum depth of 128”
 CPP_FLAGS += -Wno-deprecated-declarations # disables _finite() warnings in many files
 CPP_FLAGS += -Wno-deprecated-register # disables register warnings in assimp

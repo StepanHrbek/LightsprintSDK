@@ -1,7 +1,7 @@
 OS = Linux
 
-C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++11 from CPP_FLAGS 
-CPP_FLAGS += -std=c++11 # rvalue references, lambda
+C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++17 from CPP_FLAGS 
+CPP_FLAGS += -std=c++17 # filesystem
 #CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
 
 CORE_DEPS = \
