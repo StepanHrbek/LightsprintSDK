@@ -21,7 +21,7 @@ endif
 ifeq ($(CFG_TYPE), lib)
 $(TARGET):: $(CFG_DIR)/current $(OBJECTS)
 	@mkdir -p $(dir $@)
-	ar rc $@ $(OBJECTS)
+	$(AR) rc $@ $(OBJECTS)
 	@ranlib $@
 endif
 
