@@ -629,18 +629,17 @@ Material formats (1)
   \section boost_version Version
    - version 1.76 is used internally by binary version of Lightsprint libraries, it's not visible from outside (no headers or dll files)
    - version known to work without modifications: 1.76
-   - if you ever need to build Lightsprint SDK revision svn4456 or older, use boost 1.45 or older, it uses filesystem v2
-
+   - if you build Lightsprint SDK older than 4daeeb8eacdc6dc5d52f928235e99dc50b7061ab (2023-08-30), it uses boost filesystem
+   - if you build Lightsprint SDK revision svn4456 (2011-02) or older, use boost 1.45 or older, it uses filesystem v2
 
   \section boost_build Installing/building boost
    - Windows: <a href="http://www.boost.org/doc/libs/release/more/getting_started/windows.html">installation instructions</a>
    - OSX: install with <code>sudo port install boost -python27</code>
-   - Ubuntu: install with <code>sudo apt-get install libboost-dev libboost-serialization-dev libboost-filesystem-dev</code>
+   - Ubuntu: install with <code>sudo apt-get install libboost-dev libboost-serialization-dev</code>
 
   \section boost_remove Removing boost
    Boost is good, but if you really must build Lightsprint SDK without it, do
    - delete <code>\#define SUPPORT_ASSIMP</code> and <code>\#define SUPPORT_LIGHTSPRINT</code> in <code>src/LightsprintIO/supported_formats.h</code>
-   - replace boost::filesystem with C++ TR2 equivalents, or with similar functions supported by your compiler (it is planned for inclusion in C++17, see https://isocpp.org/std/status)
    - few more places might need tweak
 
 \page tpl_assimp Assimp
@@ -1175,7 +1174,7 @@ Material formats (1)
 
   Setting up third party libraries:
   - OSX: <code>sudo port install boost -python27 freeglut freeimage glew wxWidgets-3.0</code> (warning: freeglut has a lot of dependencies. we only need it in some samples)
-  - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev freeglut3-dev</code>
+  - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-iostreams-dev libglew-dev libfreeimage-dev freeglut3-dev</code>
   - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (no longer tested, may be incomplete)
 
   Lightsprint SDK includes makefiles for OSX/Linux on all supported architectures.
