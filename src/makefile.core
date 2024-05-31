@@ -22,7 +22,7 @@ ifeq ($(CFG_TYPE), lib)
 $(TARGET):: $(CFG_DIR)/current $(OBJECTS)
 	@mkdir -p $(dir $@)
 	$(AR) rc $@ $(OBJECTS)
-	@ranlib $@
+	@$(RANLIB) $@
 endif
 
 # build dynamically linked library
