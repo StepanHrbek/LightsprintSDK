@@ -11,7 +11,6 @@ endif
 
 PROJECT = HelloMesh
 TARGET = ../../bin/$(CONFIG)/$(PROJECT)$(APP_EXTENSION)
-$(info config=$(CONFIG) a=$(APP_EXTENSION))
 CFG_TYPE = exe
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
@@ -39,4 +38,3 @@ LIB_DIRS +=
 # include the core part of the makefile
 
 include $(CFG_DIR)/../makefile.core
-$(info config=$(CONFIG) b=$(APP_EXTENSION))
