@@ -1,5 +1,6 @@
 OS = OSX
 BITS = 64
+APP_EXTENSION =
 
 #CC = gcc
 #CXX = g++

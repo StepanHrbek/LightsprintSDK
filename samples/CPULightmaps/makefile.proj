@@ -10,7 +10,7 @@ endif
 # general project settings
 
 PROJECT = CPULightmaps
-TARGET = ../../bin/$(CONFIG)/$(PROJECT).exe
+TARGET = ../../bin/$(CONFIG)/$(PROJECT)$(APP_EXTENSION)
 CFG_TYPE = exe
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 

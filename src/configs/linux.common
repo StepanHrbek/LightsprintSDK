@@ -1,4 +1,5 @@
 OS = Linux
+APP_EXTENSION =
 
 C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++17 from CPP_FLAGS 
 CPP_FLAGS += -std=c++17 # filesystem
