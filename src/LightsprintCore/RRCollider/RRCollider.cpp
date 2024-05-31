@@ -199,7 +199,9 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 		registerTechnique(IT_BSP_FASTER,defaultBuilder);
 		registerTechnique(IT_BSP_FASTEST,defaultBuilder);
 		registerTechnique(IT_VERIFICATION,defaultBuilder);
+#ifdef SUPPORT_EMBREE
 		registerEmbree(); // when enabled, embree adds its own techniques and overrides IT_LINEAR registered above
+#endif
 	}
 
 	Builder* builder = s_builders[intersectTechnique];

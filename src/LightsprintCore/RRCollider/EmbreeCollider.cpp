@@ -408,13 +408,4 @@ void registerEmbree()
 
 } //namespace
 
-#else // SUPPORT_EMBREE
-
-namespace rr
-{
-	void registerEmbree()
-	{
-	}
-}
-
 #endif // SUPPORT_EMBREE
