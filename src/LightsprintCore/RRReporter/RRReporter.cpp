@@ -95,12 +95,17 @@ void RRReporter::reportV(RRReportType type, const char* format, va_list& vars)
 	if (g_reporters.size() && g_reporters.valid && type>=ERRO && type<=TIMI && g_typeEnabled[type])
 	{
 		enum {MAX_REPORT_SIZE=1000};
-		char msg[MAX_REPORT_SIZE+1];
-		_vsnprintf(msg,MAX_REPORT_SIZE,format,vars);
-		msg[MAX_REPORT_SIZE-1] = '\n';
-		msg[MAX_REPORT_SIZE] = 0;
-		for (std::set<RRReporter*>::iterator i=g_reporters.begin();i!=g_reporters.end();++i)
-			(*i)->customReport(type,g_indentation,msg);
+		char msg[MAX_REPORT_SIZE];
+		if (vsnprintf(msg, MAX_REPORT_SIZE, format, vars) >= 0)
+		{
+			// report complete or partial (if buffer is not large enough) message
+			for (std::set<RRReporter*>::iterator i = g_reporters.begin(); i != g_reporters.end(); ++i)
+				(*i)->customReport(type, g_indentation, msg);
+		}
+		else
+		{
+			// error formatting
+		}
 	}
 }
 

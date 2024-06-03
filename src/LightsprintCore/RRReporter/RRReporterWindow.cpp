@@ -373,8 +373,11 @@ private:
 		va_list argptr;
 		va_start (argptr,format);
 		char msg[1000];
-		_vsnprintf(msg,999,format,argptr);
-		msg[999] = 0;
+		if (vsnprintf(msg,1000,format,argptr) < 0)
+		{
+			// error formatting
+			msg[0] = 0;
+		};
 		RRReporterWindow::customReport(type,0,msg);
 		va_end (argptr);
 	}

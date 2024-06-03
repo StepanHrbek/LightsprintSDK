@@ -1443,8 +1443,11 @@ static void textOutput(int x, int y, int h, const char* format, ...)
 	char text[1000];
 	va_list argptr;
 	va_start (argptr,format);
-	_vsnprintf (text,999,format,argptr);
-	text[999] = 0;
+	if (vsnprintf (text,1000,format,argptr) < 0)
+	{
+		// error formatting
+		text[0] = 0;
+	};
 	va_end (argptr);
 	glRasterPos2i(x,y);
 	glCallLists((GLsizei)strlen(text), GL_UNSIGNED_BYTE, text);

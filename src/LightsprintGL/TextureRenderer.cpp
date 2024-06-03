@@ -35,8 +35,11 @@ const char* tmpstr(const char* fmt, ...)
 	char* buf = bufs[++i%MAX_STRINGS];
 	va_list argptr;
 	va_start (argptr,fmt);
-	_vsnprintf (buf,MAX_STRING_SIZE,fmt,argptr);
-	buf[MAX_STRING_SIZE] = 0;
+	if (vsnprintf (buf,MAX_STRING_SIZE,fmt,argptr) < 0)
+	{
+		// error formatting
+		buf[0] = 0;
+	};
 	va_end (argptr);
 	return buf;
 }
