@@ -60,7 +60,6 @@
 	#define _stricmp strcasecmp
 	#define _snprintf snprintf
 	#define _vsnprintf vsnprintf
-	#define _vsnwprintf vswprintf
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
 	#define __cdecl
 #endif

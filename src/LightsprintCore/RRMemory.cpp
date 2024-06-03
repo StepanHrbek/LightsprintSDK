@@ -196,10 +196,9 @@ static void form(RRString* thiz, const wchar_t* fmt, va_list& argptr)
 {
 	size_t bufSize = 1000;
 	wchar_t buf[1000];
-	int characters = _vsnwprintf(buf,bufSize-1,fmt,argptr);
+	int characters = vswprintf(buf,bufSize,fmt,argptr);
 	if (characters>=0)
 	{
-		buf[bufSize-1] = 0;
 		*thiz = buf;
 	}
 	else
@@ -213,10 +212,9 @@ static void form(RRString* thiz, const wchar_t* fmt, va_list& argptr)
 			*thiz = "format() error";
 			return;
 		}
-		characters = _vsnwprintf(buf,bufSize-1,fmt,argptr);
+		characters = vswprintf(buf,bufSize,fmt,argptr);
 		if (characters>=0)
 		{
-			buf[bufSize-1] = 0;
 			*thiz = buf;
 			delete[] buf;
 			return;
