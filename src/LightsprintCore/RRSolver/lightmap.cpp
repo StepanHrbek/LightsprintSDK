@@ -41,7 +41,7 @@ RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 	RRReal c = (v0-v2).length();
 	RRReal s = (a+b+c)*0.5f;
 	RRReal area = sqrtf(s*(s-a)*(s-b)*(s-c));
-	//RR_ASSERT(_finite(area)); this is legal, enumerateTexelsPartial tests whether getArea() is finite
+	//RR_ASSERT(std::isfinite(area)); this is legal, enumerateTexelsPartial tests whether getArea() is finite
 	return area;
 }
 
@@ -324,7 +324,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 								RRReal subTexelAreaInTriangleSpace = getArea(subTexel.uvInTriangleSpace[0],subTexel.uvInTriangleSpace[1],subTexel.uvInTriangleSpace[2]);
 								unwrapStatistics.areaOfAllTrianglesInRange += subTexelAreaInTriangleSpace;
 								subTexel.areaInMapSpace = subTexelAreaInTriangleSpace * triangleAreaInMapSpace;
-								if (_finite(subTexel.areaInMapSpace)) // skip subtexels of NaN area (they exist because of limited float precision)
+								if (std::isfinite(subTexel.areaInMapSpace)) // skip subtexels of NaN area (they exist because of limited float precision)
 									texel.push_back(subTexel
 										,subTexelAllocator
 										);

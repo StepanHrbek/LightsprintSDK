@@ -364,7 +364,7 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 	{
 		for (unsigned i=0;i<3;i++)
 			for (unsigned j=0;j<4;j++)
-				if (!_finite(world->m[i][j]))
+				if (!std::isfinite(world->m[i][j]))
 				{
 					numReports++;
 					RRReporter::report(ERRO,"Broken world transformation.\n");

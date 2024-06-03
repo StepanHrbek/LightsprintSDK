@@ -9,7 +9,6 @@
 
 #include <cmath>
 #include <set> // generateRandomCamera
-#include <cfloat> // _finite in generateRandomCamera
 #include <cstdlib> // rand
 #include "Lightsprint/RRCamera.h"
 #include "Lightsprint/RRObject.h"
@@ -242,7 +241,7 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 		RRVec3 pos;
 		superMesh->getVertex(rand()%numVertices,pos);
 		for (unsigned j=0;j<3;j++)
-			if (!_finite(pos[j]))
+			if (!std::isfinite(pos[j]))
 				pos[j] = mini[j] + (maxi[j]-mini[j])*(rand()/float(RAND_MAX));
 		RRVec3 dir = (center-pos).normalizedSafe();
 		pos += dir*_maxdist* ((rand()-RAND_MAX/2)/(RAND_MAX*1.f)); // -0.5 .. 0.5
@@ -422,7 +421,7 @@ void RRCamera::setOrthogonal(bool _orthogonal)
 
 void RRCamera::setAspect(float _aspect, float _effectOnFOV)
 {
-	if (_finite(_aspect) && _aspect!=aspect) // never set NaN, != would never succeed and NaN would stay set forever (at least in 2011-01 release static x64 configuration)
+	if (std::isfinite(_aspect) && _aspect!=aspect) // never set NaN, != would never succeed and NaN would stay set forever (at least in 2011-01 release static x64 configuration)
 	{
 		float oldAspect = aspect;
 		aspect = RR_CLAMPED(_aspect,0.001f,1000);
@@ -438,7 +437,7 @@ void RRCamera::setAspect(float _aspect, float _effectOnFOV)
 
 void RRCamera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 {
-	if (_finite(_fieldOfViewVerticalDeg) && fieldOfViewVerticalDeg!=_fieldOfViewVerticalDeg)
+	if (std::isfinite(_fieldOfViewVerticalDeg) && fieldOfViewVerticalDeg!=_fieldOfViewVerticalDeg)
 	{
 		fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
 		updateProjection();
@@ -455,7 +454,7 @@ void RRCamera::setFieldOfViewHorizontalDeg(float _fieldOfViewHorizontalDeg)
 
 void RRCamera::setNear(float _near)
 {
-	if (_finite(_near) && _near!=anear)
+	if (std::isfinite(_near) && _near!=anear)
 	{
 		anear = _near;
 		if (afar<=anear) afar = anear+100;
@@ -465,7 +464,7 @@ void RRCamera::setNear(float _near)
 
 void RRCamera::setFar(float _far)
 {
-	if (_finite(_far) && _far!=afar)
+	if (std::isfinite(_far) && _far!=afar)
 	{
 		afar = _far;
 		if (anear>=afar) anear = (afar>0)?afar/10:afar-1;
@@ -475,7 +474,7 @@ void RRCamera::setFar(float _far)
 
 void RRCamera::setRange(float _near, float _far)
 {
-	if (_finite(_near) && _finite(_far) && (_near!=anear || _far!=afar) && _near<_far)
+	if (std::isfinite(_near) && std::isfinite(_far) && (_near!=anear || _far!=afar) && _near<_far)
 	{
 		anear = _near;
 		afar = _far;
@@ -485,7 +484,7 @@ void RRCamera::setRange(float _near, float _far)
 
 void RRCamera::setOrthoSize(float _orthoSize)
 {
-	if (_finite(_orthoSize) && orthoSize!=_orthoSize && _orthoSize>0)
+	if (std::isfinite(_orthoSize) && orthoSize!=_orthoSize && _orthoSize>0)
 	{
 		orthoSize = _orthoSize;
 		updateProjection();
@@ -1269,7 +1268,7 @@ void RRCamera::mirror(const rr::RRVec4& plane)
 
 static unsigned makeFinite(float& f, float def)
 {
-	if (_finite(f))
+	if (std::isfinite(f))
 		return 0;
 	f = def;
 	return 1;

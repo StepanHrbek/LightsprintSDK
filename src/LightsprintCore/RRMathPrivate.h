@@ -12,13 +12,12 @@
 
 #include "Lightsprint/RRMath.h"
 
-#include <float.h> // _finite
 #include <math.h>  // sqrt
 
 namespace rr
 {
 	#define ABS(A)       fabs(A)
-	#define IS_NUMBER(n) _finite(n)
+	#define IS_NUMBER(n) std::isfinite(n)
 	#define IS_VEC2(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]))
 	#define IS_VEC3(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]))
 	#define IS_VEC4(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]) && IS_NUMBER(v[3]))

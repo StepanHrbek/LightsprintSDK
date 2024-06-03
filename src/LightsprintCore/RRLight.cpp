@@ -36,7 +36,7 @@ const RRVec3& warnIfNegative(const RRVec3& a, const char* name)
 
 RRReal warnIfNegative(RRReal a, const char* name)
 {
-	if (a<0 || !_finite(a))
+	if (a<0 || !std::isfinite(a))
 		RR_LIMITED_TIMES(5,RRReporter::report(WARN,"Light initialized with negative %s (%f).\n",name,a));
 	return a;
 }
@@ -360,21 +360,21 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace
 		case REALISTIC:
 		{
 			distanceAttenuation = 1/(PREVENT_INF+(receiverPosition-position).length2());
-			RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
+			RR_ASSERT(distanceAttenuation>=0 && std::isfinite(distanceAttenuation));
 			break;
 		}
 		case POLYNOMIAL:
 		{
 			distanceAttenuation = 1/RR_MAX(polynom[0]+polynom[1]*(receiverPosition-position).length()+polynom[2]*(receiverPosition-position).length2(),polynom[3]);
-			RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
+			RR_ASSERT(distanceAttenuation>=0 && std::isfinite(distanceAttenuation));
 			break;
 		}
 		case EXPONENTIAL:
 		{
-			RR_ASSERT(radius>0 && _finite(radius));
-			RR_ASSERT(fallOffExponent>=0 && _finite(fallOffExponent));
+			RR_ASSERT(radius>0 && std::isfinite(radius));
+			RR_ASSERT(fallOffExponent>=0 && std::isfinite(fallOffExponent));
 			distanceAttenuation = pow(RR_MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
-			RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
+			RR_ASSERT(distanceAttenuation>=0 && std::isfinite(distanceAttenuation));
 			break;
 		}
 		case NONE:
@@ -400,9 +400,9 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace
 			RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
 			float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
 			float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
-			RR_ASSERT(_finite(angleRad));
+			RR_ASSERT(std::isfinite(angleRad));
 			float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
-			//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
+			//RR_ASSERT(std::isfinite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
 			// c++ defines pow(0,0)=1. we want 0, therefore we have to clamp exponent to small positive value
 			angleAttenuation = pow(RR_CLAMPED(angleAttenuation,0,1),((distanceAttenuationType!=POLYNOMIAL)?SRGB2PHYS:1)*RR_MAX(spotExponent,1e-10f));
 			result *= angleAttenuation;
@@ -494,7 +494,7 @@ RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& colo
 
 static void makeFinite(float& f, float def)
 {
-	if (!_finite(f)) f = def;
+	if (!std::isfinite(f)) f = def;
 }
 
 static void makeFinite(RRVec3& v, const RRVec3& def)

@@ -1981,7 +1981,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					ray.hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 					ray.collisionHandler = collisionHandler;
 					float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
-					if (!_finite(ratio) || ratio<1)
+					if (!std::isfinite(ratio) || ratio<1)
 						ratio = 1;
 					if (solver->getCollider()->intersect(ray))
 					{

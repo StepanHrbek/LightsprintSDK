@@ -178,7 +178,7 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 				RRMesh::Vertex v;
 				getVertex(i,v);
 				for (unsigned j=0;j<3;j++)
-					if (_finite(v[j])) // filter out INF/NaN
+					if (std::isfinite(v[j])) // filter out INF/NaN
 					{
 						center[j] += v[j];
 						mini[j] = RR_MIN(mini[j],v[j]);

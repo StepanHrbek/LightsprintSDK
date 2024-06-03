@@ -241,7 +241,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 			//	indirect[i] = RR_MAX(0,indirect[i]);
 			for (unsigned i=0;i<3;i++)
 			{
-				RR_ASSERT(_finite(indirect[i]));
+				RR_ASSERT(std::isfinite(indirect[i]));
 				RR_ASSERT(indirect[i]<1500000);
 			}
 		}
@@ -278,7 +278,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 			if (colorSpace) colorSpace->fromLinear(data);
 			for (unsigned i=0;i<3;i++)
 			{
-				RR_ASSERT(_finite(data[i]));
+				RR_ASSERT(std::isfinite(data[i]));
 				RR_ASSERT(data[i]<1500000);
 			}
 		}

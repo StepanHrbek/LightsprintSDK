@@ -257,8 +257,8 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 		triangles[t].material = material ? material : &defaultMaterial;
 		triangles[t].area = mesh->getTriangleArea(t);
 		triangles[t].areaInv = triangles[t].area ? 1/triangles[t].area : 1; // so we don't return INF exitance from degenerated triangle (now we mostly return 0)
-		RR_ASSERT(_finite(triangles[t].area));
-		RR_ASSERT(_finite(triangles[t].areaInv));
+		RR_ASSERT(std::isfinite(triangles[t].area));
+		RR_ASSERT(std::isfinite(triangles[t].areaInv));
 		// reset at least once, all future resets may be incremental
 		triangles[t].incidentFluxDirect = RRVec3(0);
 		triangles[t].incidentFluxToDiffuse = RRVec3(0);

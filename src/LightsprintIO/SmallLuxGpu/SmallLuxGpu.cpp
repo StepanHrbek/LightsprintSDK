@@ -46,7 +46,7 @@ RRVec2 convertUv(const RRVec2& a)
 // converts #inf/#nan to 0, they would break .ply
 float fix(float a)
 {
-	return _finite(a) ? a : 0;
+	return std::isfinite(a) ? a : 0;
 }
 
 // converts shininess to rougness as described in http://www.luxrender.net/wiki/LuxRender_Materials_Glossy

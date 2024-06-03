@@ -395,7 +395,7 @@ RRVec3 RRMatrix3x4::getScale() const
 	for (unsigned i=0;i<3;i++)
 	{
 		scale[i] = RRVec3(m[0][i],m[1][i],m[2][i]).length();
-		if (!_finite(scale[i])) scale[i] = 1;
+		if (!std::isfinite(scale[i])) scale[i] = 1;
 	}
 	if (determinant3x3()<0) scale[0] *= -1;
 	return scale;
@@ -449,7 +449,7 @@ RRVec4 RRMatrix3x4::getAxisAngle() const
 	
 	// sanity check
 	for (unsigned i=0;i<4;i++)
-		if (!_finite(axisAngle[i]))
+		if (!std::isfinite(axisAngle[i]))
 			axisAngle[i] = 0;
 	return axisAngle;
 }
@@ -494,7 +494,7 @@ RRVec3 RRMatrix3x4::getYawPitchRoll() const
 		// roll  is 0
 	}
 	for (unsigned i=0;i<3;i++)
-		if (!_finite(yawPitchRoll[i]))
+		if (!std::isfinite(yawPitchRoll[i]))
 			yawPitchRoll[i] = 0;
 	return yawPitchRoll;
 }

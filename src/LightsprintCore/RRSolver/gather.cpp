@@ -427,12 +427,12 @@ public:
 		dir /= dirsize;
 		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params.locality;
 		float normalIncidence1 = dot(dir,_basisSkewedNormalized.normal);
-		if (normalIncidence1<=0 || !_finite(normalIncidence1))
+		if (normalIncidence1<=0 || !std::isfinite(normalIncidence1))
 		{
 			// face is not oriented towards light (or wrong normal, extremely rare) -> reliable black (selfshadowed)
 			hitsScene++;
 			hitsReliable++;
-			//if (!_finite(normalIncidence1)) // #IND normals in shortfuse/undead scene
+			//if (!std::isfinite(normalIncidence1)) // #IND normals in shortfuse/undead scene
 			//	RR_LIMITED_TIMES(10,RRReporter::report(INF1,"lightdir=%f %f %f normal=%f %f %f\n",dir[0],dir[1],dir[2],_basisSkewed.normal[0],_basisSkewed.normal[1],_basisSkewed.normal[2]));
 		}
 		else
@@ -462,7 +462,7 @@ public:
 						pti.context.colorSpace->toLinear(normalIncidence1);
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence1;
 					RR_ASSERT(IS_VEC3(irrad));
-					RR_ASSERT(_finite(normalIncidence1));
+					RR_ASSERT(std::isfinite(normalIncidence1));
 					RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 //RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence1,irrad[0]*normalIncidence1,irradiancePhysicalLights[LS_LIGHTMAP][0]/(shotRounds+1));
 				}

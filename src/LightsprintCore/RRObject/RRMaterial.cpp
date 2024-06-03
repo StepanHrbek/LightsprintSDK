@@ -633,7 +633,7 @@ static RRReal specularResponse(RRMaterial::SpecularModel specularModel, RRReal s
 		default:
 			RR_ASSERT(0);
 	}
-	RR_ASSERT(_finite(spec));
+	RR_ASSERT(std::isfinite(spec));
 	return spec;
 }
 
@@ -648,7 +648,7 @@ float getFresnelReflectance(float cos_theta1, bool twosided, bool hitFrontSide, 
 		index = materialRefractionIndex;
 
 	float cos_theta2 = sqrt( 1 - (1-cos_theta1*cos_theta1)/(index*index) );
-	if (!_finite(cos_theta2)) // total internal reflection?
+	if (!std::isfinite(cos_theta2)) // total internal reflection?
 		return 1;
 	float fresnel_rs = (cos_theta1-index*cos_theta2) / (cos_theta1+index*cos_theta2);
 	float fresnel_rp = (index*cos_theta1-cos_theta2) / (index*cos_theta1+cos_theta2);

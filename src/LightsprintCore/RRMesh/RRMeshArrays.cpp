@@ -357,7 +357,7 @@ void RRMeshArrays::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 			for (unsigned v=0;v<numVertices;v++)
 			{
 				for (unsigned j=0;j<3;j++)
-					if (_finite(position[v][j])) // filter out INF/NaN
+					if (std::isfinite(position[v][j])) // filter out INF/NaN
 					{
 						mini[j] = RR_MIN(mini[j],position[v][j]);
 						maxi[j] = RR_MAX(maxi[j],position[v][j]);

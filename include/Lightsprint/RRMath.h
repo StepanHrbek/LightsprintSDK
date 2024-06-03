@@ -61,7 +61,6 @@
 	#define _snprintf snprintf
 	#define _vsnprintf vsnprintf
 	#define _vsnwprintf vswprintf
-	#define _finite finite
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
 	#define __cdecl
 #endif
@@ -137,7 +136,7 @@ namespace rr /// LightsprintCore - graphics API independent realtime global illu
 		void     normalizeSafe()                    {RRReal len=length(); if (len) *this/=len; else {x=1;y=0;}}
 		RRVec2   normalized()                 const {return *this/length();}
 		RRVec2   normalizedSafe()             const {RRReal len=length(); return len?*this/len:RRVec2(1,0);}
-		bool     finite()                     const {return ::_finite(x) && ::_finite(y);}
+		bool     finite()                     const {return std::isfinite(x) && std::isfinite(y);}
 		RRReal   dot(const RRVec2& a)         const {return x*a.x+y*a.y;}
 	};
 
@@ -179,7 +178,7 @@ namespace rr /// LightsprintCore - graphics API independent realtime global illu
 		void     normalizeSafe()                    {RRReal len=length(); if (len) *this/=len; else {x=1;y=0;z=0;}}
 		RRVec3   normalized()                 const {return *this/length();}
 		RRVec3   normalizedSafe()             const {RRReal len=length(); return len?*this/len:RRVec3(1,0,0);}
-		bool     finite()                     const {return ::_finite(x) && ::_finite(y) && ::_finite(z);}
+		bool     finite()                     const {return std::isfinite(x) && std::isfinite(y) && std::isfinite(z);}
 		RRReal   dot(const RRVec3& a)         const {return x*a.x+y*a.y+z*a.z;}
 		RRVec3   cross(const RRVec3& a)       const {return RRVec3(y*a.z-z*a.y,-x*a.z+z*a.x,x*a.y-y*a.x);}
 		RR_API RRVec3 getHsvFromRgb()         const;
@@ -237,7 +236,7 @@ namespace rr /// LightsprintCore - graphics API independent realtime global illu
 		void     normalizeSafe()                    {RRReal len=length(); if (len) *this/=len; else {x=1;y=0;z=0;w=0;}}
 		RRVec4   normalized()                 const {return *this/length();}
 		RRVec4   normalizedSafe()             const {RRReal len=length(); return len?*this/len:RRVec4(1,0,0,0);}
-		bool     finite()                     const {return ::_finite(x) && ::_finite(y) && ::_finite(z) && ::_finite(w);}
+		bool     finite()                     const {return std::isfinite(x) && std::isfinite(y) && std::isfinite(z) && std::isfinite(w);}
 		RRReal   dot(const RRVec4& a)         const {return x*a.x+y*a.y+z*a.z+w*a.w;}
 
 		// planes

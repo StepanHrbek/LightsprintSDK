@@ -341,7 +341,7 @@ namespace rr_gl
 							//         base > pow(csmObserverNear*10/light.orthoSize,1/(numInstances-1))
 							// 10 works well in ex5.dae and sponza.dae
 							float minBase = pow(csmObserverNear*10/light.getOrthoSize(),1.0f/(numInstances-1));
-							if (_finite(minBase) && base<minBase)
+							if (std::isfinite(minBase) && base<minBase)
 								base = RR_MIN(minBase,0.5f);
 						}
 						float visibleArea = powf(base,(float)instance);
