@@ -72,9 +72,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include <cstdlib>
 #include <cstdio>
 #include <list>
-#ifdef _OPENMP
-	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
-#endif
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
 	#include <ApplicationServices/ApplicationServices.h>

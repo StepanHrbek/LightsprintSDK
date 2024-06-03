@@ -8,9 +8,6 @@
 // --------------------------------------------------------------------------
 
 #include <cfloat>
-#ifdef _OPENMP
-#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
-#endif
 #include "Lightsprint/RRSolver.h"
 #include "report.h"
 #include "private.h"

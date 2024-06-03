@@ -15,9 +15,6 @@
 #include "RRPackedSolver.h"
 #include "PackedSolverFile.h"
 #include "Lightsprint/RRLight.h" // colorSpace
-#ifdef _OPENMP
-	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
-#endif
 #include "../RRSolver/report.h"
 #include "../RRMathPrivate.h"
 #include <boost/random/linear_congruential.hpp>

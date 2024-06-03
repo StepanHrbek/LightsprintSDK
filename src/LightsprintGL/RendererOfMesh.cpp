@@ -10,9 +10,6 @@
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "RendererOfMesh.h"
-#ifdef _OPENMP
-#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
-#endif
 
 namespace rr_gl
 {

@@ -7,11 +7,6 @@
 // Realtime update of cube reflection maps.
 // --------------------------------------------------------------------------
 
-
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "report.h"
 #include "Lightsprint/RRSolver.h"
 #include "../RRMathPrivate.h"
