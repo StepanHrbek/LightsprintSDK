@@ -62,7 +62,6 @@
 	#define _vsnprintf vsnprintf
 	#define _vsnwprintf vswprintf
 	#define _finite finite
-	#define _isnan isnan
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
 	#define __cdecl
 #endif

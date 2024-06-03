@@ -476,7 +476,7 @@ begin:
 	}
 
 	// distancePlane = 0/0 (ray inside plane) is handled here
-	if (_isnan(distancePlane)/*nDotDir==0*/) 
+	if (std::isnan(distancePlane)/*nDotDir==0*/)
 	{
 		distancePlane = ray.hitDistanceMin;
 		// this sequence of tests follows:
@@ -666,7 +666,7 @@ begin:
 	}
 
 	// distancePlane = 0/0 (ray inside plane) is handled here
-	if (_isnan(distancePlane)) // nDotDir==0
+	if (std::isnan(distancePlane)) // nDotDir==0
 	{
 		distancePlane = ray.hitDistanceMin;
 		// this sequence of tests follows:

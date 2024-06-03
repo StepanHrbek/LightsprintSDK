@@ -135,7 +135,7 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 	RRReal tmpz = RR_MAX(fabs(box.max.z),fabs(box.min.z));
 	RRReal maxCoord = RR_MAX3(tmpx,tmpy,tmpz);
 	RR_ASSERT(IS_NUMBER(maxCoord));
-	if (maxCoord==0 || _isnan(maxCoord)) maxCoord = 1;
+	if (maxCoord==0 || std::isnan(maxCoord)) maxCoord = 1;
 	DELTA_BSP = maxCoord*1e-5f;
 	numIntersects = 0;
 }
