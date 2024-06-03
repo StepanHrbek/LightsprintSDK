@@ -21,6 +21,6 @@ The engine is much better since 2008, my 4 years old GPU renders the same scene 
 - Linux should be good or nearly good, did not test in several years.
 - OSX worked well for a decade, but I have no Mac anymore.
 - Android port has not been finished. Not sure what it needs.
-- MorphOS port is being investigated.
+- web(wasm) port is attempted right now.
 
 Any contribution is welcome.

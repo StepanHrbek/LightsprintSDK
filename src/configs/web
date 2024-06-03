@@ -1,0 +1,69 @@
+CONFIG = web
+OS = web
+APP_EXTENSION = .html
+
+include $(CFG_DIR)/linux.static
+
+CPP_FLAGS += -O2
+#CPP_FLAGS += -fomit-frame-pointer
+
+# OpenMP not supported by emscripten
+#CPP_FLAGS += -fopenmp
+
+CPP_FLAGS += -DNDEBUG
+
+# workaround for emscripten in 2024-04 not understanding std::execution::par_unseq
+CPP_FLAGS += -fexperimental-library
+
+C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++17 from CPP_FLAGS 
+CPP_FLAGS += -std=c++17 # filesystem
+CORE_DEPS =
+
+# dependencies copy-pasted from linux, not yet adapted for web
+
+CORE_LIBS = \
+	$(CORE_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintCore.$(LIB_EXT)
+
+GL_DEPS = \
+	-lGL \
+	-lGLEW
+
+GL_LIBS = \
+	$(GL_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintGL.$(LIB_EXT)
+
+ED_DEPS = \
+	-lboost_serialization \
+	-lboost_thread \
+	-lGLU \
+	`wx-config --libs aui,gl,propgrid`
+
+ED_LIBS = \
+	$(ED_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintEd.$(LIB_EXT)
+
+IO_DEPS = \
+	-lboost_iostreams \
+	-lboost_locale \
+	-lboost_serialization \
+	-lboost_zlib \
+	-lassimp \
+	-lfreeimage \
+	-lportaudio \
+	-lavcodec \
+	-lavdevice \
+	-lavformat \
+	-lavutil \
+	-lswscale
+
+IO_LIBS = \
+	$(IO_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintIO.$(LIB_EXT)
+
+GLUT_LIB = \
+	-lglut
+
+
+CXX += --use-port=boost_headers
+
