@@ -14,7 +14,7 @@
 #include <cstring>
 #include "rrcore.h"
 #ifdef _OPENMP
-	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
+	#include <omp.h>
 	//#define VERIFY_TIME_ESIMATES
 #endif
 
