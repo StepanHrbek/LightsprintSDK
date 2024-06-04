@@ -155,7 +155,7 @@ struct BBOX
 	RRVec3 lo;
 
 	// constructs with negative volume
-	BBOX() : lo(1e30f), hi(-1e30f)
+	BBOX() : hi(-1e30f), lo(1e30f)
 	{
 	}
 
@@ -790,7 +790,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	int plane_num=0;
 	int front_num=0;
 	int back_num=0;
-	int none_num=0;
+	//int none_num=0;
 
 	int list_size = 0;
 	while (space[list_size]) list_size++;
@@ -806,7 +806,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 			case FC_PLANE: plane_num++; break;
 			case FC_FRONT: front_num++; break;
 			case FC_SPLIT: split_num++; break;
-			case FC_NONE: none_num++; break;
+			//case FC_NONE: none_num++; break;
 		}
 	}
 	if (kdroot)
