@@ -31,8 +31,8 @@ bool LevelSetup::load(const char* afilename)
 	if (!afilename)
 		return false;
 	free((void*)filename);
-	filename = _strdup(afilename);
-	char* aniname = _strdup(filename);
+	filename = strdup(afilename);
+	char* aniname = strdup(filename);
 	strcpy(aniname+strlen(aniname)-3,"ani");
 	rr::RRReporter::report(rr::INF1,"Loading %s...\n",aniname);
 	FILE* f = fopen(aniname,"rt");
@@ -79,7 +79,7 @@ bool LevelSetup::load(const char* afilename)
 // save all to .ani file
 bool LevelSetup::save() const
 {
-	char* aniname = _strdup(filename);
+	char* aniname = strdup(filename);
 	strcpy(aniname+strlen(aniname)-3,"ani");
 	rr::RRReporter::report(rr::INF1,"Saving %s...\n",aniname);
 	FILE* f = fopen(aniname,"wt");

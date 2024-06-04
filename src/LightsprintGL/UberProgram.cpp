@@ -8,7 +8,6 @@
 // --------------------------------------------------------------------------
 
 #include <cstdlib>
-#include <string.h> // _strdup
 #include <unordered_map>
 #include "Lightsprint/GL/UberProgram.h"
 

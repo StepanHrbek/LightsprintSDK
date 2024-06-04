@@ -53,7 +53,7 @@ public:
 private:
 	RRReporterFile(const char* _filename, bool _flush)
 	{
-		filename = _strdup(_filename);
+		filename = strdup(_filename);
 		file = fopen(filename,"wt");
 		flush = _flush;
 		if (file && flush)

@@ -55,9 +55,6 @@
 #include <cmath>
 
 #if defined(__GNUC__) || defined(__clang__)
-	// fix symbols missing in gcc
-	#define _strdup strdup
-	#define _stricmp strcasecmp
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
 	#define __cdecl
 #endif

@@ -72,7 +72,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 
 	// load light detail map
 	{
-		char* ldmName = _strdup(setup->filename);
+		char* ldmName = strdup(setup->filename);
 		strcpy(ldmName+strlen(ldmName)-3,"jpg");
 		rr::RRBuffer* ldm = REBUILD_JPG ? nullptr : rr::RRBuffer::load(ldmName);
 		if (!ldm)
@@ -123,7 +123,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	}
 
 	// load Fireball
-	char* fbname = _strdup(setup->filename);
+	char* fbname = strdup(setup->filename);
 #ifdef NDEBUG
 	strcpy(fbname+strlen(fbname)-3,"fib");
 #else
