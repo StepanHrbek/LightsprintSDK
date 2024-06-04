@@ -361,12 +361,14 @@ RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* colorSpa
 	return result;
 }
 
+#if 0
 static float jitter()
 {
 	float r = rand()*(2.f/RAND_MAX);
 	return r<1 ? sqrtf(r)-1: 1-sqrtf(2-r);
 //	return (rand()-RAND_MAX/2)*(1.0f/RAND_MAX);
 }
+#endif
 
 RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRColorSpace* colorSpace, bool _interpolated) const
 {
