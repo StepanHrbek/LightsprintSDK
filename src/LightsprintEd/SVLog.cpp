@@ -65,7 +65,7 @@ void SVLog::customReport(rr::RRReportType type, int indentation, const char* mes
 		SavedLog sl;
 		sl.type = type;
 		sl.indentation = indentation;
-		sl.message = strdup(message);
+		sl.message = _strdup(message);
 		// push: may be called from multiple non-main threads at once
 		wxCriticalSectionLocker locker(critSec);
 		queue.push(sl);

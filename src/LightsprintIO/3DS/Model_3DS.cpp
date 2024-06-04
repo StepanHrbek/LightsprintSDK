@@ -778,7 +778,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	// from the right place
 	fseek(bin3ds, findex, SEEK_SET);
 
-	return strdup(name);
+	return _strdup(name);
 }
 
 void Model_3DS::ObjectChunkProcessor(long length, long findex, int& objindex)

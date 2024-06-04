@@ -348,7 +348,7 @@ int main(int argc, char** argv)
 	
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
-	char* exedir = strdup(argv[0]);
+	char* exedir = _strdup(argv[0]);
 	for (unsigned i=(unsigned)strlen(exedir);--i;) if (exedir[i]=='/' || exedir[i]=='\\') {exedir[i]=0;break;}
 	SetCurrentDirectoryA(exedir);
 	free(exedir);
