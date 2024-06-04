@@ -24,7 +24,6 @@ public:
 		: RRMeshIndexedTriStrip<INDEX>(vbuffer,vertices,stride,ibuffer,indices)
 	{
 		INDEX tmp = vertices;
-		tmp = tmp;
 		RR_ASSERT(tmp==vertices);
 	}
 	virtual unsigned getNumTriangles() const override

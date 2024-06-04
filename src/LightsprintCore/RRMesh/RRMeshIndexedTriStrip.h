@@ -23,7 +23,6 @@ public:
 		: RRMeshTriStrip(vbuffer,vertices,stride), IBuffer(ibuffer), Indices(indices)
 	{
 		INDEX tmp = vertices;
-		tmp = tmp;
 		RR_ASSERT(tmp==vertices);
 	}
 
