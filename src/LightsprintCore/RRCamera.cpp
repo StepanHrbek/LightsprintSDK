@@ -969,10 +969,6 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 	posInWindow *= scale;
 
 	// panoramaCoverage [#44]
-	float x0 = 0;
-	float y0 = 0;
-	float w = 1;
-	float h = 1;
 	if (panoramaMode!=PM_EQUIRECTANGULAR)
 	switch (panoramaCoverage)
 	{
@@ -1097,10 +1093,6 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir, boo
 	}
 
 	// panoramaCoverage [#44]
-	float x0 = 0;
-	float y0 = 0;
-	float w = 1;
-	float h = 1;
 	if (panoramaMode!=PM_EQUIRECTANGULAR)
 	switch (panoramaCoverage)
 	{
