@@ -186,11 +186,11 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 				}
 			}
 		}
-		unsigned unfilled = 0;
-		for (unsigned v=0;v<numVertices;v++)
-		{
-			if (!filled[v]) unfilled++;
-		}
+		//unsigned unfilled = 0;
+		//for (unsigned v=0;v<numVertices;v++)
+		//{
+		//	if (!filled[v]) unfilled++;
+		//}
 		if (filled!=filledStatic)
 			delete[] filled;
 		// happens too often, takes ages in scene with 23k meshes with unused vertices
