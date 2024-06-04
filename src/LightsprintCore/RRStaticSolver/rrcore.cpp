@@ -1009,7 +1009,8 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 	#ifdef max
 		#undef max
 	#endif
-	const unsigned RMAX = shootingKernel->rand.max();
+	constexpr unsigned RMAX = shootingKernel->rand.max();
+	constexpr float INVRMAX = 1. / RMAX;
 	#define RAND shootingKernel->rand()
 
 	// select random point in source subtriangle
@@ -1021,11 +1022,11 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 		v = RMAX-v;
 	}
 	RR_ASSERT(sourceNode->surface);
-	RRVec3 position = improvingBody.vertex0 + improvingBody.side1*(u*(1.f/RMAX)) + improvingBody.side2*(v*(1.f/RMAX));
+	RRVec3 position = improvingBody.vertex0 + improvingBody.side1*(u*INVRMAX) + improvingBody.side2*(v*INVRMAX);
 
 	// select random direction of light exiting diffuse surface
 	// reads sidebits, exits to sides from sidebits
-	RRReal tmp = (real)RAND/RMAX*SHOOT_FULL_RANGE;
+	RRReal tmp = RAND*(INVRMAX*SHOOT_FULL_RANGE);
 	RRReal cosa = sqrt(1-tmp);
 	// emit only inside?
 	// emit to both sides?
@@ -1036,7 +1037,7 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 	//if (!sideBits[0].emitTo && !sideBits[1].emitTo)
 	//	return false;
 	RRReal sina = sqrt(tmp);     // a = rotation angle from normal to side, sin(a) = distance from center of circle
-	Angle b = RAND*2*RR_PI/RMAX; // b = rotation angle around normal
+	Angle b = RAND*(2*RR_PI*INVRMAX); // b = rotation angle around normal
 	RRVec3 direction = improvingBasisOrthonormal.normal*cosa + improvingBasisOrthonormal.tangent*(sina*cos(b)) + improvingBasisOrthonormal.bitangent*(sina*sin(b));
 	RR_ASSERT(IS_SIZE1(direction));
 
