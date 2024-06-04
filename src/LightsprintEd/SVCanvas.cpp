@@ -1446,6 +1446,7 @@ static void textOutput(int x, int y, int h, const char* format, ...)
 	if (vsnprintf (text,1000,format,argptr) < 0)
 	{
 		// error formatting
+		RR_ASSERT(0);
 		text[0] = 0;
 	};
 	va_end (argptr);

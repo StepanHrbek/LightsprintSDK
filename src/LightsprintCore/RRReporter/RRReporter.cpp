@@ -105,6 +105,7 @@ void RRReporter::reportV(RRReportType type, const char* format, va_list& vars)
 		else
 		{
 			// error formatting
+			// we should not assert, as we might already be in an assert
 		}
 	}
 }

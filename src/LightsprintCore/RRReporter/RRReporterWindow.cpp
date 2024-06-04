@@ -376,6 +376,7 @@ private:
 		if (vsnprintf(msg,1000,format,argptr) < 0)
 		{
 			// error formatting
+			// we should not assert, as we might already be in an assert
 			msg[0] = 0;
 		};
 		RRReporterWindow::customReport(type,0,msg);

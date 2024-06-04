@@ -37,6 +37,7 @@ const char* tmpstr(const char* fmt, ...)
 	if (vsnprintf(buf, MAX_STRING_SIZE, fmt, argptr) < 0)
 	{
 		// error formatting
+		RR_ASSERT(0);
 		buf[0] = 0;
 	};
 	va_end (argptr);
