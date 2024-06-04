@@ -30,7 +30,6 @@ IntersectVerification::IntersectVerification(const RRMesh* importer, bool& abort
 			collider[i] = RRCollider::create(importer,nullptr,RRCollider::IT_LINEAR);
 		}*/
 	}
-	unsigned vertices = importer->getNumVertices();
 }
 
 void IntersectVerification::update()
