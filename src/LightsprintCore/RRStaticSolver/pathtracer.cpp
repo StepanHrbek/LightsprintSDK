@@ -61,8 +61,8 @@ PathtracerJob::~PathtracerJob()
 
 PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::PathTracingParameters& _parameters, bool _staticSceneContainsLods, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation)
 	: ptj(_ptj), collisionHandlerGatherHemisphere(_ptj.colorSpace,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
-	  collisionHandlerGatherLights(_ptj.colorSpace,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
-	  parameters(_parameters)
+	  parameters(_parameters),
+	  collisionHandlerGatherLights(_ptj.colorSpace,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods)
 {
 	// don't use 'parameters' in ctor, GatheredIrradianceHemisphere sends us reference to empty params and fills them later
 	collisionHandlerGatherHemisphere.setHemisphere(ptj.solver->priv->scene);
