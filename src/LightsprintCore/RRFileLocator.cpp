@@ -78,11 +78,11 @@ public:
 		if (specialAttempts.find(attemptNumber)!=specialAttempts.end())
 			return specialAttempts.find(attemptNumber)->second;
 
-		return RR_PATH2RR(getLocation(bf::path(RR_RR2PATH(originalFilename)),attemptNumber));
+		return RR_PATH2RR(getLocation_path(bf::path(RR_RR2PATH(originalFilename)),attemptNumber));
 	}
 
 protected:
-	bf::path getLocation(bf::path originalFilename, unsigned attemptNumber) const
+	bf::path getLocation_path(bf::path originalFilename, unsigned attemptNumber) const
 	{
 		// extensions
 		if (originalFilename.extension().empty() && extensions.size())
@@ -93,7 +93,7 @@ protected:
 			}
 			else
 			{
-				bf::path result = getLocation(originalFilename,(unsigned)(attemptNumber/extensions.size()+1000000));
+				bf::path result = getLocation_path(originalFilename,(unsigned)(attemptNumber/extensions.size()+1000000));
 				return result.empty() ? result : result.replace_extension(extensions[attemptNumber%extensions.size()]);
 			}
 		}
