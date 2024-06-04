@@ -1343,7 +1343,7 @@ bool Scene::finishStaticImprovement()
 		RR_ASSERT(phase>0);
 		NeverEnd neverEnd;
 		bool e=energyFromDistributedUntil(improvingStatic,neverEnd);
-		RR_ASSERT(e); e=e;
+		RR_ASSERT(e);
 		RR_ASSERT(phase==0);
 		improvingStatic.node=nullptr;
 		return true;
