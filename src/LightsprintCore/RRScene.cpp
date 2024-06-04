@@ -138,12 +138,19 @@ struct LoadersAndSavers1
 			loaders.push_back(le);
 
 			// update s_loaderExtensions
+			int result;
 			if (loaders.size()==1)
-				_snprintf(loaderExtensions,S_EXTENSIONS_LEN,"%s",extensions);
+				result = snprintf(loaderExtensions,S_EXTENSIONS_LEN,"%s",extensions);
 			else
-				_snprintf(loaderExtensions+strlen(loaderExtensions),S_EXTENSIONS_LEN-strlen(loaderExtensions),";%s",extensions);
-			loaderExtensions[S_EXTENSIONS_LEN-1] = 0;
-			
+				result = snprintf(loaderExtensions+strlen(loaderExtensions),S_EXTENSIONS_LEN-strlen(loaderExtensions),";%s",extensions);
+			if (result < 0)
+			{
+				// formatting error
+				RR_ASSERT(0);
+				loaderExtensions[0] = 0;
+			}
+			// if string does not fit, we continue with cropped string
+
 			// convert all separators to SEPARATOR1
 			for (char* c=loaderExtensions;*c;c++)
 				if (*c==SEPARATOR2)
@@ -165,12 +172,19 @@ struct LoadersAndSavers1
 			savers.push_back(se);
 
 			// update s_saverExtensions
+			int result;
 			if (savers.size()==1)
-				_snprintf(saverExtensions,S_EXTENSIONS_LEN,"%s",extensions);
+				result = snprintf(saverExtensions,S_EXTENSIONS_LEN,"%s",extensions);
 			else
-				_snprintf(saverExtensions+strlen(saverExtensions),S_EXTENSIONS_LEN-strlen(saverExtensions),";%s",extensions);
-			saverExtensions[S_EXTENSIONS_LEN-1] = 0;
-			
+				result = snprintf(saverExtensions+strlen(saverExtensions),S_EXTENSIONS_LEN-strlen(saverExtensions),";%s",extensions);
+			if (result < 0)
+			{
+				// formatting error
+				RR_ASSERT(0);
+				saverExtensions[0] = 0;
+			}
+			// if string does not fit, we continue with cropped string
+
 			// convert all separators to SEPARATOR1
 			for (char* c=saverExtensions;*c;c++)
 				if (*c==SEPARATOR2)

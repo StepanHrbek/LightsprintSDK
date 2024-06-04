@@ -58,7 +58,6 @@
 	// fix symbols missing in gcc
 	#define _strdup strdup
 	#define _stricmp strcasecmp
-	#define _snprintf snprintf
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
 	#define __cdecl
 #endif

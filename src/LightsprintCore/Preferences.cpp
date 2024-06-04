@@ -12,7 +12,6 @@
 #ifdef _WIN32
 	#include <cstdio> // sprintf
 	#include <windows.h>
-#else
 	#include "Lightsprint/RRDebug.h"
 #endif
 
@@ -29,8 +28,13 @@ float Preferences::getValue(const char* location, const char* variable, float de
 	float value = defaultValue;
 
 	char subkey[200];
-	_snprintf(subkey,199,"Software\\Lightsprint\\PM\\%s",location);
-	subkey[199] = 0;
+	if (snprintf(subkey, 200, "Software\\Lightsprint\\PM\\%s", location) < 0)
+	{
+		// formatting error
+		RR_ASSERT(0);
+		return defaultValue;
+	}
+	// if string does not fit, we continue with cropped string
 
 	HKEY hkey1;
 	if (RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
@@ -57,8 +61,13 @@ void Preferences::setValue(const char* location, const char* variable, float val
 {
 #ifdef _WIN32
 	char subkey[200];
-	_snprintf(subkey,199,"Software\\Lightsprint\\PM\\%s",location);
-	subkey[199] = 0;
+	if (snprintf(subkey, 200, "Software\\Lightsprint\\PM\\%s", location) < 0)
+	{
+		// formatting error
+		RR_ASSERT(0);
+		return;
+	}
+	// if string does not fit, we continue with cropped string
 
 	HKEY hkey1;
 	if (RegOpenCurrentUser(KEY_ALL_ACCESS,&hkey1)==ERROR_SUCCESS)
