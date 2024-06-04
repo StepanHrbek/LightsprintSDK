@@ -551,9 +551,9 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					if (err==D3D_OK)
 					{
 						unsigned numTrianglesDx1 = dxMeshIn->GetNumFaces();
-						unsigned numVerticesDx1 = dxMeshIn->GetNumVertices();
+						//unsigned numVerticesDx1 = dxMeshIn->GetNumVertices();
 						unsigned numTrianglesDx2 = dxMeshOut->GetNumFaces();
-						unsigned numVerticesDx2 = dxMeshOut->GetNumVertices();
+						//unsigned numVerticesDx2 = dxMeshOut->GetNumVertices();
 						RR_ASSERT(numTrianglesDx1==numTriangles && numTrianglesDx2==numTriangles);
 						//RR_ASSERT(numVerticesDx1==numVertices); // not true because of D3DXCleanMesh
 						//RR_ASSERT(numVerticesDx2==numVertices); // not true because of D3DXUVAtlasPartition
