@@ -77,7 +77,7 @@ namespace rr
 
 RRTime::RRTime(bool _setNow)
 {
-	RR_STATIC_ASSERT(sizeof(TIME)<=sizeof(data),"insufficient space for timer");
+	static_assert(sizeof(TIME)<=sizeof(data),"insufficient space for timer");
 	if (_setNow) setNow();
 }
 
