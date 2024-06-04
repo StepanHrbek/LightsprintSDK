@@ -1286,7 +1286,6 @@ static const char** selectCubeSideNames(std::wstring& _filename)
 		{"negative_x","positive_x","positive_y","negative_y","positive_z","negative_z"} // codemonsters.de
 	};
 	// inserts %s if it is one of 6 images
-	size_t filenameLen = _filename.size();
 	for (unsigned c=0;c<numConventions;c++)
 	{
 		for (unsigned s=0;s<6;s++)
