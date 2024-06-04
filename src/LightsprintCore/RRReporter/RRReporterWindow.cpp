@@ -261,7 +261,7 @@ private:
 	static void windowThreadFunc(void* instanceData)
 	{
 		DialogBoxIndirectParam(GetModuleHandle(nullptr),getDialogResource(),nullptr,DlgProc,(LPARAM)instanceData);
-		delete instanceData;
+		delete (RRReporterWindow::InstanceData*)instanceData;
 	}
 
 	static INT_PTR CALLBACK DlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -446,7 +446,7 @@ class RRReporterWindowAbortSolver : public RRReporterWindow
 {
 public:
 	RRReporterWindowAbortSolver(class RRSolver** _solver, const char* caption, bool closeWhenDone)
-		: abort(_solver), RRReporterWindow(&abort,caption,closeWhenDone)
+		: RRReporterWindow(&abort,caption,closeWhenDone), abort(_solver)
 	{
 	}
 private:
