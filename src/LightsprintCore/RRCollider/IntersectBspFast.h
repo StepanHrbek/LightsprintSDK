@@ -18,7 +18,7 @@ namespace rr
 	/*struct TriangleP
 	{
 		real    intersectReal;  // precalculated number for intersections
-		char    intersectByte;  // precalculated number for intersections, 0..8
+		unsigned char intersectByte;  // precalculated number for intersections, 0..8
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};*/
 
@@ -26,7 +26,7 @@ namespace rr
 	{
 		RRVec4  n4;             // triangle plane, first three components form normalised normal
 		real    intersectReal;  // precalculated number for intersections
-		char    intersectByte;  // precalculated number for intersections, 0..8
+		unsigned char intersectByte;  // precalculated number for intersections, 0..8
 		void    setGeometry(const Vec3* a, const Vec3* b, const Vec3* c);
 	};
 
@@ -39,7 +39,7 @@ namespace rr
 		Vec3    r3;             // ALIGN16 vertex[1]-vertex[0]
 		Vec3    ir3;            // ALIGN16 1/r3
 		Vec3    l3;             // ALIGN16 vertex[2]-vertex[0]
-		char    intersectByte;  // precalculated number for intersections, 0..8
+		unsigned char intersectByte; // precalculated number for intersections, 0..8
 		void    setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3* b, const Vec3* c);
 		unsigned getTriangleIndex() const 
 		{
