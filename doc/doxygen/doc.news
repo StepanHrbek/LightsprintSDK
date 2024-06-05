@@ -8,16 +8,21 @@ namespace rr
 
 \page main_news What's new
 
-\section news149 ------------------------------------ 2023.xx.xx -------------------------------------
+\section news150 ------------------------------------ 2024.xx.xx -------------------------------------
 
 NEWS
 
-- Lightsprint SDK is free and open source
 - added build target web
   - set target with our <code>make web</code>
   - install or checkout emsdk
   - build with emscripten's <code>emmake make</code> (if necessary, prepare environment with emsdk_env)
   - this is work in progress, early phase, only the simplest console samples work
+
+\section news149 ------------------------------------ 2023.08.30 -------------------------------------
+
+NEWS
+
+- Lightsprint SDK is free and open source
 
 CHANGES
 
