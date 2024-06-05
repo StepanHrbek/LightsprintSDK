@@ -17,6 +17,7 @@ NEWS
   - install or checkout emsdk
   - build with emscripten's <code>emmake make</code> (if necessary, prepare environment with emsdk_env)
   - this is work in progress, early phase, only the simplest console samples work
+- added RR_DEBUG(a) as a shortcut for <code>#ifdef _DEBUG a #endif</code>
 
 \section news149 ------------------------------------ 2023.08.30 -------------------------------------
 
