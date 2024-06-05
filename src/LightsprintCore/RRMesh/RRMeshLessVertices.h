@@ -45,7 +45,7 @@ public:
 		// prepare translation arrays
 		unsigned numVertices = inherited->getNumVertices();
 		unsigned numTriangles = inherited->getNumTriangles();
-		INDEX tmp = numVertices;
+		RR_DEBUG(INDEX tmp = numVertices;)
 		RR_ASSERT(tmp==numVertices);
 		Dupl2Unique = new (std::nothrow) INDEX[numVertices]; // if it fails, allocating "vertices" will fail too, it is handled below
 		Unique2Dupl = new (std::nothrow) INDEX[numVertices];
@@ -317,7 +317,7 @@ public:
 	RRLessVerticesImporter(char* vbuffer, unsigned avertices, unsigned stride, INDEX* ibuffer, unsigned indices, float MAX_STITCH_DISTANCE)
 		: INHERITED(vbuffer,avertices,stride,ibuffer,indices)
 	{
-		INDEX tmp = avertices;
+		RR_DEBUG(INDEX tmp = avertices;)
 		RR_ASSERT(tmp==avertices);
 		// prepare translation arrays
 		unsigned numVertices = avertices;

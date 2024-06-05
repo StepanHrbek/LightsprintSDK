@@ -23,7 +23,7 @@ public:
 	RRMeshIndexedTriList(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
 		: RRMeshIndexedTriStrip<INDEX>(vbuffer,vertices,stride,ibuffer,indices)
 	{
-		INDEX tmp = vertices;
+		RR_DEBUG(INDEX tmp = vertices;)
 		RR_ASSERT(tmp==vertices);
 	}
 	virtual unsigned getNumTriangles() const override

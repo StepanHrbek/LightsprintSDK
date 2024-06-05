@@ -22,7 +22,7 @@ public:
 	RRMeshIndexedTriStrip(char* vbuffer, unsigned vertices, unsigned stride, INDEX* ibuffer, unsigned indices)
 		: RRMeshTriStrip(vbuffer,vertices,stride), IBuffer(ibuffer), Indices(indices)
 	{
-		INDEX tmp = vertices;
+		RR_DEBUG(INDEX tmp = vertices;)
 		RR_ASSERT(tmp==vertices);
 	}
 
