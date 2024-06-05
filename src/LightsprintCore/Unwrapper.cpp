@@ -191,11 +191,14 @@ Unwrapper::Unwrapper()
 IDirect3DVertexBuffer9* Unwrapper::createVBuffer(void* data, unsigned numBytes) const
 {
 	IDirect3DVertexBuffer9* vbuf = nullptr;
-	HRESULT hr = d3dDevice->CreateVertexBuffer(numBytes,0,0,D3DPOOL_SYSTEMMEM,&vbuf,nullptr);
+	[[maybe_unused]] HRESULT hr = d3dDevice->CreateVertexBuffer(numBytes,0,0,D3DPOOL_SYSTEMMEM,&vbuf,nullptr);
+	RR_ASSERT(hr == D3D_OK);
 	void* lock = nullptr;
 	hr = vbuf->Lock(0,numBytes,&lock,D3DLOCK_DISCARD);
+	RR_ASSERT(hr == D3D_OK);
 	memcpy(lock,data,numBytes);
 	hr = vbuf->Unlock();
+	RR_ASSERT(hr == D3D_OK);
 	return vbuf;
 }
 
@@ -240,14 +243,18 @@ ID3DXMesh* Unwrapper::createID3DXMesh(const RRMeshArrays* rrMesh, const UvChanne
 		{0xFF,0,D3DDECLTYPE_UNUSED, 0,0,0}//D3DDECL_END
 	};
 	ID3DXMesh* dxMesh = nullptr;
-	HRESULT hr = D3DXCreateMesh(numTriangles,numVertices,D3DXMESH_32BIT|D3DXMESH_SYSTEMMEM,dxMeshDeclaration,d3dDevice,&dxMesh);
+	[[maybe_unused]] HRESULT hr = D3DXCreateMesh(numTriangles,numVertices,D3DXMESH_32BIT|D3DXMESH_SYSTEMMEM,dxMeshDeclaration,d3dDevice,&dxMesh);
+	RR_ASSERT(hr == D3D_OK);
 	// copy indices
 	RRMesh::Triangle* indexData = nullptr;
 	hr = dxMesh->LockIndexBuffer(0/*D3DLOCK_DISCARD*/,(LPVOID*)&indexData);
+	RR_ASSERT(hr == D3D_OK);
 	memcpy(indexData,rrMesh->triangle,sizeof(RRMesh::Triangle)*numTriangles);
 	hr = dxMesh->UnlockIndexBuffer();
+	RR_ASSERT(hr == D3D_OK);
 	// copy vertices
 	hr = dxMesh->LockVertexBuffer(0/*D3DLOCK_DISCARD*/,(LPVOID*)&vertexData);
+	RR_ASSERT(hr == D3D_OK);
 	memset(vertexData,0,sizeof(Vertex)*numVertices);
 	for (unsigned v=0;v<numVertices;v++)
 	{
@@ -266,6 +273,7 @@ ID3DXMesh* Unwrapper::createID3DXMesh(const RRMeshArrays* rrMesh, const UvChanne
 		}
 	}
 	hr = dxMesh->UnlockVertexBuffer();
+	RR_ASSERT(hr == D3D_OK);
 	return dxMesh;
 }
 
@@ -280,12 +288,14 @@ void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvCh
 	rrMesh->resizeMesh(numTriangles,numVertices,&texcoords,rrMesh->tangent?true:false,false);
 	// copy indices
 	DWORD* indexData = nullptr;
-	HRESULT hr = dxMesh->LockIndexBuffer(D3DLOCK_READONLY,(LPVOID*)&indexData);
+	[[maybe_unused]] HRESULT hr = dxMesh->LockIndexBuffer(D3DLOCK_READONLY,(LPVOID*)&indexData);
+	RR_ASSERT(hr == D3D_OK);
 	memcpy(rrMesh->triangle,indexData,sizeof(RRMesh::Triangle)*numTriangles);
 	dxMesh->UnlockIndexBuffer();
 	// copy vertices
 	Vertex* vertexData = nullptr;
 	hr = dxMesh->LockVertexBuffer(0,(LPVOID*)&vertexData);
+	RR_ASSERT(hr == D3D_OK);
 	for (unsigned v=0;v<numVertices;v++)
 	{
 		rrMesh->position[v] = vertexData[v].position;
@@ -303,6 +313,7 @@ void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvCh
 		rrMesh->texcoord[unwrapChannel][v] = vertexData[v].texcoord[MAX_CHANNELS-1];
 	}
 	hr = dxMesh->UnlockVertexBuffer();
+	RR_ASSERT(hr == D3D_OK);
 	// copy extra data
 	rrMesh->unwrapChannel = unwrapChannel;
 	rrMesh->unwrapWidth = resolution;
@@ -550,10 +561,10 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					else
 					if (err==D3D_OK)
 					{
-						unsigned numTrianglesDx1 = dxMeshIn->GetNumFaces();
-						//unsigned numVerticesDx1 = dxMeshIn->GetNumVertices();
-						unsigned numTrianglesDx2 = dxMeshOut->GetNumFaces();
-						//unsigned numVerticesDx2 = dxMeshOut->GetNumVertices();
+						RR_DEBUG(unsigned numTrianglesDx1 = dxMeshIn->GetNumFaces();)
+						//RR_DEBUG(unsigned numVerticesDx1 = dxMeshIn->GetNumVertices();)
+						RR_DEBUG(unsigned numTrianglesDx2 = dxMeshOut->GetNumFaces();)
+						//RR_DEBUG(unsigned numVerticesDx2 = dxMeshOut->GetNumVertices();)
 						RR_ASSERT(numTrianglesDx1==numTriangles && numTrianglesDx2==numTriangles);
 						//RR_ASSERT(numVerticesDx1==numVertices); // not true because of D3DXCleanMesh
 						//RR_ASSERT(numVerticesDx2==numVertices); // not true because of D3DXUVAtlasPartition
