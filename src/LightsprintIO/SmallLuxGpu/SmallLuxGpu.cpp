@@ -376,7 +376,6 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 		}
 
 		// lights
-		unsigned numSunlights = 0;
 		for (unsigned i=0;i<scene->lights.size();i++)
 		{
 			RRLight* light = scene->lights[i];
