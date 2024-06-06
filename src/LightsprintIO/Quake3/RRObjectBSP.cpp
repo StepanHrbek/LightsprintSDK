@@ -376,7 +376,6 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 		vertices.push_back(VertexInfo(RRVec3(maxi.x,maxi.y,maxi.z)));
 		vertices.push_back(VertexInfo(RRVec3(maxi.x,mini.y,mini.z)));
 		vertices.push_back(VertexInfo(RRVec3(maxi.x,maxi.y,mini.z)));
-		unsigned triangleBase = (unsigned)triangles.size();
 		for (unsigned i=0;i<4;i++)
 		{
 			RRMesh::Triangle ti;
