@@ -248,7 +248,8 @@ RRObjectMGF::RRObjectMGF(const RRString& filename)
 	mg_ehand[MG_E_NORMAL]   = c_hvertex;
 	mg_ehand[MG_E_XF]       = xf_handler;	/* they track transforms */
 	mg_init();
-	int result=mg_load(RR_RR2CHAR(filename)); // mgf does not support unicode filename. return codes are defined in mgfparser.h (success=MG_OK)
+	RR_DEBUG(int result=)mg_load(RR_RR2CHAR(filename)); // mgf does not support unicode filename. return codes are defined in mgfparser.h (success=MG_OK)
+	RR_ASSERT(result == MG_OK);
 	mg_clear();
 	//lu_done(&ent_tab); ent_tab is local structure inside mgflib that leaks
 
