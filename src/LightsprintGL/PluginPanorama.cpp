@@ -36,7 +36,7 @@ public:
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
-		const PluginParamsPanorama& pp = *dynamic_cast<const PluginParamsPanorama*>(&_pp);
+		//const PluginParamsPanorama& pp = *dynamic_cast<const PluginParamsPanorama*>(&_pp);
 		
 		if (_sp.camera->panoramaMode==rr::RRCamera::PM_OFF || !cubeTexture)
 			return;
