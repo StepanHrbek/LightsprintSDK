@@ -216,7 +216,7 @@ public:
 		// Process SteamVR controller state
 		for( vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++ )
 		{
-			vr::VRControllerState_t state;
+			//vr::VRControllerState_t state;
 			//if( m_pHMD->GetControllerState( unDevice, &state ) )
 			{
 				//m_rbShowTrackedDevice[ unDevice ] = state.ulButtonPressed == 0;
