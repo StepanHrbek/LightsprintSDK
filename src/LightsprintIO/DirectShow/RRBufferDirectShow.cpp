@@ -417,25 +417,25 @@ public:
 
 	// ================== implement ISampleGrabberCB interface ====================
 
-	STDMETHODIMP SampleCB(double _sampleTime, IMediaSample *_sample)
+	STDMETHODIMP SampleCB(double _sampleTime, IMediaSample *_sample) override
 	{
-        return S_OK;
+		return S_OK;
 	}
-	STDMETHODIMP BufferCB(double _sampleTime, BYTE *_data, long _dataSize)
+	STDMETHODIMP BufferCB(double _sampleTime, BYTE *_data, long _dataSize) override
 	{
 		memcpy(back,_data,RR_MIN(width*height*3,(unsigned)_dataSize));
 		backReady = true;
 		return S_OK;
 	}
-	STDMETHOD(QueryInterface)(REFIID InterfaceIdentifier, VOID** ppvObject) throw()
+	STDMETHOD(QueryInterface)(REFIID InterfaceIdentifier, VOID** ppvObject) throw() override
 	{
 		return E_NOINTERFACE;
 	}
-	virtual ULONG STDMETHODCALLTYPE AddRef(void)
+	virtual ULONG STDMETHODCALLTYPE AddRef(void) override
 	{
 	return 2;
 	}
-	virtual ULONG STDMETHODCALLTYPE Release(void)
+	virtual ULONG STDMETHODCALLTYPE Release(void) override
 	{
 		return 1;
 	}
