@@ -589,7 +589,8 @@ public:
 					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
 				if (hasVideo())
 					video_packetQueue.push(new SeekPacket(seekSecondsFromStart)); // avcodec_flush_buffers() + proper clearing of image_ready and image_inProgress
-				int err = av_seek_frame(avFormatContext, -1, (int64_t)(RR_MAX(0,seekSecondsFromStart-SEEK_SECONDS_BACK) * AV_TIME_BASE), AVSEEK_FLAG_BACKWARD); //|AVSEEK_FLAG_ANY
+				RR_DEBUG(int err =) av_seek_frame(avFormatContext, -1, (int64_t)(RR_MAX(0,seekSecondsFromStart-SEEK_SECONDS_BACK) * AV_TIME_BASE), AVSEEK_FLAG_BACKWARD); //|AVSEEK_FLAG_ANY
+				RR_ASSERT(err >= 0); // seek failed
 				seekSecondsFromStart = -1;
 			}
 
