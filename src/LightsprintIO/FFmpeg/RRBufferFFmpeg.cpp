@@ -348,7 +348,7 @@ public:
 			err = Pa_OpenDefaultStream(&pa_stream, 0, audio_avCodecContext->channels, pa_sampleFormat^paNonInterleaved, audio_avCodecContext->sample_rate, paFramesPerBufferUnspecified, nullptr, nullptr );
 			if (err==paNoError)
 			{
-				unsigned sampleBytes = Pa_GetSampleSize(pa_sampleFormat); // in one channel
+				//unsigned sampleBytes = Pa_GetSampleSize(pa_sampleFormat); // in one channel
 				if (pa_sampleFormat&paNonInterleaved)
 				{
 					convert_to_interleaved = true;
@@ -388,7 +388,7 @@ public:
 				if (avPacket)
 				{
 					int got_frame = 0;
-					int len = avcodec_decode_audio4(audio_avCodecContext, avFrame, &got_frame, avPacket);
+					avcodec_decode_audio4(audio_avCodecContext, avFrame, &got_frame, avPacket);
 					if (got_frame && avFrame->nb_samples)
 					{
 						unsigned sampleBytes = Pa_GetSampleSize(pa_sampleFormat); // in one channel
@@ -585,7 +585,6 @@ public:
 				audio_packetQueue.clear();
 				video_packetQueue.clear();
 				image_queue.clear(); // remove old images, step 1 (if video_proc is blocked in blocking_push, this unblocks it)
-			skip_queue_clear:
 				if (hasAudio())
 					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
 				if (hasVideo())
