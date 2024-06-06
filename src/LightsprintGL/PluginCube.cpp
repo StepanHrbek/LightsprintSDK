@@ -103,7 +103,7 @@ public:
 			rr::RRVec3(0,-RR_PI/2,RR_PI*3/2), // TOP
 			rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
 			rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
-			/**/
+			*/
 		};
 		char s_scissor[6] =
 		{
