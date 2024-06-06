@@ -64,7 +64,7 @@ public:
 
 		const PluginParamsAccumulation& pp = *dynamic_cast<const PluginParamsAccumulation*>(&_pp);
 
-		bool srgbCorrect = _sp.srgbCorrect; // can be changed to true, correct accumulation is slightly more expensive, but works even without sRGB textures (i.e. in GL ES 2.0)
+		//bool srgbCorrect = _sp.srgbCorrect; // can be changed to true, correct accumulation is slightly more expensive, but works even without sRGB textures (i.e. in GL ES 2.0)
 
 		if (pp.restart)
 		{
