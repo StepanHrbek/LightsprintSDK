@@ -532,7 +532,7 @@ bool saveFreeImage(RRBuffer* buffer, const RRString& filename, const char* cubeS
 
 	// get src format
 	rr::RRBufferFormat srcFormat = buffer->getFormat();
-	unsigned srcbypp = (buffer->getElementBits()+7)/8;
+	//unsigned srcbypp = (buffer->getElementBits()+7)/8;
 	if (srcFormat<BF_RGB || srcFormat>BF_LUMINANCEF)
 		return result;
 
