@@ -424,8 +424,6 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 
 		fseek(bin3ds, findex, SEEK_SET);
 
-		int j = 0;
-
 		while (ftell(bin3ds) < (findex + length - 6))
 		{
 			fread(&h.id,sizeof(h.id),1,bin3ds);
