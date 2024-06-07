@@ -678,7 +678,7 @@ void debugInformations(const TMapQ3& pMap, FILE* pFile)
 	fprintf(pFile, "\tNbCluster %d\n", pMap.mVisData.mNbClusters);
 	fprintf(pFile, "\tBytePerCluster %d\n", pMap.mVisData.mBytesPerCluster);
 	fprintf(pFile, "\n");
-}
+}*/
 
 /**
  * Read the map.
