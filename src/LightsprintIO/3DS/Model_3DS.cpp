@@ -435,7 +435,6 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
 			{
 				case 0x4000:
 					ObjectChunkProcessor(h.len, ftell(bin3ds), numObjects);
-					j++;
 					break;
 			}
 
