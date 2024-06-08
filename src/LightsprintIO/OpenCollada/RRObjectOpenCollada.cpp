@@ -632,7 +632,7 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 	ExtraDataCallbackHandler        extraHandler;
 public:
 	RRWriterOpenCollada(RRObjectsOpenCollada* _objects, RRLightsOpenCollada* _lights, RRCameras& _cameras, const RRString& _filename, const RRFileLocator* _textureLocator)
-		: cameras(_cameras), filename(_filename)
+		: filename(_filename), cameras(_cameras)
 	{
 		parseStep = RUN_COPY_ELEMENTS;
 		objects = _objects;
@@ -1034,7 +1034,7 @@ public:
 		}
 		else if(cot.isTexture())
 		{
-			COLLADAFW::Texture& texture = cot.getTexture();
+			//COLLADAFW::Texture& texture = cot.getTexture();
 			COLLADAFW::Sampler* sampler = common->getSamplerPointerArray()[ cot.getTexture().getSamplerId() ];
 
 			MapUniqueImage::iterator imageIter = imageMap.find( sampler->getSourceImage() );
@@ -1764,11 +1764,11 @@ public:
 					continue;
 
 				// get primitive number of channels = positions + normals + uvsets + texdata
-				int primitiveNumChannels = 
-					1 + primitiveElement->hasNormalIndices()
-					+ primitiveElement->getUVCoordIndicesArray().getCount()
-					+ (primitiveElement->getTexTangentsIndicesArray().getCount() > 0)
-					+ (primitiveElement->getTexBinormalsIndicesArray().getCount() > 0);
+				//int primitiveNumChannels = 
+				//	1 + primitiveElement->hasNormalIndices()
+				//	+ primitiveElement->getUVCoordIndicesArray().getCount()
+				//	+ (primitiveElement->getTexTangentsIndicesArray().getCount() > 0)
+				//	+ (primitiveElement->getTexBinormalsIndicesArray().getCount() > 0);
 
 				unsigned int* indexArray = new unsigned int[meshNumChannels];
 
@@ -1931,7 +1931,7 @@ public:
 					continue;
 
 				// get primitive number of channels = positions + normals + uvsets
-				int primitiveNumChannels = 1 + primitiveElement->hasNormalIndices() + primitiveElement->getUVCoordIndicesArray().getCount();
+				//int primitiveNumChannels = 1 + primitiveElement->hasNormalIndices() + primitiveElement->getUVCoordIndicesArray().getCount();
 
 				size_t currVertex = 0;
 				size_t currPrimitiveTriangles = 0;
@@ -2164,7 +2164,7 @@ public:
 
 						// move in grouped vertices
 						currVertexInGroup++;
-						int cvig = primitiveElement->getGroupedVerticesVertexCount( currGroup );
+						//int cvig = primitiveElement->getGroupedVerticesVertexCount( currGroup );
 						if( (int)currVertexInGroup >= primitiveElement->getGroupedVerticesVertexCount( currGroup ) )
 						{
 							currTriangleInGroup = 0;
