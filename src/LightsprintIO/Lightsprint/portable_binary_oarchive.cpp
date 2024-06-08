@@ -8,6 +8,9 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
+#include "../supported_formats.h"
+#ifdef SUPPORT_LIGHTSPRINT
+
 #include <ostream>
 #include <boost/predef/other/endian.h>
 #include "portable_binary_oarchive.hpp"
@@ -96,3 +99,5 @@ template class basic_binary_oprimitive<
 
 } // namespace archive
 } // namespace boost
+
+#endif // SUPPORT_LIGHTSPRINT

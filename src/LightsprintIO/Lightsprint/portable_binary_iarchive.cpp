@@ -8,6 +8,9 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
+#include "../supported_formats.h"
+#ifdef SUPPORT_LIGHTSPRINT
+
 #include <istream>
 #include <string>
 
@@ -129,3 +132,5 @@ template class basic_binary_iprimitive<
 
 } // namespace archive
 } // namespace boost
+
+#endif // SUPPORT_LIGHTSPRINT
