@@ -588,8 +588,6 @@ const RRObject* RRSolver::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center)
 
 void RRSolver::processBuffers(const RRVector<unsigned>* _layers, std::function<void (RRBuffer*)> _func) const
 {
-	if (!this)
-		return;
 	typedef std::unordered_set<RRBuffer*> Set;
 	Set set;
 	// fill set (to get rid of duplicates)
