@@ -426,8 +426,6 @@ const RRMesh* RRMesh::createMultiMesh(const RRMesh* const* meshes, unsigned numM
 
 const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesToMerge, float maxRadiansBetweenNormalsToMerge, float maxDistanceBetweenUvsToMerge, const RRVector<unsigned>* texcoords) const
 {
-	if (!this) return nullptr;
-
 	// negative values are legal, filter can still remove unused vertices
 	//if (maxDistanceBetweenVerticesToMerge<0 || maxRadiansBetweenNormalsToMerge<0)
 	//	return this;
