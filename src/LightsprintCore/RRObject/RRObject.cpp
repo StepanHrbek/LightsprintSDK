@@ -499,7 +499,7 @@ RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible() const
 
 RRMesh* RRObject::createWorldSpaceMesh() const
 {
-	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : nullptr;
+	return getCollider()->getMesh()->createTransformed(getWorldMatrix());
 }
 
 

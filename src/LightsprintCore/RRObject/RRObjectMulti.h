@@ -38,7 +38,7 @@ public:
 		{
 			// create multimesh
 			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
-			for (unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
+			for (unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i] ? objects[i]->createWorldSpaceMesh() : nullptr;
 			for (unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = nullptr;
 
 			const RRMesh* oldMesh = transformedMeshes[0];
@@ -203,7 +203,7 @@ public:
 		{
 			// create multimesh
 			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
-			for (unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
+			for (unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i] ? objects[i]->createWorldSpaceMesh() : nullptr;
 			for (unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = nullptr;
 
 			const RRMesh* oldMesh = transformedMeshes[0];
