@@ -248,6 +248,7 @@
     <ClCompile Include="Assimp\contrib\unzip\ioapi.c" />
     <ClCompile Include="Assimp\contrib\unzip\unzip.c" />
     <ClCompile Include="Assimp\contrib\zip\src\zip.c" />
+    <ClCompile Include="Assimp\contrib\zlib\uncompr.c" />
     <ClCompile Include="FCollada\RRObjectFCollada.cpp" />
     <ClCompile Include="FFmpeg\RRBufferFFmpeg.cpp" />
     <ClCompile Include="Isolation\RRSceneIsolation.cpp" />

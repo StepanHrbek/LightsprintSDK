@@ -1456,6 +1456,9 @@
     <ClCompile Include="Assimp\contrib\zip\src\zip.c">
       <Filter>Assimp\contrib\zip</Filter>
     </ClCompile>
+    <ClCompile Include="Assimp\contrib\zlib\uncompr.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3DS\Model_3DS.h">
