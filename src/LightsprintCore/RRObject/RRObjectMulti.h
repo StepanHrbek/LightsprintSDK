@@ -47,21 +47,21 @@ public:
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// stitch vertices
-			if (vertexStitching && !aborting)
+			if (vertexStitching && multiMesh && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,nullptr);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
-			if (optimizeTriangles && !aborting)
+			if (optimizeTriangles && multiMesh && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedTriangles();
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_TRIANGLES] = multiMesh; // remember for freeing time
 			}
 			// accelerate (saves time but needs more memory)
-			if (accelerate && !aborting)
+			if (accelerate && multiMesh && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createAccelerated();
@@ -212,21 +212,21 @@ public:
 
 			// NOW: multiMesh is unoptimized = concatenated meshes
 			// stitch vertices
-			if (vertexStitching && !aborting)
+			if (vertexStitching && multiMesh && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,nullptr);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
-			if (optimizeTriangles && !aborting)
+			if (optimizeTriangles && multiMesh && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createOptimizedTriangles();
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_TRIANGLES] = multiMesh; // remember for freeing time
 			}
 			// accelerate (saves time but needs more memory)
-			if (accelerate && !aborting)
+			if (accelerate && multiMesh && !aborting)
 			{
 				oldMesh = multiMesh;
 				multiMesh = multiMesh->createAccelerated();

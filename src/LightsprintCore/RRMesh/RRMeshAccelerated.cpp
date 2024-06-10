@@ -65,15 +65,11 @@ protected:
 
 const RRMesh* RRMesh::createAccelerated() const
 {
-	RRMeshAccelerated* result = nullptr;
-	if (this)
+	RRMeshAccelerated* result = new RRMeshAccelerated(this);
+	if (!result->data)
 	{
-		result = new RRMeshAccelerated(this);
-		if (!result->data)
-		{
-			RRReporter::report(ERRO,"Not enough memory, mesh not accelerated.\n");
-			RR_SAFE_DELETE(result);
-		}
+		RRReporter::report(ERRO,"Not enough memory, mesh not accelerated.\n");
+		RR_SAFE_DELETE(result);
 	}
 	return result;
 }
