@@ -162,8 +162,6 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool sca
 
 RRBuffer* RRBuffer::createEquirectangular()
 {
-	if (!this)
-		return nullptr;
 	switch (getType())
 	{
 		case BT_CUBE_TEXTURE:
