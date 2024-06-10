@@ -458,7 +458,6 @@ public:
 
 RRMesh* RRMesh::createVertexBufferRuler() const
 {
-	if (!this) return nullptr;
 	return new RRHidePreImportFilter(this);
 }
 
