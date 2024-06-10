@@ -630,11 +630,6 @@ public:
 bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 {
 	const bool emphasizeUnwrapSeams = false;
-	if (!this)
-	{
-		RR_ASSERT(0);
-		return false;
-	}
 	if (_sigma<0)
 		return false;
 	if (getType()!=BT_2D_TEXTURE)
@@ -808,11 +803,6 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 
 bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 {
-	if (!this)
-	{
-		RR_ASSERT(0);
-		return false;
-	}
 	if (getType()!=BT_2D_TEXTURE)
 		return false;
 	bool notEmpty = false;
@@ -874,11 +864,6 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 
 bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 {
-	if (!this)
-	{
-		RR_ASSERT(0);
-		return false;
-	}
 	if (getType()!=BT_2D_TEXTURE)
 		return false;
 	if (_numSteps==0)
@@ -978,11 +963,6 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 
 bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 {
-	if (!this)
-	{
-		RR_ASSERT(0);
-		return false;
-	}
 	if (getType()!=BT_2D_TEXTURE)
 		return false;
 	unsigned numElements = getNumElements();
