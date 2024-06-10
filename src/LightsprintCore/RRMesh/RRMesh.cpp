@@ -414,7 +414,6 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 
 RRMesh* RRMesh::createTransformed(const RRMatrix3x4Ex* transform) const
 {
-	if (!this) return nullptr;
 	//!!! az bude refcounting, muzu pri identite vracet this
 	//return transform ? new RRTransformedMeshFilter(this,transform) : this;
 	return new RRTransformedMeshFilter(this,transform);
