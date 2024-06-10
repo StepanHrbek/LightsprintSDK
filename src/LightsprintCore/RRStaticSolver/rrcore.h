@@ -283,8 +283,8 @@ public:
 
 	RRRay*  sceneRay;
 	class RRCollisionHandlerLod0* collisionHandlerLod0;
-	boost::rand48 rand;
-	//boost::mt11213b rand;
+	using rand_t = boost::rand48; // boost::mt11213b
+	rand_t rand;
 	RussianRoulette russianRoulette;
 	Triangles hitTriangles;
 	unsigned recursionDepth;

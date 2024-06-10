@@ -1009,7 +1009,7 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 	#ifdef max
 		#undef max
 	#endif
-	constexpr unsigned RMAX = shootingKernel->rand.max();
+	constexpr unsigned RMAX = ShootingKernel::rand_t::max();
 	constexpr float INVRMAX = 1. / RMAX;
 	#define RAND shootingKernel->rand()
 
