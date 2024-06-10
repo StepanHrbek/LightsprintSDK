@@ -8,11 +8,11 @@
 // --------------------------------------------------------------------------
 
 #include "Preferences.h"
+#include "Lightsprint/RRDebug.h"
 
 #ifdef _WIN32
 	#include <cstdio> // sprintf
 	#include <windows.h>
-	#include "Lightsprint/RRDebug.h"
 #endif
 
 namespace rr
