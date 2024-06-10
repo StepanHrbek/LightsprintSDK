@@ -99,8 +99,7 @@ RRBufferInMemory::RRBufferInMemory()
 
 RRBuffer* RRBufferInMemory::createReference()
 {
-	if (this)
-		refCount++;
+	refCount++;
 	return this;
 }
 
