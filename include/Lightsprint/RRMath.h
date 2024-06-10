@@ -55,6 +55,7 @@
 #include <cmath>
 
 #if defined(__GNUC__) || defined(__clang__)
+#define _strdup strdup
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
 	#define __cdecl
 #endif
