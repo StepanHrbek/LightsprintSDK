@@ -474,11 +474,6 @@ bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], con
 	{
 		return false;
 	}
-	if (!this)
-	{
-		RRReporter::report(WARN, "Attempted nullptr->save().\n");
-		return false;
-	}
 	if (s_bufferLoadersAndSavers.savers.empty())
 	{
 		RR_LIMITED_TIMES(1, RRReporter::report(WARN, "Can't save images, register saver first, see LightsprintIO.\n"));
@@ -730,8 +725,6 @@ void RRScene::normalizeUpAxis(unsigned currentUpAxis)
 
 void RRScene::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
 {
-	if (!this)
-		return;
 	typedef std::unordered_set<RRBuffer*> Set;
 	Set set;
 	// fill set

@@ -1220,11 +1220,6 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	{
 		return false;
 	}
-	if (!this)
-	{
-		RRReporter::report(WARN,"Attempted nullptr->reload().\n");
-		return false;
-	}
 
 	// load into new buffer
 	RRBuffer* loaded = load(_filename,_cubeSideName,_fileLocator);
