@@ -12,6 +12,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib> // malloc, free
+#include <cstring> // memcpy, memset
 #include <errno.h> // errno
 #include <wchar.h>
 
