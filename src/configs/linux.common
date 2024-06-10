@@ -3,6 +3,8 @@ APP_EXTENSION =
 
 C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++17 from CPP_FLAGS 
 CPP_FLAGS += -std=c++17 # filesystem
+CPP_FLAGS += -DRR_LINKS_BOOST # use precompiled boost libraries? (they enable Lightsprint fileformats, make unwrapper abortable, support unicode in opencollada)
+
 #CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
 
 CORE_DEPS = \

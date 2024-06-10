@@ -28,6 +28,11 @@
 
 // Actual support depends on your operating system, compiler etc.
 
+// Lightsprint fileformats require boost serialization.
+#ifndef RR_LINKS_BOOST
+	#undef SUPPORT_LIGHTSPRINT
+#endif
+
 // DirectShow exists only in Windows.
 #if defined(SUPPORT_DIRECTSHOW) && !defined(_WIN32)
 	#undef SUPPORT_DIRECTSHOW

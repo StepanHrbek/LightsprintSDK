@@ -5,7 +5,7 @@
   <PropertyGroup Label="Configuration">
     <!--CharacterSet></CharacterSet--> <!-- we set it only for projects that need it. different projects have different needs -->
     <PlatformToolset Condition="'$(DefaultPlatformToolset)'==''">v100</PlatformToolset> <!-- workaround for vs2010 -->
-    <PlatformToolset Condition="'$(DefaultPlatformToolset)'!=''">$(DefaultPlatformToolset)</PlatformToolset>
+    <PlatformToolset Condition="'$(DefaultPlatformToolset)'!=''">$(DefaultPlatformToolset)</PlatformToolset> <!-- $(DefaultPlatformToolset) or ClangCL -->
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />  <!-- needs CharacterSet+ConfigurationType+PlatformToolset+UseOfMfc, sets TargetExt -->
@@ -39,6 +39,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>RR_LIB_COMPILER="$(PlatformToolset)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(PlatformToolset)'!='ClangCL'">RR_LINKS_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>

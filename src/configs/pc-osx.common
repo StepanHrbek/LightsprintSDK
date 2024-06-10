@@ -17,6 +17,7 @@ CPP_FLAGS += -I/opt/local/include
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/include/wx-3.0
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib/wx/include/osx_cocoa-unicode-3.0
 CPP_FLAGS += -D__WXOSX_COCOA__
+CPP_FLAGS += -DRR_LINKS_BOOST # use precompiled boost libraries? (they enable Lightsprint fileformats, make unwrapper abortable, support unicode in opencollada)
 #CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
 
 LINK_FLAGS += -L/opt/local/lib

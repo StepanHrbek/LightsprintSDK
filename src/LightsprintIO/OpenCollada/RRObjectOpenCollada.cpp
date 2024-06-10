@@ -21,8 +21,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <boost/locale.hpp>
-
+#ifdef RR_LINKS_BOOST
+	#include <boost/locale.hpp>
+#endif
 #include "COLLADAFWPrerequisites.h"
 #include "COLLADAFWIWriter.h"
 #include "COLLADAFWRoot.h"
@@ -57,8 +58,14 @@ using namespace rr;
 
 RRString convertStr(COLLADAFW::String s)
 {
+#ifdef RR_LINKS_BOOST
 	// suppose that all strings coming from opencollada are utf8
 	return RR_STDW2RR(boost::locale::conv::utf_to_utf<wchar_t>(s.c_str()));
+#else
+	// without boost::locale and without deprecated std::codecvt,
+	// suppose that all strings coming from opencollada are ascii
+	return RR_STD2RR(s);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

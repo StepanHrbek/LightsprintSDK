@@ -14,7 +14,9 @@
 // (they are not included in SDK to simplify testing, nearly everyone has DirectX runtime installed, better not add redundant dll)
 #define DYNAMIC_LOAD // tries to load d3d[x]9.dll only when building unwrap, fails gracefully
 //#define ERROR_STRINGS // makes code depend on dx lib, don't use
-#define ABORTABLE // makes unwrapping abortable, uses boost::thread and boost::chrono
+#ifdef RR_LINKS_BOOST
+	#define ABORTABLE // makes unwrapping abortable, uses boost::thread and boost::chrono
+#endif
 
 #include <algorithm>
 #include <cstdio>
