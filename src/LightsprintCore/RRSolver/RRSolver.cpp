@@ -200,11 +200,6 @@ float RRSolver::getEnvironmentBlendFactor() const
 
 void RRSolver::setLights(const RRLights& _lights)
 {
-	if (!&_lights)
-	{
-		RRReporter::report(WARN,"setLights: Invalid input, lights=nullptr.\n");
-		return;
-	}
 	for (unsigned i=0;i<_lights.size();i++)
 	{
 		if (!_lights[i])
@@ -225,11 +220,6 @@ const RRLights& RRSolver::getLights() const
 void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRSolver* _copyFrom)
 {
 	// check inputs
-	if (!&_objects)
-	{
-		RRReporter::report(WARN,"setStaticObjects: Invalid input, objects=nullptr.\n");
-		return;
-	}
 	for (unsigned i=0;i<_objects.size();i++)
 	{
 		if (!_objects[i])
@@ -394,11 +384,6 @@ const RRObjects& RRSolver::getStaticObjects() const
 void RRSolver::setDynamicObjects(const RRObjects& _objects)
 {
 	// check inputs
-	if (!&_objects)
-	{
-		RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects=nullptr.\n");
-		return;
-	}
 	for (unsigned i=0;i<_objects.size();i++)
 	{
 		if (!_objects[i])
