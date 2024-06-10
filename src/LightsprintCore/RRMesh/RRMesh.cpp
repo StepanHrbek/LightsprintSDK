@@ -439,7 +439,6 @@ const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesTo
 
 const RRMesh* RRMesh::createOptimizedTriangles() const
 {
-	if (!this) return nullptr;
 	RRMesh* tmp = new RRLessTrianglesFilter(this);
 	if (tmp->getNumTriangles()<getNumTriangles())
 		return tmp;
