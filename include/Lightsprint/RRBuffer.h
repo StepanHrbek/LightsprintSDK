@@ -337,8 +337,8 @@ namespace rr
 
 		//! Creates reference to the same buffer. Both buffer and reference must be deleted (in any order).
 		//
-		//! It is not thread safe, must not be called concurrently for one buffer.
-		//! It may be called concurrently for different buffers.
+		//! For all of our implementations, it is safe to create references concurrently (and otherwise access the buffer at the same time).
+		//! But when deleting reference, other threads must not access the same buffer at the same time, there is small risk of undefined behavior.
 		virtual RRBuffer* createReference() = 0;
 		//! Returns number of references to this instance, for debugging only.
 		virtual unsigned getReferenceCount() = 0;

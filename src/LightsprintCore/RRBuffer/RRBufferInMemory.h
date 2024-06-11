@@ -10,6 +10,7 @@
 #ifndef BUFFERINMEMORY_H
 #define BUFFERINMEMORY_H
 
+#include <atomic>
 #include "Lightsprint/RRBuffer.h"
 
 namespace rr
@@ -49,11 +50,7 @@ public:
 	virtual unsigned getReferenceCount() override {return refCount;}
 	virtual ~RRBufferInMemory();
 protected:
-	// refCount is aligned and modified only by ++ and -- in createReference() and delete.
-	// this and volatile makes it mostly thread safe, at least on x86
-	// (still we clearly say it's not thread safe)
-	// proper std::atomic<unsigned> or boost::detail::atomic_count would be probably more expensive
-	volatile unsigned refCount;
+	std::atomic<unsigned> refCount;
 
 	RRBufferType type;
 	unsigned width;

@@ -32,6 +32,7 @@
 #include "RRBufferFFmpeg.h"
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -1053,11 +1054,7 @@ public:
 	}
  
 private:
-
-	//! refCount is aligned and modified only by ++ and -- in createReference() and delete.
-	//! This and volatile makes it mostly thread safe, at least on x86
-	//! (still we clearly say it's not thread safe)
-	volatile unsigned refCount;
+	std::atomic<unsigned> refCount;
 
 	FFmpegPlayer* player; // indirection helps when we want player to survive ~RRBufferFFmpeg()
 	RRBuffer* buffer; // shortcut for player->image_visible->buffer

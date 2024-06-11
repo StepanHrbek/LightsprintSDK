@@ -18,6 +18,7 @@
 #include "RRBufferDirectShow.h"
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
+#include <atomic>
 #include <windows.h>
 #include <dshow.h> // not found? install Windows SDK or delete #define SUPPORT_DIRECTSHOW in supported_formats.h
 #include "Qedit.h" // ISampleGrabber. This file used to be part of Windows SDK, but it's hard to find now, so we have our own replacement.
@@ -441,10 +442,7 @@ public:
 	}
 
 private:
-	//! refCount is aligned and modified only by ++ and -- in createReference() and delete.
-	//! This and volatile makes it mostly thread safe, at least on x86
-	//! (still we clearly say it's not thread safe)
-	volatile unsigned refCount;
+	std::atomic<unsigned> refCount;
 
 	unsigned char*  front; ///< frontbuffer, visible via RRBuffer interface
 	unsigned char*  back; ///< backbuffer, callback from background thread fills it
