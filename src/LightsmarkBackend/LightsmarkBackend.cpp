@@ -1156,7 +1156,7 @@ void mainMenu(int item)
 
 void initMenu()
 {
-	int menu = glutCreateMenu(mainMenu);
+	glutCreateMenu(mainMenu);
 	glutAddMenuEntry("Toggle info panel",ME_TOGGLE_INFO);
 #ifdef SUPPORT_RR_ED
 	glutAddMenuEntry("Debugger",ME_SCENE_VIEWER);
@@ -1362,7 +1362,6 @@ no_level:
 		else
 		{
 			// if it does not exist, go to next level or terminate
-no_frame:
 			if (level->animationEditor)
 			{
 				// play scene finished, jump to editor
