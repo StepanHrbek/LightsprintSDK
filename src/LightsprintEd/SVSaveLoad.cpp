@@ -9,6 +9,9 @@
 
 #include "SVSaveLoad.h"
 
+#ifdef _WIN32
+	#include <GL/wglew.h> // wglSwapInterval
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -18,6 +21,8 @@
 #include "wx/wx.h"
 #include "wx/stdpaths.h" // wxStandardPaths
 #include <cstdio>
+
+#ifdef RR_LINKS_BOOST
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
@@ -27,9 +32,6 @@
 #include <fstream>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#ifdef _WIN32
-	#include <GL/wglew.h> // wglSwapInterval
-#endif
 
 namespace bf = std::filesystem;
 
@@ -181,6 +183,8 @@ BOOST_CLASS_VERSION(rr_ed::ImportParameters,2);
 BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,3)
 BOOST_CLASS_VERSION(rr_ed::UserPreferences,20)
 
+#endif
+
 //---------------------------------------------------------------------------
 
 namespace rr_ed
@@ -255,6 +259,7 @@ static wxString suggestPreferencesFilename()
 
 bool UserPreferences::save() const
 {
+#ifdef RR_LINKS_BOOST
 	try
 	{
 		std::error_code ec;
@@ -276,10 +281,15 @@ bool UserPreferences::save() const
 	}
 
 	return true;
+#else
+	rr::RRReporter::report(rr::ERRO, "Compiled without saving preferences, see RR_LINKS_BOOST.\n");
+	return false;
+#endif
 }
 
 bool UserPreferences::load(const wxString& nonDefaultFilename)
 {
+#ifdef RR_LINKS_BOOST
 	try
 	{
 		std::ifstream ifs(RR_WX2PATH(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
@@ -299,6 +309,10 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 	}
 
 	return true;
+#else
+	rr::RRReporter::report(rr::ERRO, "Compiled without loading preferences, see RR_LINKS_BOOST.\n");
+	return false;
+#endif
 }
 
 void UserPreferences::applySwapInterval()
