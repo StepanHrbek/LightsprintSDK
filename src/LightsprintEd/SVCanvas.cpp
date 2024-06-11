@@ -39,8 +39,10 @@
 	#include <GL/wglew.h>
 #endif
 #include <cctype>
-#include <boost/thread.hpp>
+#include <chrono>
 #include <filesystem> // extension()==".gsa"
+#include <future>
+#include <thread>
 
 //#define SUPPORT_GL_ES
 
@@ -1812,17 +1814,29 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.useSolverIndirectSinceDepth = svs.pathShortcut ? shortcut : UINT_MAX;
 
 			// solver->pathTraceFrame() with decorations that make it abortable
-			boost::thread t([](rr::RRSolver* solver)
+			std::promise<void> promise;
+			std::thread t([future = promise.get_future()](rr::RRSolver* solver)
 			{
-				while (!isKeyOrButtonPressed())
-					boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
-				solver->aborting = true;
+				while (1)
+				{
+					if (isKeyOrButtonPressed())
+					{
+						// waiting for frame interrupted by user
+						solver->aborting = true;
+						break;
+					}
+					if (future.wait_for(std::chrono::milliseconds(50)) != std::future_status::timeout)
+					{
+						// frame is ready
+						break;
+					}
+				};
 			},solver);
 			if (!pathTracedAccumulator) pathTracedBuffer->clear(); // if we interrupt pathtracing first frame, it would contains uninitialized pixels
 			// danger: if pathTraceFrame() throws, we don't interrupt t and it writes to solver->aborting forever. when we delete solver, it crashes
 			//         BOOST_SCOPE_EXIT here would fix it, but it makes code harder to read
 			solver->pathTraceFrame(ppSharedCamera,pathTracedBuffer,pathTracedAccumulator,params);
-			t.interrupt(); // boost::this_thread::sleep_for() is interruptible
+			promise.set_value();
 			t.join(); // without join, release version terminates ocassionally when isKeyOrButtonPressed detects button click
 			bool skipThisFrame = solver->aborting;
 			solver->aborting = false;
