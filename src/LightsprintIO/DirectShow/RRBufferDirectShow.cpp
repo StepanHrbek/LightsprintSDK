@@ -238,8 +238,7 @@ public:
 
 	virtual RRBuffer* createReference() override
 	{
-		if (this)
-			refCount++;
+		refCount++;
 		return this;
 	}
 	virtual unsigned getReferenceCount() override
