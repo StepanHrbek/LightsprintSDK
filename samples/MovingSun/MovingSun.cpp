@@ -304,9 +304,11 @@ void idle()
 	if (keyPressed[GLUT_KEY_DOWN+256]) lightTime += seconds*5*SUN_SPEED;
 	if (keyPressed[GLUT_KEY_UP+256]) lightTime -= seconds*5*SUN_SPEED;
 	cam->setPosition(cam->getPosition()
-		+ cam->getDirection()*(keyPressed['w']-keyPressed['s'])*distance
-		+ cam->getRight()*(keyPressed['d']-keyPressed['a'])*distance
-		+ cam->getUp()*(keyPressed['q']-keyPressed['z'])*distance
+		// some compilers complaing about indexing by char ['x'],
+		// so we index by char16_t [u'x'] just to silence them
+		+ cam->getDirection()*(keyPressed[u'w']-keyPressed[u's'])*distance
+		+ cam->getRight()*(keyPressed[u'd']-keyPressed[u'a'])*distance
+		+ cam->getUp()*(keyPressed[u'q']-keyPressed[u'z'])*distance
 		);
 	if (autopilot) objectTime += seconds*OBJ_SPEED;
 	lightTime01 = fabs(fmod(lightTime,2.0f)-1);
