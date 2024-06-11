@@ -19,6 +19,14 @@ NEWS
   - this is work in progress, early phase, only the simplest console samples work
 - added RR_DEBUG(a) as a shortcut for <code>#ifdef _DEBUG a #endif</code>
 
+CHANGES
+
+- nullptr->createXxx() will most likely crash, but it used to return nullptr.
+  These and several other methods used to silently support being called on nullptr object.
+  We used to define behavior in otherwise undefined behavior situations.
+  New compilers loudly complain about it, so our good behavior has been removed.
+
+
 \section news149 ------------------------------------ 2023.08.30 -------------------------------------
 
 NEWS
