@@ -353,7 +353,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	bool diffuseChanged = false;
 	bool specularChanged = false;
-	bool emittanceChanged = false;
+	//bool emittanceChanged = false;
 	bool transmittanceChanged = false;
 	bool textureChanged = false;
 
@@ -472,7 +472,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propEmissive->GetPropertyByName(_("uv")))
 	{
 		material->diffuseEmittance.texcoord = property->GetValue().GetInteger();
-		emittanceChanged = true;
+		//emittanceChanged = true;
 	}
 	else
 	if (property==propEmissive->GetPropertyByName(_("texture or video")))
@@ -480,7 +480,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->diffuseEmittance.texture,svs.playVideos);
 		updateProperty(propEmissive->GetPropertyByName(_("color")),material->diffuseEmittance.color);
 		composeMaterialPropertyRoot(propEmissive,material->diffuseEmittance);
-		emittanceChanged = true;
+		//emittanceChanged = true;
 		textureChanged = true;
 	}
 	else
@@ -488,7 +488,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		material->diffuseEmittance.color << property->GetValue();
 		composeMaterialPropertyRoot(propEmissive,material->diffuseEmittance);
-		emittanceChanged = true;
+		//emittanceChanged = true;
 	}
 	else
 
