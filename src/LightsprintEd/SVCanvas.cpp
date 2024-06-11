@@ -947,8 +947,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ci.mouseLeft = event.LeftIsDown();
 		s_ci.mouseMiddle = event.MiddleIsDown();
 		s_ci.mouseRight = event.RightIsDown();
-		rr::RRCamera* cam = (event.LeftIsDown()
-			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getCamera() : &svs.camera;
 		s_ci.pos = svs.camera.getPosition();
 		svs.camera.getRay(mousePositionInWindow,s_ci.rayOrigin,s_ci.rayDirection);
 
@@ -1267,7 +1265,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				bool manipulatingGizmo = s_ci.clickedEntity.iconCode>=IC_MOVEMENT && s_ci.clickedEntity.iconCode<=IC_Z;
 				unsigned manipulatingLights = 0;
 				unsigned manipulatingObjects = 0;
-				bool selectionContainsObjectOrLight = false;
 				for (EntityIds::const_iterator i=manipulatedEntities.begin();i!=manipulatedEntities.end();++i)
 				{
 					if (i->type==ST_LIGHT) manipulatingLights++;
@@ -1411,7 +1408,6 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		// camera/light keyboard move
 		RR_CLAMP(seconds,0.001f,0.3f);
 		float meters = seconds * svs.cameraMetersPerSecond;
-		rr::RRCamera* cam = (selectedType!=ST_LIGHT)?&svs.camera:solver->realtimeLights[svs.selectedLightIndex]->getCamera();
 
 		{
 			// yes -> respond to keyboard
@@ -2273,7 +2269,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 
 		// gather information about scene
-		unsigned numLights = solver->getLights().size();
 		static rr::RRTime time;
 		const rr::RRObject* multiObject = solver->getMultiObject();
 		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : nullptr;
@@ -2449,7 +2444,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				textOutput(x,y+=18*2,h,"[object %d/%d]",svs.selectedObjectIndex,numObjects);
 				textOutput(x,y+=18,h,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
 				textOutput(x,y+=18,h,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh?multiMesh->getNumVertices():0);
-				static const rr::RRObject* lastObject = nullptr;
 				static rr::RRVec3 bboxMinL;
 				static rr::RRVec3 bboxMaxL;
 				static rr::RRVec3 centerL;

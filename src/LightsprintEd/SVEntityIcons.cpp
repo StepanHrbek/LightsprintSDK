@@ -169,7 +169,6 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 	piwIconRectangles.clear();
 	if (textureRenderer)
 	{
-		unsigned counter = 0;
 		for (unsigned i=0;i<entities.size();i++)
 		{
 			rr::RRVec2 piwCenter = eye.getPositionInViewport(entities[i].position); // in -1..1 range

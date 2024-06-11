@@ -1940,7 +1940,7 @@ void SVFrame::simulateSun()
 		{
 			if (lights[i] && lights[i]->type==rr::RRLight::DIRECTIONAL)
 			{
-				double longitudeDeg = svs.envLongitudeDeg;
+				//double longitudeDeg = svs.envLongitudeDeg;
 				double latitudeRad = RR_DEG2RAD(svs.envLatitudeDeg);
 				double hour = svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.+svs.envDateTime.tm_sec/3600.;
 				unsigned daysBeforeMonth[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
