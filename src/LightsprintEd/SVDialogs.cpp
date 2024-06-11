@@ -37,7 +37,7 @@ ImportDlg::ImportDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	m_button3 = new wxButton( this, wxID_OK, _("Import"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button3->SetDefault(); 
-	bSizer1->Add( m_button3, 0, wxALIGN_RIGHT|wxALL, 5 );
+	bSizer1->Add( m_button3, 0, int(wxALIGN_RIGHT) | int(wxALL), 5 );
 	
 	
 	this->SetSizer( bSizer1 );
@@ -137,7 +137,7 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	m_button3 = new wxButton( this, wxID_OK, _("Smooth"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button3->SetDefault(); 
-	bSizer1->Add( m_button3, 0, wxALIGN_RIGHT|wxALL, 5 );
+	bSizer1->Add( m_button3, 0, int(wxALIGN_RIGHT) | int(wxALL), 5 );
 	
 	
 	this->SetSizer( bSizer1 );
@@ -198,7 +198,7 @@ DeleteDlg::DeleteDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	m_button7 = new wxButton( this, wxID_OK, _("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button7->SetDefault(); 
-	bSizer7->Add( m_button7, 0, wxALIGN_RIGHT|wxALL, 5 );
+	bSizer7->Add( m_button7, 0, int(wxALIGN_RIGHT) | int(wxALL), 5 );
 	
 	
 	this->SetSizer( bSizer7 );
@@ -266,7 +266,7 @@ BakeDlg::BakeDlg( wxWindow* parent, wxWindowID id, const wxString& title, const 
 	
 	button = new wxButton( this, wxID_OK, _("Bake"), wxDefaultPosition, wxDefaultSize, 0 );
 	button->SetDefault(); 
-	bSizer12->Add( button, 0, wxALIGN_RIGHT|wxALL, 5 );
+	bSizer12->Add( button, 0, int(wxALIGN_RIGHT) | int(wxALL), 5 );
 	
 	
 	this->SetSizer( bSizer12 );
@@ -315,7 +315,7 @@ UnwrapDlg::UnwrapDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	button = new wxButton( this, wxID_OK, _("Unwrap"), wxDefaultPosition, wxDefaultSize, 0 );
 	button->SetDefault(); 
-	bSizer8->Add( button, 0, wxALIGN_RIGHT|wxALL, 5 );
+	bSizer8->Add( button, 0, int(wxALIGN_RIGHT) | int(wxALL), 5 );
 	
 	
 	this->SetSizer( bSizer8 );
