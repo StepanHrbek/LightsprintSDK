@@ -341,7 +341,7 @@ int main(int argc, char** argv)
 	rr_io::registerIO(argc,argv);
 
 	// init keys
-	memset(keyPressed,sizeof(keyPressed),0);
+	memset(keyPressed,0,sizeof(keyPressed));
 
 	// init GLUT
 	glutInit(&argc, argv);
