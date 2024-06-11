@@ -650,7 +650,6 @@ int SVCanvas::FilterEvent(wxKeyEvent& event)
 	if (exitRequested || !fullyCreated)
 		return wxApp::Event_Skip;
 
-	bool needsRefresh = false;
 	int evkey = event.GetKeyCode();
 	if (event.GetModifiers()==wxMOD_CONTROL) switch (evkey)
 	{
