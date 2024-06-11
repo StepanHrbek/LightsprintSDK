@@ -44,8 +44,8 @@ class RRVec2Property : public wxPGProperty
 	WX_PG_DECLARE_PROPERTY_CLASS(RRVec2Property)
 public:
 	RRVec2Property( const wxString& label = wxPG_LABEL,const wxString& name = wxPG_LABEL, int precision = -1, const RRVec2& value = RRVec2(0), float step = 1.f );
-	virtual wxVariant ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const;
-	virtual void RefreshChildren();
+	virtual wxVariant ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const override;
+	virtual void RefreshChildren() override;
 };
 
 
@@ -65,8 +65,8 @@ class RRVec3Property : public wxPGProperty
 	WX_PG_DECLARE_PROPERTY_CLASS(RRVec3Property)
 public:
 	RRVec3Property(const wxString& label = wxPG_LABEL,const wxString& help = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(0), float step = 1.f);
-	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const;
-	virtual void RefreshChildren();
+	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const override;
+	virtual void RefreshChildren() override;
 };
 
 
@@ -80,12 +80,12 @@ class HDRColorProperty : public wxPGProperty
 public:
 	HDRColorProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, int precision = -1, const RRVec3& value = RRVec3(1), bool children = true);
 	virtual ~HDRColorProperty();
-	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const;
-	virtual void RefreshChildren();
+	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const override;
+	virtual void RefreshChildren() override;
 	void updateImage();
-	virtual wxString ValueToString(wxVariant& value, int argFlags) const;
-	virtual bool StringToValue(wxVariant& variant, const wxString& text, int argFlags = 0) const;
-	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event);
+	virtual wxString ValueToString(wxVariant& value, int argFlags) const override;
+	virtual bool StringToValue(wxVariant& variant, const wxString& text, int argFlags = 0) const override;
+	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event) override;
 private:
 	wxImage image;
 	wxBitmap* bitmap;
@@ -107,7 +107,7 @@ class ButtonProperty : public wxStringProperty // if we use wxPGProperty, value 
 public:
 	ButtonProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, rr_ed::SVFrame* svframe = nullptr, int menuItem = 0);
 	void updateImage();
-	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event);
+	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event) override;
 private:
 	int menuItem;
 	rr_ed::SVFrame* svframe;
@@ -212,8 +212,8 @@ class LocationProperty : public wxPGProperty
 public:
 	LocationProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, int precision = -1, const RRVec2& latitudeLongitude = RRVec2(0));
 	~LocationProperty();
-	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const;
-	virtual void RefreshChildren();
+	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const override;
+	virtual void RefreshChildren() override;
 private:
 	const wxChar** cityStrings;
 	long* cityValues;
