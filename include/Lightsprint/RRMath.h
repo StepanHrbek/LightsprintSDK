@@ -54,8 +54,12 @@
 #include <cfloat>
 #include <cmath>
 
+#if __clang_major__ > 18
+	// clang 17 distributed as a visual studio 2022 toolset warns about strdup, use _strdup
+	// clang 19 distributed as an emsdk compiler does not know _strdup, use strdup
+	#define _strdup strdup
+#endif
 #if defined(__GNUC__) || defined(__clang__)
-#define _strdup strdup
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
 	#define __cdecl
 #endif
