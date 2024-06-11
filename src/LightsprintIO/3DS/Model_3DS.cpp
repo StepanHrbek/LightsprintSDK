@@ -292,20 +292,20 @@ void Model_3DS::Draw(
 
 			/*glpushmatrix();
 
-				// move the model
-				gltranslatef(Objects[i].pos.x, Objects[i].pos.y, Objects[i].pos.z);
+			// move the model
+			gltranslatef(Objects[i].pos.x, Objects[i].pos.y, Objects[i].pos.z);
 
-				// Rotate the model
-				//glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);
-				//glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
-				//glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
+			// Rotate the model
+			//glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);
+			//glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
+			//glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
 
-				glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
-				glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
-				glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);*/
+			glRotatef(Objects[i].rot.z, 0.0f, 0.0f, 1.0f);
+			glRotatef(Objects[i].rot.y, 0.0f, 1.0f, 0.0f);
+			glRotatef(Objects[i].rot.x, 1.0f, 0.0f, 0.0f);*/
 
-				// Draw the faces using an index to the vertex array
-				glDrawElements(GL_TRIANGLES, Objects[i].MatFaces[j].numSubFaces, GL_UNSIGNED_SHORT, Objects[i].MatFaces[j].subFaces);
+			// Draw the faces using an index to the vertex array
+			glDrawElements(GL_TRIANGLES, Objects[i].MatFaces[j].numSubFaces, GL_UNSIGNED_SHORT, Objects[i].MatFaces[j].subFaces);
 
 			//glPopMatrix();
 		}
