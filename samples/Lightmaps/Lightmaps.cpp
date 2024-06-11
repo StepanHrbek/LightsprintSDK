@@ -452,7 +452,6 @@ int main(int argc, char** argv)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
-		unsigned numVertices = solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
 		// offline per-pixel
 		unsigned res = 16;
 		float sizeFactor = 5;
