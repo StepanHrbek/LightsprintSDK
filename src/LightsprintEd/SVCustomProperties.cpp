@@ -220,7 +220,7 @@ wxString HDRColorProperty::ValueToString(wxVariant& value, int argFlags) const
 	//return L"\u2588\u2588\u2588";
 }
 
-bool HDRColorProperty::StringToValue(wxVariant& variant, const wxString& text, int argFlags)
+bool HDRColorProperty::StringToValue(wxVariant& variant, const wxString& text, int argFlags) const
 {
 	return false;
 }

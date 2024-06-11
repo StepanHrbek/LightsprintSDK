@@ -84,7 +84,7 @@ public:
 	virtual void RefreshChildren();
 	void updateImage();
 	virtual wxString ValueToString(wxVariant& value, int argFlags) const;
-	virtual bool StringToValue(wxVariant& variant, const wxString& text, int argFlags);
+	virtual bool StringToValue(wxVariant& variant, const wxString& text, int argFlags = 0) const;
 	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event);
 private:
 	wxImage image;
