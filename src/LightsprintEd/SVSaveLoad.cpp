@@ -247,6 +247,7 @@ unsigned ImportParameters::getUpAxis(const wxString& filename) const
 //
 // UserPreferences save/load
 
+#ifdef RR_LINKS_BOOST
 static wxString suggestPreferencesDirectory()
 {
 	return wxStandardPaths::Get().GetUserDataDir()+"/Lightsprint";
@@ -256,6 +257,7 @@ static wxString suggestPreferencesFilename()
 {
 	return suggestPreferencesDirectory() + "/SceneViewer.prefs";
 }
+#endif
 
 bool UserPreferences::save() const
 {
