@@ -6,12 +6,15 @@ OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(patsubst ../%,xx
 CPP_FLAGS += $(addprefix -I, $(INC_DIRS))
 LINK_FLAGS += $(addprefix -L, $(LIB_DIRS))
 
+# when TARGET links LIBS, we want it to depend on them, to relink when they change
+# but LIBS contains also commandline switches like -lGL
+# here we try to filter them out, keep only what we think are valid path/filename
+LIB_FILES = $(filter ../../$(LIB_DIR)/%,$(LIBS))
+
 # build executable
 
 ifeq ($(CFG_TYPE), exe)
-#warning: when using static lib, next line does not request .exe rebuild after lib change
-#         adding $(LIBS) is too broad, we need subset of $(LIBS), only Lightsprint ones
-$(TARGET):: $(CFG_DIR)/current $(OBJECTS)
+$(TARGET):: $(CFG_DIR)/current $(OBJECTS) $(LIB_FILES)
 	@mkdir -p $(dir $@)
 	$(CXX) -o $@ $(LINK_FLAGS) $(OBJECTS) $(LIBS)
 endif
@@ -29,7 +32,7 @@ endif
 
 ifeq ($(CFG_TYPE), dll)
 CPP_FLAGS += -fpic
-$(TARGET):: $(CFG_DIR)/current $(OBJECTS)
+$(TARGET):: $(CFG_DIR)/current $(OBJECTS) $(LIB_FILES)
 	@mkdir -p $(dir $@)
 	$(CXX) -o $@ -shared $(LINK_FLAGS) $(OBJECTS) $(LIBS)
 endif
