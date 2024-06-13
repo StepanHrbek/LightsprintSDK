@@ -17,11 +17,11 @@
 // Why portaudio?
 // a) fmod... no, i had it working in lightsmark, but binary blob is ugly
 // b) generic audio callback, so that user can plug any backend... no, nice but too complicated
-// c) sdl... no, it has the best samples, but it's not just audio, has many dependencies
+// c) sdl... no, it has the best samples, but it's not just audio, has many dependencies. emscripten official port
 // d) sfml... no, it can replace glut in my samples, but it's not just audio, has many dependencies. also missing in macports
 // e) libao... good, gpl
-// f) openal... good, lgpl
-// g) portaudio... good, mit
+// f) openal... good, lgpl. emscripten native
+// g) portaudio... good, mit. emscripten unofficial port
 //
 // Note that Lightsprint SDK contains also RRBufferDirectShow, video playback using DirectShow.
 // --------------------------------------------------------------------------
