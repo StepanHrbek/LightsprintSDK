@@ -33,7 +33,7 @@ ED_DEPS = \
 ED_LIB = ../../$(LIB_DIR)/$(CONFIG)/libLightsprintEd.$(LIB_EXT)
 ED_LIBS = $(ED_DEPS) $(ED_LIB)
 
-IO_DEPS =
+IO_DEPS = --use-port=sdl2_image:formats=png,jpg --use-preload-plugins
 IO_LIB = ../../$(LIB_DIR)/$(CONFIG)/libLightsprintIO.$(LIB_EXT)
 IO_LIBS = $(IO_DEPS) $(IO_LIB)
 

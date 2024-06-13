@@ -479,6 +479,7 @@
     <ClCompile Include="Lightsprint\portable_binary_oarchive.cpp" />
     <ClCompile Include="Lightsprint\RRObjectLightsprint.cpp" />
     <ClCompile Include="IO.cpp" />
+    <ClCompile Include="SDL_image\ImportSDL_image.cpp" />
     <ClCompile Include="SmallLuxGpu\SmallLuxGpu.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -1116,6 +1117,7 @@
     <ClInclude Include="Lightsprint\RRObjectLightsprint.h" />
     <ClInclude Include="Lightsprint\RRSerialization.h" />
     <ClInclude Include="..\..\include\Lightsprint\IO\IO.h" />
+    <ClInclude Include="SDL_image\ImportSDL_image.h" />
     <ClInclude Include="SmallLuxGpu\SmallLuxGpu.h" />
     <ClInclude Include="supported_formats.h" />
   </ItemGroup>

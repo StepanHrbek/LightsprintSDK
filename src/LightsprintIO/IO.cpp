@@ -11,6 +11,7 @@
 
 #include "supported_formats.h"
 #include "FreeImage/ImportFreeImage.h"
+#include "SDL_image/ImportSDL_image.h"
 #include "FFmpeg/RRBufferFFmpeg.h"
 #include "DirectShow/RRBufferDirectShow.h"
 #include "Lightsprint/RRObjectLightsprint.h"
@@ -33,6 +34,10 @@ if (phase==0 || phase==1)
 
 #ifdef SUPPORT_FREEIMAGE
 	registerLoaderFreeImage();
+#endif
+
+#ifdef SUPPORT_SDL_IMAGE
+	registerLoaderSDL_image();
 #endif
 
 #ifdef SUPPORT_LIGHTSPRINT

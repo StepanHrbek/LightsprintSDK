@@ -17,6 +17,8 @@ NEWS
   - install or checkout emsdk
   - build with emscripten's <code>emmake make</code> (if necessary, prepare environment with emsdk_env)
   - this is work in progress, early phase, only the simplest console samples work
+- added image import using SDL_image
+  - intended primarily for web target, not as complete as FreeImage integration
 - added RR_DEBUG(a) as a shortcut for <code>#ifdef _DEBUG a #endif</code>
 
 CHANGES

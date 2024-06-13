@@ -19,6 +19,7 @@
 #define SUPPORT_QUAKE3      // Quake 3 .bsp
 #define SUPPORT_MGF         // Materials and Geometry Format .mgf
 #define SUPPORT_FREEIMAGE   // jpg, png, gif, tga, bmp, pcx, dds, hdr, exr, tif, ico etc
+//#define SUPPORT_SDL_IMAGE   // jpg, png, gif, tga, bmp, pcx, LBM, PNM (PPM/PGM/PBM), QOI, XCF, XPM etc
 #define SUPPORT_LIBAV       // avi, wmv, mpg, mp3 etc
 //#define SUPPORT_FFMPEG      // avi, wmv, mpg, mp3 etc
 #define SUPPORT_DIRECTSHOW  // avi, wmv, mpg, c@pture etc (mostly obsoleted by FFmpeg/libav)
@@ -33,9 +34,10 @@
 	#undef SUPPORT_LIGHTSPRINT
 #endif
 
-// In EMscripten, disable big libs
+// In EMscripten, use SDL instead of FreeImage, disable big libs
 #ifdef __EMSCRIPTEN__
 	#undef SUPPORT_FREEIMAGE
+	#define SUPPORT_SDL_IMAGE
 	#undef SUPPORT_OPENCOLLADA
 	#undef SUPPORT_ASSIMP
 	#undef SUPPORT_LIBAV

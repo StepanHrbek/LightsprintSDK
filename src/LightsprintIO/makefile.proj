@@ -248,6 +248,7 @@ OpenCollada/GeneratedSaxParser/src/GeneratedSaxParserStackMemoryManager.cpp \
 OpenCollada/GeneratedSaxParser/src/GeneratedSaxParserUtils.cpp \
 Quake3/Q3Loader.cpp \
 Quake3/RRObjectBSP.cpp \
+SDL_image/ImportSDL_image.cpp \
 IO.cpp
 
 # libraries
