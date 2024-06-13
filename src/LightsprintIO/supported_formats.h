@@ -18,9 +18,9 @@
 #define SUPPORT_ASSIMP      // Assimp dae 3ds x prj md2 md3 md5 ply mdl ase ask hmp smd vta mdc stl lwo lxo dxf nff enff raw off ac acc ac3d bvh xml irrmesh xml irr q3o q3s b3d ter csm 3d uc lws mot ndo pk3 blend
 #define SUPPORT_QUAKE3      // Quake 3 .bsp
 #define SUPPORT_MGF         // Materials and Geometry Format .mgf
-#define SUPPORT_FREEIMAGE   // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
+#define SUPPORT_FREEIMAGE   // jpg, png, gif, tga, bmp, pcx, dds, hdr, exr, tif, ico etc
 #define SUPPORT_LIBAV       // avi, wmv, mpg, mp3 etc
-//#define SUPPORT_FFMPEG    // avi, wmv, mpg, mp3 etc
+//#define SUPPORT_FFMPEG      // avi, wmv, mpg, mp3 etc
 #define SUPPORT_DIRECTSHOW  // avi, wmv, mpg, c@pture etc (mostly obsoleted by FFmpeg/libav)
 //#define SUPPORT_OBJ       // Wavefront .obj (obsoleted by Assimp)
 #define SUPPORT_ISOLATION   // makes scene import run in isolated process
@@ -31,6 +31,15 @@
 // Lightsprint fileformats require boost serialization.
 #ifndef RR_LINKS_BOOST
 	#undef SUPPORT_LIGHTSPRINT
+#endif
+
+// In EMscripten, disable big libs
+#ifdef __EMSCRIPTEN__
+	#undef SUPPORT_FREEIMAGE
+	#undef SUPPORT_OPENCOLLADA
+	#undef SUPPORT_ASSIMP
+	#undef SUPPORT_LIBAV
+	#undef SUPPORT_FFMPEG
 #endif
 
 // DirectShow exists only in Windows.
