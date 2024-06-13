@@ -18,23 +18,23 @@ C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++17 from CPP_FLAGS
 CPP_FLAGS += -std=c++17 # filesystem
 
 CORE_DEPS =
-CORE_LIB = ../../$(LIB_DIR)/$(CONFIG)/libLightsprintCore.$(LIB_EXT)
-CORE_LIBS = $(CORE_DEPS) $(CORE_LIB)
+CORE_LIBS = $(CORE_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintCore.$(LIB_EXT)
 
 GL_DEPS = \
 	-lGL \
 	-lGLEW
-GL_LIB = ../../$(LIB_DIR)/$(CONFIG)/libLightsprintGL.$(LIB_EXT)
-GL_LIBS = $(GL_DEPS) $(GL_LIB)
+GL_LIBS = $(GL_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintGL.$(LIB_EXT)
 
 ED_DEPS = \
 	-lGLU \
 	`wx-config --libs aui,gl,propgrid`
-ED_LIB = ../../$(LIB_DIR)/$(CONFIG)/libLightsprintEd.$(LIB_EXT)
-ED_LIBS = $(ED_DEPS) $(ED_LIB)
+ED_LIBS = $(ED_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintEd.$(LIB_EXT)
 
 IO_DEPS = --use-port=sdl2_image:formats=png,jpg --use-preload-plugins
-IO_LIB = ../../$(LIB_DIR)/$(CONFIG)/libLightsprintIO.$(LIB_EXT)
-IO_LIBS = $(IO_DEPS) $(IO_LIB)
+IO_LIBS = $(IO_DEPS) \
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintIO.$(LIB_EXT)
 
 CXX += --use-port=boost_headers 
