@@ -350,7 +350,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		}
 
 		// continue path
-		float r = rand()/(float)RAND_MAX;
+		float r = RR_RAND01;
 		if (// terminate by russian roulette?
 			r<probabilityDiff+probabilitySpec+probabilityTran
 			// terminate by max depth?
@@ -363,7 +363,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			float intensity = (probabilityDiff+probabilitySpec+probabilityTran+probabilityStop) / ( (r<probabilityDiff) ? probabilityDiff : ( (r<probabilityDiff+probabilitySpec) ? probabilitySpec : probabilityTran ) );
 
 			// select ray
-			material.sampleResponse(response,RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX)),brdfType);
+			material.sampleResponse(response,RRVec3(RR_RAND01,RR_RAND01,RR_RAND01),brdfType);
 
 			// if it is good
 			if (response.pdf>0 // not invalid

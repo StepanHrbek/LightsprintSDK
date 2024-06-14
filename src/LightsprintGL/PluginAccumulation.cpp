@@ -101,7 +101,7 @@ public:
 			//  1/(1+accumulatedBrightness) = intensity first clamped at 1 but increases later, bright spots create bokeh. no banding at first, but it shows up after long time
 			const float brightnessAdjustment = (numAccumulatedFrames<7)
 				? 1/(1.f+numAccumulatedFrames)
-				: 0.1f*(rand()+RAND_MAX)/RAND_MAX;
+				: 0.1f*(RR_RAND01+1);
 	
 			// render to colorMap (c^2.2 * brightnessAdjustment^2.2)
 			colorMap->reset(false,false,_sp.srgbCorrect);

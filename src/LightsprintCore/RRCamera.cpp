@@ -242,16 +242,16 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 		superMesh->getVertex(rand()%numVertices,pos);
 		for (unsigned j=0;j<3;j++)
 			if (!std::isfinite(pos[j]))
-				pos[j] = mini[j] + (maxi[j]-mini[j])*(rand()/float(RAND_MAX));
+				pos[j] = mini[j] + (maxi[j]-mini[j])*RR_RAND01;
 		RRVec3 dir = (center-pos).normalizedSafe();
-		pos += dir*_maxdist* ((rand()-RAND_MAX/2)/(RAND_MAX*1.f)); // -0.5 .. 0.5
+		pos += dir*_maxdist*(RR_RAND01-0.5f); // -0.5 .. 0.5
 
 		// measure quality (=number of unique triangles hit by 100 rays)
 		hitTriangles.clear();
 		for (unsigned j=0;j<100;j++)
 		{
 			ray.rayOrigin = pos;
-			ray.rayDir = ( dir + RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX))-RRVec3(0.5f) ).normalized();
+			ray.rayDir = ( dir + RRVec3(RR_RAND01,RR_RAND01,RR_RAND01)-RRVec3(0.5f) ).normalized();
 			ray.rayLengthMax = _maxdist;
 			ray.rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
 			ray.hitObject = _solver->getMultiObject();
@@ -1072,7 +1072,7 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir, boo
 		{
 			// randomize ray according to apertureDiameter and default bokeh shape [#48]
 		more_samples_needed:
-			rr::RRVec3 offsetInBuffer = rr::RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),0); // 0..1
+			rr::RRVec3 offsetInBuffer = rr::RRVec3(RR_RAND01,RR_RAND01,0); // 0..1
 			rr::RRVec2 a(offsetInBuffer.x*2-1,offsetInBuffer.y*2-1);
 			if (a.length2()>1) // sample is not inside default bokeh shape (circle)
 				goto more_samples_needed;

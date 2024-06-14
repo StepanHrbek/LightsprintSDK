@@ -2347,7 +2347,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				glVertex3fv(&SVRayLog::log[i].begin[0]);
 				glColor3ub(0,0,0);
 				//glVertex3fv(&SVRayLog::log[i].end[0]);
-				glVertex3f(SVRayLog::log[i].end[0]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[1]+rand()/(100.0f*RAND_MAX),SVRayLog::log[i].end[2]+rand()/(100.0f*RAND_MAX));
+				glVertex3f(SVRayLog::log[i].end[0]+0.01f*RR_RAND01,SVRayLog::log[i].end[1]+0.01f*RR_RAND01,SVRayLog::log[i].end[2]+0.01f*RR_RAND01);
 			}
 			glEnd();
 		}

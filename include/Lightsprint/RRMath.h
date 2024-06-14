@@ -77,6 +77,7 @@
 #define RR_CLAMP(a,min,max)   (a)=RR_CLAMPED(a,min,max)
 #define RR_FLOAT2BYTE(f)      RR_CLAMPED(int((f)*256),0,255)
 #define RR_BYTE2FLOAT(b)      ((b)*0.003921568627450980392156862745098f)
+#define RR_RAND01             (float(rand())/float(RAND_MAX))
 
 namespace rr /// LightsprintCore - graphics API independent realtime global illumination solver.
 {

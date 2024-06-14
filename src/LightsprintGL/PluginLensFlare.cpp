@@ -126,9 +126,9 @@ public:
 		for (unsigned i=0;i<numSecondaryFlares;i++)
 		{
 			rr::RRVec4 color(0);
-			color[rand()%3] = rand()*1.2f/RAND_MAX;
+			color[rand()%3] = 1.2f*RR_RAND01;
 			size = baseSize * (float)(1+(rand()%5));
-			center -= _lightPositionInWindow*(rand()*2.0f/RAND_MAX);
+			center -= _lightPositionInWindow*(2*RR_RAND01);
 			topleft = center-size/2;
 			unsigned mapIndex = rand()%NUM_SECONDARY_MAPS;
 			if (secondaryMap[mapIndex])
@@ -183,7 +183,7 @@ public:
 
 						for (unsigned i=0;i<RR_MAX(pp.quality,1);i++)
 						{
-							ray.rayDir = ( rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.02f - light->direction.normalized() ).normalized();
+							ray.rayDir = ( rr::RRVec3(RR_RAND01-0.5f,RR_RAND01-0.5f,RR_RAND01-0.5f)*0.02f - light->direction.normalized() ).normalized();
 							ray.hitObject = pp.scene; // we set hitObject for colliders that don't set it
 							pp.collider->intersect(ray);
 							transparencySum += collisionHandlerTransparency->transparency;

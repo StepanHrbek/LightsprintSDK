@@ -99,7 +99,7 @@ public:
 			unsigned numSamples = 0;
 			float sampledSum = 0;
 		more_samples_needed:
-			rr::RRVec3 offsetInBuffer = rr::RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),0); // 0..1
+			rr::RRVec3 offsetInBuffer = rr::RRVec3(RR_RAND01,RR_RAND01,0); // 0..1
 			if (bokehBuffer)
 			{
 				sampledSum += bokehBuffer->getElementAtPosition(offsetInBuffer,nullptr,false).RRVec3::avg();
