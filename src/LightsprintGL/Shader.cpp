@@ -23,7 +23,8 @@ namespace rr_gl
 
 Shader* Shader::create(const char* defines, const rr::RRString& filename, GLenum shaderType)
 {
-	#define SHADOW_HACK "#version 300\n#define shadow2D(a,b) vec4(texture(a,b))\n#define shadow2DProj(a,b) vec4(textureProj(a,b))\n#define textureCube texture\n"
+	#define SHADOW_HACK "#version 100\n#define sampler2DShadow sampler2D\n#define shadow2D(a,b) vec4(texture2D(a,vec2(b)))\n#define shadow2DProj(a,b) vec4(texture2DProj(a,b))\n"
+	//#define SHADOW_HACK "#version 300\n#define shadow2D(a,b) vec4(texture(a,b))\n#define shadow2DProj(a,b) vec4(textureProj(a,b))\n#define textureCube texture\n"
 	//#define SHADOW_HACK "#extension GL_EXT_shadow_samplers : require\n#define shadow2D(a,b) vec4(shadow2DEXT(a,b))\n#define shadow2DProj(a,b) vec4(shadow2DProjEXT(a,b))\n"
 	const char* source[NUM_LINES];
 #ifdef RR_GL_ES2
