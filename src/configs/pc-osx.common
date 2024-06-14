@@ -84,3 +84,5 @@ IO_LIBS = \
 GLUT_LIB = \
 	-framework GLUT
 
+GLFW_LIB = \
+	-lglfw

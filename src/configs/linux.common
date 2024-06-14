@@ -59,3 +59,5 @@ IO_LIBS = \
 GLUT_LIB = \
 	-lglut
 
+GLFW_LIB = \
+	-lglfw3
