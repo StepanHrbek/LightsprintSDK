@@ -230,7 +230,9 @@ void Model_3DS::Draw(
 
 #ifndef RR_IO_BUILD
 
+#ifndef RR_GL_ES2
 	glShadeModel(GL_SMOOTH);
+#endif
 	/*glPushMatrix();
 
 	// Move the model
@@ -259,7 +261,9 @@ void Model_3DS::Draw(
 		}
 		else
 		{
+#ifndef RR_GL_ES2
 			glColor3f(0,0,0);
+#endif
 		}
 
 		// Enable texture coordiantes, normals, and vertices arrays
