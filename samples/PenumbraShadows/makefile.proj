@@ -25,6 +25,28 @@ PenumbraShadows.cpp \
 DynamicObject.cpp \
 ../../src/LightsprintIO/3DS/Model_3DS.cpp
 
+# data files / virtual filesystem
+
+ifeq ($(CONFIG),web)
+DATA_FILES = \
+	shaders \
+	scenes\koupelna\koupelna4.3DS \
+	scenes\koupelna\CERVENA.JPG \
+	scenes\koupelna\DRV.JPG \
+	scenes\koupelna\glass.png \
+	scenes\koupelna\PODLAHA.JPG \
+	scenes\koupelna\ZED.JPG \
+	scenes\koupelna\ZED_MOD.JPG \
+	scenes\koupelna\ZED_ZEL.JPG \
+	objects\potato \
+	objects\I_Robot_female.3ds \
+	maps\spot0.png
+# convert each [file] in this list to --preload-file ../../data/[file]@data/[file]
+#  necessary, because virtual filesystem we build is rooted in current directory, it fails if file is outside
+#  luckily, when c++ code looks for "../../data/file", virtual filesystem finds it in "data/file"
+LINK_FLAGS += $(subst ::, ,$(join $(patsubst %,--preload-file::../../data/%@data/,$(DATA_FILES)),$(DATA_FILES)))
+endif
+
 # libraries
 
 LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB)
