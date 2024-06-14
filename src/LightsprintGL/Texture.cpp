@@ -22,7 +22,7 @@
 namespace rr_gl
 {
 
-// RR_GL_ES2 platforms (Android..) are ES 2.0 only, the rest (Windows..) can be switched
+// RR_GL_ES2 platforms (web, Android..) are ES 2.0 only, the rest (Windows..) can be switched
 #ifndef RR_GL_ES2
 	bool s_es = false;
 #endif
@@ -509,15 +509,23 @@ const char* initializeGL(bool enableGLStateCaching)
 
 	// check gl version
 	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
+	rr::RRReporter::report(rr::INF2, "GLSL %s.\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	int major, minor;
-#ifndef RR_GL_ES2
+#ifdef RR_GL_ES2
+	// check for ES only
+	if (sscanf((char*)glGetString(GL_VERSION), "OpenGL ES %d.%d", &major, &minor) != 2 || major < 2)
+	{
+		return "Your system does not support OpenGL ES 2.0.\n";
+	}
+#else
+	// check for ES, then non-ES
 	s_es = sscanf((char*)glGetString(GL_VERSION),"OpenGL ES %d.%d",&major,&minor)==2 && major>=2;
 	if (!s_es)
-#endif
 	if ((sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2))
 	{
-		return "Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
+		return "Your system does not support OpenGL 2.0 nor OpenGL ES 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
 	}
+#endif
 
 	// check FBO
 	if (!GLEW_ARB_framebuffer_object) // added in GL 3.0
