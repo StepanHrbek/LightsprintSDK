@@ -38,12 +38,11 @@
 #include "Lightsprint/RRDebug.h"
 #include "DynamicObject.h"
 #include "Lightsprint/IO/IO.h"
-#ifdef __APPLE__
-	#include <GLUT/glut.h>
-	#include <ApplicationServices/ApplicationServices.h>
-#else
-	#include <GL/glut.h>
+#ifdef __EMSCRIPTEN__
+	#include <emscripten.h> // emscripten_set_main_loop
 #endif
+#include <GLFW/glfw3.h>
+#pragma comment(lib,"glfw3.lib")
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -63,7 +62,7 @@ void error(const char* message, bool gfxRelated)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// globals are ugly, but required by GLUT design with callbacks
+// globals are ugly, but required by GLFW design with callbacks
 
 Model_3DS                  m3ds;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
@@ -159,7 +158,12 @@ void updateShadowmap(unsigned mapIndex)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// GLUT callbacks
+// GLFW callbacks
+
+void error_callback(int error, const char* description)
+{
+	rr::RRReporter::report(rr::ERRO, "%d %s\n", error, description);
+}
 
 void display(void)
 {
@@ -180,46 +184,22 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	renderScene(eye,uberProgramSetup);
-
-	glutSwapBuffers();
 }
 
-void special(int c, int x, int y)
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	switch(c) 
+	int speed = (action == GLFW_PRESS || action == GLFW_REPEAT) ? 1 : 0;
+	switch (key)
 	{
-		case GLUT_KEY_UP: speedForward = 1; break;
-		case GLUT_KEY_DOWN: speedBack = 1; break;
-		case GLUT_KEY_LEFT: speedLeft = 1; break;
-		case GLUT_KEY_RIGHT: speedRight = 1; break;
+		case GLFW_KEY_UP: speedForward = speed; break;
+		case GLFW_KEY_DOWN: speedBack = speed; break;
+		case GLFW_KEY_LEFT: speedLeft = speed; break;
+		case GLFW_KEY_RIGHT: speedRight = speed; break;
+		case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(window, GLFW_TRUE); break;
 	}
 }
 
-void specialUp(int c, int x, int y)
-{
-	switch(c) 
-	{
-		case GLUT_KEY_UP: speedForward = 0; break;
-		case GLUT_KEY_DOWN: speedBack = 0; break;
-		case GLUT_KEY_LEFT: speedLeft = 0; break;
-		case GLUT_KEY_RIGHT: speedRight = 0; break;
-	}
-}
-
-void keyboard(unsigned char c, int x, int y)
-{
-	switch (c)
-	{
-		case 27:
-			// immediate exit without freeing memory, leaks may be reported
-			// see e.g. RealtimeLights sample for freeing memory before exit
-			// ok, at least textures need to be freed from video memory, otherwise debug version complains
-			rr_gl::deleteAllTextures();
-			exit(0);
-	}
-}
-
-void reshape(int w, int h)
+void reshape_callback(GLFWwindow* window, int w, int h)
 {
 	winWidth = w;
 	winHeight = h;
@@ -230,30 +210,27 @@ void reshape(int w, int h)
 	glPolygonOffset(4,10000);
 }
 
-void mouse(int button, int state, int x, int y)
+void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		modeMovingEye = !modeMovingEye;
 }
 
-void passive(int x, int y)
+void mouseposition_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (!winWidth || !winHeight) return;
-	RR_LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
-	x -= winWidth/2;
-	y -= winHeight/2;
-	if (x || y)
+	RR_LIMITED_TIMES(1, \
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); \
+		glfwSetCursorPos(window, 0, 0); \
+		return; );
+	if (xpos || ypos)
 	{
-#if defined(LINUX) || defined(linux)
-		const float mouseSensitivity = 0.0002f;
-#else
 		const float mouseSensitivity = 0.005f;
-#endif
 		rr::RRCamera& cam = modeMovingEye ? eye : *realtimeLight->getCamera();
-		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
+		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(xpos,ypos,0)*mouseSensitivity;
 		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		cam.setYawPitchRollRad(yawPitchRollRad);
-		glutWarpPointer(winWidth/2,winHeight/2);
+		glfwSetCursorPos(window, 0, 0);
 	}
 }
 
@@ -270,8 +247,13 @@ void idle()
 		+ cam->getDirection() * ((speedForward-speedBack)*seconds)
 		+ cam->getRight() * ((speedRight-speedLeft)*seconds)
 		);
+}
 
-	glutPostRedisplay();
+void main_loop()
+{
+	idle();
+	display();
+	glfwPollEvents();
 }
 
 
@@ -286,27 +268,23 @@ int main(int argc, char** argv)
 
 	rr_io::registerIO(argc,argv);
 
-	// init GLUT
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
-	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint Penumbra Shadows"); // for windowed mode
-	glutSetCursor(GLUT_CURSOR_NONE);
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(special);
-	glutSpecialUpFunc(specialUp);
-	glutReshapeFunc(reshape);
-	glutMouseFunc(mouse);
-	glutPassiveMotionFunc(passive);
-	glutIdleFunc(idle);
-#ifdef __APPLE__
-//	OSX kills events ruthlessly
-//	see http://stackoverflow.com/questions/728049/glutpassivemotionfunc-and-glutwarpmousepointer
-	CGSetLocalEventsSuppressionInterval(0.0);
-//	CGEventSourceRef eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);//kCGEventSourceStateHIDSystemState);
-//	CGEventSourceSetLocalEventsSuppressionInterval(eventSource, 0.0);
+	// init GLFW
+	glfwSetErrorCallback(error_callback);
+	if (!glfwInit())
+		error("glfwInit() failed.", true);
+	GLFWwindow* window;
+	window = glfwCreateWindow(800, 600, "Lightsprint Penumbra Shadows", NULL, NULL);
+	if (!window)
+		error("glfwCreateWindow() failed.", true);
+	glfwMakeContextCurrent(window);
+	glfwGetFramebufferSize(window, &winWidth, &winHeight);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, mousebutton_callback);
+#ifndef __EMSCRIPTEN__
+	// glfw-emscripten did not yet implement cursor locking
+	glfwSetCursorPosCallback(window, mouseposition_callback);
 #endif
+	glfwSetFramebufferSizeCallback(window, reshape_callback);
 
 	// init GL
 	const char* err = rr_gl::initializeGL(true);
@@ -327,7 +305,7 @@ int main(int argc, char** argv)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	unsigned shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 	if (!shadowmapsPerPass) error("",true);
-	
+
 	// init textures
 	environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
@@ -346,6 +324,15 @@ int main(int argc, char** argv)
 	realtimeLight = new rr_gl::RealtimeLight(*rrlight);
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 
-	glutMainLoop();
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(main_loop, 0, true);
+#else
+	while (!glfwWindowShouldClose(window))
+	{
+		main_loop();
+		glfwSwapBuffers(window);
+	}
+#endif
+
 	return 0;
 }
