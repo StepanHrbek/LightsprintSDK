@@ -1248,6 +1248,199 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// cubemap
+
+static void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, unsigned iofs, unsigned jofs, unsigned blockWidth, unsigned blockHeight, unsigned widthOld, unsigned bytesPerPixel, bool flip = false)
+{
+	if (flip)
+		for (unsigned j = blockHeight; j--;)
+		{
+			for (unsigned i = blockWidth; i--;)
+			{
+				memcpy(dst, pixelsOld + ((jofs + j) * widthOld + iofs + i) * bytesPerPixel, bytesPerPixel);
+				dst += bytesPerPixel;
+			}
+		}
+	else
+		for (unsigned j = 0; j < blockHeight; j++)
+		{
+			memcpy(dst, pixelsOld + ((jofs + j) * widthOld + iofs) * bytesPerPixel, blockWidth * bytesPerPixel);
+			dst += blockWidth * bytesPerPixel;
+		}
+}
+
+// Shuffles pixels in array so that cross shaped 3:4 or 4:3 2d image turns into 6 planes of cubemap.
+// Returns true on success.
+static bool shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned& heightOld, unsigned bytesPerPixel)
+{
+	// quit when input is not 3:4 or 4:3 image (cross shape)
+	if (widthOld * 3 != heightOld * 4 && widthOld * 4 != heightOld * 3)
+	{
+		return false;
+	}
+
+	// quit when unused area in cross shape is not all the same color
+	bool cornersIdentical = true;
+	for (unsigned i = 0; i < bytesPerPixel; i++)
+		if (pixelsOld[i] != pixelsOld[widthOld * bytesPerPixel - bytesPerPixel + i] || pixelsOld[i] != pixelsOld[widthOld * (heightOld - 1) * bytesPerPixel + i] || pixelsOld[i] != pixelsOld[widthOld * heightOld * bytesPerPixel - bytesPerPixel + i])
+			cornersIdentical = false;
+	if (!cornersIdentical)
+	{
+		return false;
+	}
+
+	// alloc new
+	unsigned widthNew = RR_MIN(widthOld, heightOld) / 3;
+	unsigned heightNew = RR_MAX(widthOld, heightOld) / 4;
+	unsigned char* pixelsNew = new unsigned char[widthNew * heightNew * bytesPerPixel * 6];
+
+	// shuffle from old to new
+	bool wide = widthOld > heightOld;
+	unsigned char* dst = pixelsNew;
+	if (wide)
+	{
+		shuffleBlock(dst, pixelsOld, widthNew * 3, 1 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // X+
+		shuffleBlock(dst, pixelsOld, widthNew * 1, 1 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // X-
+		shuffleBlock(dst, pixelsOld, widthNew * 2, 0 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // Y+
+		shuffleBlock(dst, pixelsOld, widthNew * 2, 2 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // Y-
+		shuffleBlock(dst, pixelsOld, widthNew * 2, 1 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // Z+
+		shuffleBlock(dst, pixelsOld, widthNew * 0, 1 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // Z-
+	}
+	else
+	{
+		shuffleBlock(dst, pixelsOld, widthNew * 2, 1 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // X+
+		shuffleBlock(dst, pixelsOld, widthNew * 0, 1 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // X-
+		shuffleBlock(dst, pixelsOld, widthNew * 1, 0 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // Y+
+		shuffleBlock(dst, pixelsOld, widthNew * 1, 2 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // Y-
+		shuffleBlock(dst, pixelsOld, widthNew * 1, 1 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel); // Z+
+		shuffleBlock(dst, pixelsOld, widthNew * 1, 3 * heightNew, widthNew, heightNew, widthOld, bytesPerPixel, true); // Z-
+	}
+
+	// replace old
+	delete[] pixelsOld;
+	pixelsOld = pixelsNew;
+	widthOld = widthNew;
+	heightOld = heightNew;
+	return true;
+}
+
+static unsigned getBytesPerPixel(RRBufferFormat format)
+{
+	switch (format)
+	{
+	case BF_RGB: return 3;
+	case BF_BGR: return 3;
+	case BF_RGBA: return 4;
+	case BF_RGBF: return 12;
+	case BF_RGBAF: return 16;
+	case BF_DEPTH: return 4;
+	case BF_LUMINANCE: return 1;
+	case BF_LUMINANCEF: return 4;
+	default: return 0;
+	}
+}
+
+// cube map loader
+static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const char* cubeSideName[6], const RRFileLocator* _fileLocator)
+{
+	unsigned width = 0;
+	unsigned height = 0;
+	RRBufferFormat format = BF_DEPTH;
+	bool scaled = true;
+	unsigned char* pixels = nullptr;
+	bool sixFiles = wcsstr(filenameMask.w_str(), L"%s") != nullptr;
+	if (!sixFiles)
+	{
+		// LOAD PIXELS FROM SINGLE FILE.HDR
+		RRBuffer* buffer = RRBuffer::load(filenameMask, nullptr, _fileLocator);
+		if (!buffer)
+		{
+			return false;
+		}
+		buffer->flip(true, true, false);
+		width = buffer->getWidth();
+		height = buffer->getHeight();
+		format = buffer->getFormat();
+		scaled = buffer->getScaled();
+		size_t bufferBytes = buffer->getBufferBytes();
+		pixels = new unsigned char[bufferBytes];
+		memcpy(pixels, buffer->lock(BL_READ), bufferBytes);
+		RR_SAFE_DELETE(buffer);
+		if (!shuffleCrossToCube(pixels, width, height, getBytesPerPixel(format)))
+		{
+			// In early days, we returned only cubes.
+			//delete[] pixels;
+			//RRReporter::report(WARN,"%s is 2d image, not a cubemap. Hint: provide 3:4 or 4:3 image or sequence of 6 images.\n",filenameMask);
+			//return false;
+
+			// Today we return also 2d image, hoping that it is 360*180 degree panorama.
+			texture->reset(BT_2D_TEXTURE, width, height, 1, format, scaled, pixels);
+			texture->flip(true, true, false);
+			delete[] pixels;
+			return true;
+		}
+	}
+	else
+	{
+		// LOAD PIXELS FROM SIX FILES
+		RRBuffer* buffer[6] = { nullptr,nullptr,nullptr,nullptr,nullptr,nullptr };
+		for (unsigned side = 0; side < 6; side++)
+		{
+			std::wstring buf = RR_RR2STDW(filenameMask);
+			buf.replace(buf.find(L"%s"), 2, RRString(cubeSideName[side]).w_str());
+
+			// did cube side load (using plain 2d loader)?
+			buffer[side] = RRBuffer::load(RR_STDW2RR(buf), nullptr, _fileLocator);
+			if (!buffer[side])
+			{
+				// potential memory leak
+				return false;
+			}
+			buffer[side]->flip(true, true, false);
+
+			if (!side)
+			{
+				width = buffer[side]->getWidth();
+				height = buffer[side]->getHeight();
+				format = buffer[side]->getFormat();
+				scaled = buffer[side]->getScaled();
+				// are cube sides square?
+				if (width != height)
+				{
+					// memory leak
+					return false;
+				}
+
+			}
+			else
+			{
+				// are all 6 sides the same size/format?
+				if (buffer[side]->getWidth() != width || buffer[side]->getHeight() != height || buffer[side]->getFormat() != format)
+				{
+					// memory leak
+					return false;
+				}
+			}
+		}
+
+		// pack 6 images into 1 array
+		// RGBA is expected here - warning: not satisfied when loading cube with 6 files and 96bit pixels
+		pixels = new unsigned char[width * height * getBytesPerPixel(format) * 6];
+		for (unsigned side = 0; side < 6; side++)
+		{
+			memcpy(pixels + width * height * getBytesPerPixel(format) * side, buffer[side]->lock(BL_READ), width * height * getBytesPerPixel(format));
+			RR_SAFE_DELETE(buffer[side]);
+		}
+	}
+
+	// load cube from 1 array
+	texture->reset(BT_CUBE_TEXTURE, width, height, 6, format, scaled, pixels);
+	delete[] pixels;
+	return true;
+}
+
 // sideeffect: plants %s into _filename
 static const char** selectCubeSideNames(std::wstring& _filename)
 {
@@ -1284,6 +1477,18 @@ RRBuffer* RRBuffer::loadCube(const RRString& _filename, const RRFileLocator* _fi
 	}
 	std::wstring filename = RR_RR2STDW(_filename);
 	const char** cubeSideNames = selectCubeSideNames(filename);
+	if (cubeSideNames)
+	{
+		RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER, 1, 1, 1, BF_RGBA, true, nullptr);
+		bool reloaded = reloadCube(buffer, RR_STDW2RR(filename), cubeSideNames, _fileLocator);
+		if (reloaded)
+		{
+			buffer->filename = _filename; // [#36] exact filename we just opened or failed to open (we don't have a locator -> no attempts to open similar names)
+			return buffer;
+		}
+		RR_SAFE_DELETE(buffer);
+	}
+	// fall back to 2d... is this what user wants?
 	return load(RR_STDW2RR(filename),cubeSideNames,_fileLocator);
 }
 
