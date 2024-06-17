@@ -530,7 +530,13 @@ const char* initializeGL(bool enableGLStateCaching)
 	// check FBO
 	if (!GLEW_ARB_framebuffer_object) // added in GL 3.0
 	{
+#ifdef __EMSCRIPTEN__
+		// continue even though necessary capability is missing
+		// this is temporary, just to see some semi-broken render with GL ES 2.0, before increasing requirements to GL ES 3.0
+		rr::RRReporter::report(rr::ERRO, "ARB_framebuffer_object not supported.\n");
+#else
 		return "GL_ARB_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
+#endif
 	}
 
 	// init "seamless cube maps" feature
