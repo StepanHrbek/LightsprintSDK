@@ -52,6 +52,10 @@ static RRBuffer* loadSDL_image(const RRString& filename, const char* cubeSideNam
 		return nullptr;
 	}
 	RRBuffer* buffer = RRBuffer::create(BT_2D_TEXTURE, surface->w, surface->h, 1, format->second, true, (const unsigned char*)surface->pixels);
+	if (buffer)
+	{
+		buffer->filename = filename; // [#36] exact filename we just opened or failed to open (we don't have a locator -> no attempts to open similar names)
+	}
 	SDL_FreeSurface(surface);
 	return buffer;
 }
