@@ -24,8 +24,10 @@ NEWS
 CHANGES
 
 - if you still load cubemaps with RRBuffer::load(), switch to RRBuffer::loadCube()
-  - existing cubemap import code has been copied from FreeImage integration to generic RRBuffer::loadCube() function,
+  - existing cubemap import code has been relocated from FreeImage integration to generic RRBuffer::loadCube() function,
     where it works even if you disable FreeImage and use SDL_image or DirectShow instead
+  - RRBuffer::load() does no longer load cubemaps (API still makes it possible, but our importers don't do it)
+  - RRBuffer::reload() does no longer reload cubemaps (API still makes it possible, but our importers don't do it)
 - nullptr->createXxx() will most likely crash, but it used to return nullptr.
   These and several other methods used to silently support being called on nullptr object.
   We used to define behavior in otherwise undefined behavior situations.

@@ -231,80 +231,6 @@ static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool fli
 //
 // RRBuffer load
 
-static void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, unsigned iofs, unsigned jofs, unsigned blockWidth, unsigned blockHeight, unsigned widthOld, unsigned bytesPerPixel, bool flip=false)
-{
-	if (flip)
-		for (unsigned j=blockHeight;j--;)
-		{
-			for (unsigned i=blockWidth;i--;)
-			{
-				memcpy(dst,pixelsOld+((jofs+j)*widthOld+iofs+i)*bytesPerPixel,bytesPerPixel);
-				dst += bytesPerPixel;
-			}
-		}
-	else
-		for (unsigned j=0;j<blockHeight;j++)
-		{
-			memcpy(dst,pixelsOld+((jofs+j)*widthOld+iofs)*bytesPerPixel,blockWidth*bytesPerPixel);
-			dst += blockWidth*bytesPerPixel;
-		}
-}
-
-// Shuffles pixels in array so that cross shaped 3:4 or 4:3 2d image turns into 6 planes of cubemap.
-// Returns true on success.
-static bool shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned& heightOld, unsigned bytesPerPixel)
-{
-	// quit when input is not 3:4 or 4:3 image (cross shape)
-	if (widthOld*3!=heightOld*4 && widthOld*4!=heightOld*3)
-	{
-		return false;
-	}
-
-	// quit when unused area in cross shape is not all the same color
-	bool cornersIdentical = true;
-	for (unsigned i=0;i<bytesPerPixel;i++)
-		if (pixelsOld[i]!=pixelsOld[widthOld*bytesPerPixel-bytesPerPixel+i] || pixelsOld[i]!=pixelsOld[widthOld*(heightOld-1)*bytesPerPixel+i] || pixelsOld[i]!=pixelsOld[widthOld*heightOld*bytesPerPixel-bytesPerPixel+i])
-			cornersIdentical = false;
-	if (!cornersIdentical)
-	{
-		return false;
-	}
-
-	// alloc new
-	unsigned widthNew = RR_MIN(widthOld,heightOld)/3;
-	unsigned heightNew = RR_MAX(widthOld,heightOld)/4;
-	unsigned char* pixelsNew = new unsigned char[widthNew*heightNew*bytesPerPixel*6];
-
-	// shuffle from old to new
-	bool wide = widthOld>heightOld;
-	unsigned char* dst = pixelsNew;
-	if (wide)
-	{
-		shuffleBlock(dst,pixelsOld,widthNew*3,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X+
-		shuffleBlock(dst,pixelsOld,widthNew*1,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X-
-		shuffleBlock(dst,pixelsOld,widthNew*2,0*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y+
-		shuffleBlock(dst,pixelsOld,widthNew*2,2*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y-
-		shuffleBlock(dst,pixelsOld,widthNew*2,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z+
-		shuffleBlock(dst,pixelsOld,widthNew*0,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z-
-	}
-	else
-	{
-		shuffleBlock(dst,pixelsOld,widthNew*2,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X+
-		shuffleBlock(dst,pixelsOld,widthNew*0,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // X-
-		shuffleBlock(dst,pixelsOld,widthNew*1,0*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y+
-		shuffleBlock(dst,pixelsOld,widthNew*1,2*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Y-
-		shuffleBlock(dst,pixelsOld,widthNew*1,1*heightNew,widthNew,heightNew,widthOld,bytesPerPixel); // Z+
-		shuffleBlock(dst,pixelsOld,widthNew*1,3*heightNew,widthNew,heightNew,widthOld,bytesPerPixel,true); // Z-
-	}
-
-	// replace old
-	delete[] pixelsOld;
-	pixelsOld = pixelsNew;
-	widthOld = widthNew;
-	heightOld = heightNew;
-	return true;
-}
-
 struct VBUHeader
 {
 	RRBufferFormat format:16; // 3 bytes
@@ -377,92 +303,12 @@ static bool reload2d(RRBuffer* texture, const RRString& filename)
 	}
 }
 
-// cube map loader
-static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const char* cubeSideName[6])
-{
-	unsigned width = 0;
-	unsigned height = 0;
-	RRBufferFormat format = BF_DEPTH;
-	bool scaled = true;
-	unsigned char* pixels = nullptr;
-	bool sixFiles = wcsstr(filenameMask.w_str(),L"%s")!=nullptr;
-	if (!sixFiles)
-	{
-		// LOAD PIXELS FROM SINGLE FILE.HDR
-		pixels = loadFreeImage(filenameMask,true,true,width,height,format,scaled);
-		if (!pixels)
-			return false;
-		if (!shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format)))
-		{
-			// In early days, we returned only cubes.
-			//delete[] pixels;
-			//RRReporter::report(WARN,"%s is 2d image, not a cubemap. Hint: provide 3:4 or 4:3 image or sequence of 6 images.\n",filenameMask);
-			//return false;
-
-			// Today we return also 2d image, hoping that it is 360*180 degree panorama.
-			texture->reset(BT_2D_TEXTURE,width,height,1,format,scaled,pixels);
-			texture->flip(true,true,false);
-			delete[] pixels;
-			return true;
-		}
-	}
-	else
-	{
-		// LOAD PIXELS FROM SIX FILES
-		unsigned char* sides[6] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
-		for (unsigned side=0;side<6;side++)
-		{
-			std::wstring buf = RR_RR2STDW(filenameMask);
-			buf.replace(buf.find(L"%s"),2,RRString(cubeSideName[side]).w_str());
-
-			unsigned tmpWidth, tmpHeight;
-			RRBufferFormat tmpFormat;
-
-			sides[side] = loadFreeImage(RR_STDW2RR(buf),true,true,tmpWidth,tmpHeight,tmpFormat,scaled);
-			if (!sides[side])
-				return false;
-
-			if (!side)
-			{
-				width = tmpWidth;
-				height = tmpHeight;
-				format = tmpFormat;
-			}
-			else
-			{
-				if (tmpWidth!=width || tmpHeight!=height || tmpFormat!=format || width!=height)
-					return false;
-			}
-			//unsigned int type;
-			//type = (channels == 3) ? GL_RGB : GL_RGBA;
-			//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
-			//gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side, type, width, height, type, GL_UNSIGNED_BYTE, pixels);
-		}
-
-		// pack 6 images into 1 array
-		// RGBA is expected here - warning: not satisfied when loading cube with 6 files and 96bit pixels
-		pixels = new unsigned char[width*height*getBytesPerPixel(format)*6];
-		for (unsigned side=0;side<6;side++)
-		{
-			memcpy(pixels+width*height*getBytesPerPixel(format)*side,sides[side],width*height*getBytesPerPixel(format));
-			RR_SAFE_DELETE_ARRAY(sides[side]);
-		}
-	}
-
-	// load cube from 1 array
-	texture->reset(BT_CUBE_TEXTURE,width,height,6,format,scaled,pixels);
-	delete[] pixels;
-	return true;
-}
-
 static RRBuffer* loadFreeImage(const RRString& filename, const char* cubeSideName[6])
 {
 	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,nullptr);
 	bool reloaded = (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
 		? reloadVertexBuffer(buffer,filename)
-		: (cubeSideName
-			? reloadCube(buffer,filename,cubeSideName)
-			: reload2d(buffer,filename) );
+		: reload2d(buffer,filename);
 	buffer->filename = filename; // [#36] exact filename we just opened or failed to open (we don't have a locator -> no attempts to open similar names)
 	if (!reloaded)
 		RR_SAFE_DELETE(buffer);
