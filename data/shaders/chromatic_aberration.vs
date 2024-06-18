@@ -1,7 +1,7 @@
 // RL - chromatic aberration effect (red shift)
 
-attribute vec2 vertexPosition;
-varying vec2 mapCoord;
+layout(location = 0) in vec2 vertexPosition;
+out vec2 mapCoord;
 
 void main()
 {

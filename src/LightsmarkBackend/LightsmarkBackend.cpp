@@ -250,7 +250,7 @@ void init_gl_resources()
 	uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
-	uberProgramSetup.LEGACY_GL = true;
+	//uberProgramSetup.LEGACY_GL = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
 	skyRenderer = new rr_gl::TextureRenderer("shaders/");

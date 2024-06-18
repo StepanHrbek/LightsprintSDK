@@ -23,6 +23,7 @@
 
 uniform vec4 color;
 uniform float gamma;
+out vec4 fragColor;
 
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
@@ -31,19 +32,18 @@ uniform float gamma;
 			uniform float fisheyeFovDeg;
 		#endif
 		#ifdef CUBE_TO_WARP
-			varying float intensity;
+			in float intensity;
 		#endif
 	#else
 		uniform sampler2D map;
 	#endif
 	#ifdef DIVIDE_UV_BY_W
-		varying vec3 uvw;
+		in vec3 uvw;
 	#else
-		varying vec2 uv;
+		in vec2 uv;
 	#endif
 #endif
 #ifdef SHOW_ALPHA0
-	#extension GL_EXT_gpu_shader4 : require // testing bits is much easier with GL3/DX10 generation GPU
 	uniform vec2 resolution;
 #endif
 
@@ -94,21 +94,21 @@ void main()
 			direction.z = sqrt(max(1.0-direction.x*direction.x-direction.y*direction.y,0.0)); // max() fixes center lines on intel
 			if (uv.x<0.5)
 				direction.z = -direction.z;
-			vec4 tex = textureCube(map,direction);
+			vec4 tex = texture(map,direction);
 		#endif
 		#ifdef CUBE_TO_LITTLE_PLANET
 			direction.xz = vec2(uv.x-0.5,0.5-uv.y);
 			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
 			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
 			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
-			vec4 tex = textureCube(map,direction) * step(r,0.5);
+			vec4 tex = texture(map,direction) * step(r,0.5);
 		#endif
 		#ifdef CUBE_TO_FISHEYE
 			direction.xz = uv.xy-vec2(0.5,0.5);
 			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
 			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
 			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
-			vec4 tex = textureCube(map,direction.xzy) * step(r*360.0/fisheyeFovDeg,0.5);
+			vec4 tex = texture(map,direction.xzy) * step(r*360.0/fisheyeFovDeg,0.5);
 		#endif
 		#ifdef CUBE_TO_WARP
 			// similar to CUBE_TO_EQUIRECTANGULAR
@@ -118,11 +118,11 @@ void main()
 			direction.z = sqrt(max(1.0-direction.x*direction.x-direction.y*direction.y,0.0)); // max() fixes center lines on intel
 			if (uv_x>0.25 && uv_x<0.75)
 				direction.z = -direction.z;
-			vec4 tex = textureCube(map,direction);
+			vec4 tex = texture(map,direction);
 			tex *= intensity;
 		#endif
 	#else
-		vec4 tex = texture2D(map,uv);
+		vec4 tex = texture(map,uv);
 	#endif
 #ifdef SHOW_ALPHA0
 	#define QUADRANT_X0Y0 1
@@ -157,32 +157,32 @@ void main()
 #endif
 
 #ifdef TEXTURE
-	gl_FragColor = tex;
+	fragColor = tex;
 #else
-	gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+	fragColor = vec4(1.0,1.0,1.0,1.0);
 #endif
 
 #ifdef HSV
-	gl_FragColor.xyz = hsv2rgb(rgb2hsv(gl_FragColor.xyz)*vec3(1.0,hsv.yz)+vec3(hsv.x,0.0,0.0));
+	fragColor.xyz = hsv2rgb(rgb2hsv(fragColor.xyz)*vec3(1.0,hsv.yz)+vec3(hsv.x,0.0,0.0));
 #endif
 
 #ifdef STEPS
-	gl_FragColor = floor(gl_FragColor * steps + vec4(0.5)) / steps;
+	fragColor = floor(fragColor * steps + vec4(0.5)) / steps;
 #endif
 
-	gl_FragColor *= color;
+	fragColor *= color;
 
 #ifdef GAMMA
-	gl_FragColor = pow(gl_FragColor,vec4(gamma,gamma,gamma,1));
+	fragColor = pow(fragColor,vec4(gamma,gamma,gamma,1));
 #endif
 
 #ifdef MIRROR_MASK_DEPTH
 	if (color.a*tex.a<0.7) discard; // big pixels with over 70% of surface covered by hires mirror are nearly always inside lowres mirror. 0.65 would result in occasional leaks, some pixels with 65% coverage are outside lowres mirror. (btw, when we had lowres exactly 50% of hires, 0.51 seemed sufficient)
 #endif
 #ifdef MIRROR_MASK_ALPHA
-	gl_FragColor = vec4(0.0,0.0,0.0,step(0.7,color.a*tex.a)); // the same 0.7 threshold
+	fragColor = vec4(0.0,0.0,0.0,step(0.7,color.a*tex.a)); // the same 0.7 threshold
 #endif
 #ifdef MIRROR_MASK_DEBUG
-	gl_FragColor = vec4(color.a*tex.a);
+	fragColor = vec4(color.a*tex.a);
 #endif
 }

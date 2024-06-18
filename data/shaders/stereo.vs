@@ -5,8 +5,8 @@
 //
 // Stereo compositing filter.
 
-attribute vec2 vertexPosition;
-varying vec2 texcoord;
+layout(location = 0) in vec2 vertexPosition;
+out vec2 texcoord;
 
 void main()
 {

@@ -15,7 +15,8 @@
 uniform sampler2D colorMap;
 uniform sampler2D depthMap;
 uniform vec2 tPixelSize; // in texture space, 1/texture resolution
-varying vec2 tMapCoord;
+in vec2 tMapCoord;
+out vec4 fragColor;
 
 #if PASS==1
 
@@ -41,29 +42,29 @@ void main()
 
 	// get normal
 	// lots of lookups, but still cheaper than prerendering normalmap
-	vec3 c0   = texture2D(colorMap,tMapCoord).rgb;
-	vec3 cx_2 = texture2D(colorMap,vec2(tMapCoord.x-2.0*tPixelSize.x,tMapCoord.y)).rgb;
-	vec3 cx_1 = texture2D(colorMap,vec2(tMapCoord.x-tPixelSize.x,tMapCoord.y)).rgb;
-	vec3 cx1  = texture2D(colorMap,vec2(tMapCoord.x+tPixelSize.x,tMapCoord.y)).rgb;
-	vec3 cx2  = texture2D(colorMap,vec2(tMapCoord.x+2.0*tPixelSize.x,tMapCoord.y)).rgb;
-	vec3 cy_2 = texture2D(colorMap,vec2(tMapCoord.x,tMapCoord.y-2.0*tPixelSize.y)).rgb;
-	vec3 cy_1 = texture2D(colorMap,vec2(tMapCoord.x,tMapCoord.y-tPixelSize.y)).rgb;
-	vec3 cy1  = texture2D(colorMap,vec2(tMapCoord.x,tMapCoord.y+tPixelSize.y)).rgb;
-	vec3 cy2  = texture2D(colorMap,vec2(tMapCoord.x,tMapCoord.y+2.0*tPixelSize.y)).rgb;
-	float z0   = texture2D(depthMap,tMapCoord).z;
+	vec3 c0   = texture(colorMap,tMapCoord).rgb;
+	vec3 cx_2 = texture(colorMap,vec2(tMapCoord.x-2.0*tPixelSize.x,tMapCoord.y)).rgb;
+	vec3 cx_1 = texture(colorMap,vec2(tMapCoord.x-tPixelSize.x,tMapCoord.y)).rgb;
+	vec3 cx1  = texture(colorMap,vec2(tMapCoord.x+tPixelSize.x,tMapCoord.y)).rgb;
+	vec3 cx2  = texture(colorMap,vec2(tMapCoord.x+2.0*tPixelSize.x,tMapCoord.y)).rgb;
+	vec3 cy_2 = texture(colorMap,vec2(tMapCoord.x,tMapCoord.y-2.0*tPixelSize.y)).rgb;
+	vec3 cy_1 = texture(colorMap,vec2(tMapCoord.x,tMapCoord.y-tPixelSize.y)).rgb;
+	vec3 cy1  = texture(colorMap,vec2(tMapCoord.x,tMapCoord.y+tPixelSize.y)).rgb;
+	vec3 cy2  = texture(colorMap,vec2(tMapCoord.x,tMapCoord.y+2.0*tPixelSize.y)).rgb;
+	float z0   = texture(depthMap,tMapCoord).z;
 	if (z0>=1.0) // prevents noise on background that shows up when SSGI radius is close to camera far
 	{
-		gl_FragColor = vec4(1.0);
+		fragColor = vec4(1.0);
 		return;
 	}
-	//float zx_2 = texture2D(depthMap,tMapCoord-vec2(tPixelSize.x*2.0,0.0)).z;
-	float zx_1 = texture2D(depthMap,tMapCoord-vec2(tPixelSize.x,0.0)).z;
-	float zx1  = texture2D(depthMap,tMapCoord+vec2(tPixelSize.x,0.0)).z;
-	//float zx2  = texture2D(depthMap,tMapCoord+vec2(tPixelSize.x*2.0,0.0)).z;
-	//float zy_2 = texture2D(depthMap,tMapCoord-vec2(0.0,tPixelSize.y*2.0)).z;
-	float zy_1 = texture2D(depthMap,tMapCoord-vec2(0.0,tPixelSize.y)).z;
-	float zy1  = texture2D(depthMap,tMapCoord+vec2(0.0,tPixelSize.y)).z;
-	//float zy2  = texture2D(depthMap,tMapCoord+vec2(0.0,tPixelSize.y*2.0)).z;
+	//float zx_2 = texture(depthMap,tMapCoord-vec2(tPixelSize.x*2.0,0.0)).z;
+	float zx_1 = texture(depthMap,tMapCoord-vec2(tPixelSize.x,0.0)).z;
+	float zx1  = texture(depthMap,tMapCoord+vec2(tPixelSize.x,0.0)).z;
+	//float zx2  = texture(depthMap,tMapCoord+vec2(tPixelSize.x*2.0,0.0)).z;
+	//float zy_2 = texture(depthMap,tMapCoord-vec2(0.0,tPixelSize.y*2.0)).z;
+	float zy_1 = texture(depthMap,tMapCoord-vec2(0.0,tPixelSize.y)).z;
+	float zy1  = texture(depthMap,tMapCoord+vec2(0.0,tPixelSize.y)).z;
+	//float zy2  = texture(depthMap,tMapCoord+vec2(0.0,tPixelSize.y*2.0)).z;
 	float mLinearz0   = mDepthRange.x / (mDepthRange.y - z0);
 	// a) 50% of edge 2x2 pixels assigned to wrong plane
 	//vec2 dz = vec2(dFdx(z0),dFdy(z0));
@@ -94,13 +95,13 @@ void main()
 				continue; // removes shadow from viewport border
 			tMid = (floor(tMid/tPixelSize)+vec2(0.5,0.5))*tPixelSize; // round tMid to center of texel
 			float mExpectedLinearz1 = mLinearz0 + dot((tMid-tMapCoord)/tPixelSize,mLineardz);
-			float mActualLinearz1 = mDepthRange.x / (mDepthRange.y - texture2D(depthMap,tMid).z);
+			float mActualLinearz1 = mDepthRange.x / (mDepthRange.y - texture(depthMap,tMid).z);
 			float r = (mExpectedLinearz1-mActualLinearz1)/mAONoisyRange;
 			float att = max(1.0-r*r,0.0);
 			float occlusion = r*att/mid-angleBias;
 			if (occlusion>maxOcclusion)
 			{
-				vec4 c1 = texture2D(colorMap,tMid);
+				vec4 c1 = texture(colorMap,tMid);
 				c1.a = 1.0; // can be 0 after mirror
 				occlusionColor += c1*(occlusion-maxOcclusion);
 				maxOcclusion = occlusion;
@@ -109,7 +110,7 @@ void main()
 		//sumOcclusion += maxOcclusion*0.8; // dela strmejsi gradient, svetlejsi kraje, tmavsi kouty. mohlo by dobre vyvazovat blur kterej kouty zesvetli
 		sumOcclusion += atan(maxOcclusion); // atan(x) zajistuje mirnejsi gradient, ne tak tmavy kouty jako pri x
 	}
-	gl_FragColor = vec4(1.0)-occlusionIntensity/float(NUM_DIRS)*sumOcclusion*(vec4(1.0)-occlusionColor/occlusionColor.w);
+	fragColor = vec4(1.0)-occlusionIntensity/float(NUM_DIRS)*sumOcclusion*(vec4(1.0)-occlusionColor/occlusionColor.w);
 	// alpha must be 1, following blur pass expects it
 }
 
@@ -120,29 +121,29 @@ uniform sampler2D aoMap;
 void main()
 {
 	// blur AO
-//	vec4 c_3 = texture2D(colorMap,tMapCoord-3.0*tPixelSize);
-	vec4 c_2 = texture2D(colorMap,tMapCoord-2.0*tPixelSize);
-	vec4 c_1 = texture2D(colorMap,tMapCoord-tPixelSize);
-	vec4 c0  = texture2D(colorMap,tMapCoord);
-	vec4 c1  = texture2D(colorMap,tMapCoord+tPixelSize);
-	vec4 c2  = texture2D(colorMap,tMapCoord+2.0*tPixelSize);
-//	vec4 c3  = texture2D(colorMap,tMapCoord+3.0*tPixelSize);
+//	vec4 c_3 = texture(colorMap,tMapCoord-3.0*tPixelSize);
+	vec4 c_2 = texture(colorMap,tMapCoord-2.0*tPixelSize);
+	vec4 c_1 = texture(colorMap,tMapCoord-tPixelSize);
+	vec4 c0  = texture(colorMap,tMapCoord);
+	vec4 c1  = texture(colorMap,tMapCoord+tPixelSize);
+	vec4 c2  = texture(colorMap,tMapCoord+2.0*tPixelSize);
+//	vec4 c3  = texture(colorMap,tMapCoord+3.0*tPixelSize);
 
-	vec4 a_3 = texture2D(aoMap,tMapCoord-3.0*tPixelSize);
-	vec4 a_2 = texture2D(aoMap,tMapCoord-2.0*tPixelSize);
-	vec4 a_1 = texture2D(aoMap,tMapCoord-tPixelSize);
-	vec4 a0  = texture2D(aoMap,tMapCoord);
-	vec4 a1  = texture2D(aoMap,tMapCoord+tPixelSize);
-	vec4 a2  = texture2D(aoMap,tMapCoord+2.0*tPixelSize);
-	vec4 a3  = texture2D(aoMap,tMapCoord+3.0*tPixelSize);
+	vec4 a_3 = texture(aoMap,tMapCoord-3.0*tPixelSize);
+	vec4 a_2 = texture(aoMap,tMapCoord-2.0*tPixelSize);
+	vec4 a_1 = texture(aoMap,tMapCoord-tPixelSize);
+	vec4 a0  = texture(aoMap,tMapCoord);
+	vec4 a1  = texture(aoMap,tMapCoord+tPixelSize);
+	vec4 a2  = texture(aoMap,tMapCoord+2.0*tPixelSize);
+	vec4 a3  = texture(aoMap,tMapCoord+3.0*tPixelSize);
 
-	float z_3 = texture2D(depthMap,tMapCoord-3.0*tPixelSize).z;
-	float z_2 = texture2D(depthMap,tMapCoord-2.0*tPixelSize).z;
-	float z_1 = texture2D(depthMap,tMapCoord-tPixelSize).z;
-	float z0  = texture2D(depthMap,tMapCoord).z;
-	float z1  = texture2D(depthMap,tMapCoord+tPixelSize).z;
-	float z2  = texture2D(depthMap,tMapCoord+2.0*tPixelSize).z;
-	float z3  = texture2D(depthMap,tMapCoord+3.0*tPixelSize).z;
+	float z_3 = texture(depthMap,tMapCoord-3.0*tPixelSize).z;
+	float z_2 = texture(depthMap,tMapCoord-2.0*tPixelSize).z;
+	float z_1 = texture(depthMap,tMapCoord-tPixelSize).z;
+	float z0  = texture(depthMap,tMapCoord).z;
+	float z1  = texture(depthMap,tMapCoord+tPixelSize).z;
+	float z2  = texture(depthMap,tMapCoord+2.0*tPixelSize).z;
+	float z3  = texture(depthMap,tMapCoord+3.0*tPixelSize).z;
 
 	float dz_3 = (z_2-z_3);
 	float dz_2 = (z_1-z_2);
@@ -175,7 +176,7 @@ void main()
 				col += 0.4*a3;
 		}
 	}
-	gl_FragColor = col / col.w;
+	fragColor = col / col.w;
 }
 
 #endif

@@ -25,19 +25,20 @@ uniform vec2 mScreenSizeIn1mDistance;
 uniform float mApertureDiameter;
 uniform float mFocusDistanceNear;
 uniform float mFocusDistanceFar;
-varying vec2 tMapCoord;
+in vec2 tMapCoord;
 #define MAX_SAMPLES 128 // [#26]
 uniform int num_samples; // 1..MAX_SAMPLES
 uniform vec2 samples[MAX_SAMPLES]; // samples in -1..1 range
+out vec4 fragColor;
 
 void main()
 {
 #if PASS==1
 	// create downscaled CoC
-	float depth1 = texture2D(depthMap,tMapCoord+vec2(+0.5,+0.5)*tPixelSize).x; // we read from centers, NEAREST might be faster
-	float depth2 = texture2D(depthMap,tMapCoord+vec2(+0.5,-0.5)*tPixelSize).x;
-	float depth3 = texture2D(depthMap,tMapCoord+vec2(-0.5,+0.5)*tPixelSize).x;
-	float depth4 = texture2D(depthMap,tMapCoord+vec2(-0.5,-0.5)*tPixelSize).x;
+	float depth1 = texture(depthMap,tMapCoord+vec2(+0.5,+0.5)*tPixelSize).x; // we read from centers, NEAREST might be faster
+	float depth2 = texture(depthMap,tMapCoord+vec2(+0.5,-0.5)*tPixelSize).x;
+	float depth3 = texture(depthMap,tMapCoord+vec2(-0.5,+0.5)*tPixelSize).x;
+	float depth4 = texture(depthMap,tMapCoord+vec2(-0.5,-0.5)*tPixelSize).x;
 
 	float zNear = min(min(depth1,depth2),min(depth3,depth4));
 	float zFar = max(max(depth1,depth2),max(depth3,depth4));
@@ -49,53 +50,53 @@ void main()
 	vec2 tCocFar = mApertureDiameter * (mZFar-mFocusDistanceFar) / mFocusDistanceFar / mScreenSizeIn1mDistance / mZFar; // coc diameter in 0..1 space
 	vec2 cocNear = tCocNear / tPixelSize; // coc diameter in pixels
 	vec2 cocFar = tCocFar / tPixelSize; // coc diameter in pixels
-	gl_FragColor = vec4(cocNear,cocFar)/MAX_COC;
+	fragColor = vec4(cocNear,cocFar)/MAX_COC;
 
 #endif
 
 #if PASS==2
 	// blur CoC
-	gl_FragColor = (
+	fragColor = (
 		#if 1
-			+texture2D(smallMap,tMapCoord-8.5*tPixelSize)*0.2
-			+texture2D(smallMap,tMapCoord-6.5*tPixelSize)*0.4
-			+texture2D(smallMap,tMapCoord-4.5*tPixelSize)*0.6
-			+texture2D(smallMap,tMapCoord-2.5*tPixelSize)*0.8
-			+texture2D(smallMap,tMapCoord-0.5*tPixelSize)
-			+texture2D(smallMap,tMapCoord+1.5*tPixelSize)*0.9
-			+texture2D(smallMap,tMapCoord+3.5*tPixelSize)*0.7
-			+texture2D(smallMap,tMapCoord+5.5*tPixelSize)*0.5
-			+texture2D(smallMap,tMapCoord+7.5*tPixelSize)*0.3
-			+texture2D(smallMap,tMapCoord+9.5*tPixelSize)*0.1
+			+texture(smallMap,tMapCoord-8.5*tPixelSize)*0.2
+			+texture(smallMap,tMapCoord-6.5*tPixelSize)*0.4
+			+texture(smallMap,tMapCoord-4.5*tPixelSize)*0.6
+			+texture(smallMap,tMapCoord-2.5*tPixelSize)*0.8
+			+texture(smallMap,tMapCoord-0.5*tPixelSize)
+			+texture(smallMap,tMapCoord+1.5*tPixelSize)*0.9
+			+texture(smallMap,tMapCoord+3.5*tPixelSize)*0.7
+			+texture(smallMap,tMapCoord+5.5*tPixelSize)*0.5
+			+texture(smallMap,tMapCoord+7.5*tPixelSize)*0.3
+			+texture(smallMap,tMapCoord+9.5*tPixelSize)*0.1
 			) / 5.5;
 		#else
-			+texture2D(smallMap,tMapCoord-4.5*tPixelSize)*0.36
-			+texture2D(smallMap,tMapCoord-2.5*tPixelSize)*0.68
-			+texture2D(smallMap,tMapCoord-0.5*tPixelSize)
-			+texture2D(smallMap,tMapCoord+1.5*tPixelSize)*0.84
-			+texture2D(smallMap,tMapCoord+3.5*tPixelSize)*0.52
-			+texture2D(smallMap,tMapCoord+5.5*tPixelSize)*0.20
+			+texture(smallMap,tMapCoord-4.5*tPixelSize)*0.36
+			+texture(smallMap,tMapCoord-2.5*tPixelSize)*0.68
+			+texture(smallMap,tMapCoord-0.5*tPixelSize)
+			+texture(smallMap,tMapCoord+1.5*tPixelSize)*0.84
+			+texture(smallMap,tMapCoord+3.5*tPixelSize)*0.52
+			+texture(smallMap,tMapCoord+5.5*tPixelSize)*0.20
 			) / 3.6;
 		#endif
 	// blurability keeps sharp edges sharp in channel r (farCoc), blur does not spread inside
-	float localFarCoc = texture2D(smallMap,tMapCoord).r;
+	float localFarCoc = texture(smallMap,tMapCoord).r;
 	float blurability = smoothstep(0.0,1.0,localFarCoc*30.0);
-	gl_FragColor.r *= blurability;
+	fragColor.r *= blurability;
 #endif
 
 #if PASS==3
 	// sample from original color texture using CoC
-	vec4 tCocNearFar = (MAX_COC*0.5*texture2D(smallMap,tMapCoord))*tPixelSize.xyxy; // coc radius in 0..1 space
+	vec4 tCocNearFar = (MAX_COC*0.5*texture(smallMap,tMapCoord))*tPixelSize.xyxy; // coc radius in 0..1 space
 	vec2 tCocNear = tCocNearFar.xy; // coc radius in 0..1 space
 	vec2 tCocFar = tCocNearFar.zw; // coc radius in 0..1 space
 
 	// optional, makes edges in focus sharper against background (remember, smallMap is halfres, we use fullres depthMap here)
-	float mZ = mDepthRange.x / (mDepthRange.y - texture2D(depthMap,tMapCoord).x);
+	float mZ = mDepthRange.x / (mDepthRange.y - texture(depthMap,tMapCoord).x);
 	if (mZ<=mFocusDistanceFar)
 		tCocFar = vec2(0.0,0.0);
 
 	vec2 tCoc = max(tCocNear,tCocFar); // coc radius in 0..1 space
-	vec4 color = pow(texture2D(colorMap,tMapCoord),vec4(2.22222,2.22222,2.22222,2.22222))*0.01;
+	vec4 color = pow(texture(colorMap,tMapCoord),vec4(2.22222,2.22222,2.22222,2.22222))*0.01;
 	float colors = 0.01;
 	float noise = sin(dot(tMapCoord,vec2(52.714,112.9898))) * 43758.5453;
 	mat2 rot = mat2(cos(noise)*tCoc.x,-sin(noise)*tCoc.y,sin(noise)*tCoc.x,cos(noise)*tCoc.y);
@@ -104,14 +105,14 @@ void main()
 		vec2 sampleCoord = tMapCoord + rot*samples[i];
 		//vec2 sampleCoord = tMapCoord + samples[i]*tCoc; // it is 5x faster without rot
 
-		vec4 tSampleCocNearFar = MAX_COC*0.5*texture2D(smallMap,sampleCoord)*tPixelSize.xyxy; // coc radius in 0..1 space
+		vec4 tSampleCocNearFar = MAX_COC*0.5*texture(smallMap,sampleCoord)*tPixelSize.xyxy; // coc radius in 0..1 space
 		vec2 tSampleCoc = max(tSampleCocNearFar.xy,tSampleCocNearFar.zw);
 		if (tSampleCoc.x>=tCoc.x*length(samples[i]))
 		{
-			color += pow(texture2D(colorMap,sampleCoord),vec4(2.22222,2.22222,2.22222,2.22222));
+			color += pow(texture(colorMap,sampleCoord),vec4(2.22222,2.22222,2.22222,2.22222));
 			colors += 1.0;
 		}
 	}
-	gl_FragColor = pow(color/colors,vec4(0.45,0.45,0.45,0.45));
+	fragColor = pow(color/colors,vec4(0.45,0.45,0.45,0.45));
 #endif
 }

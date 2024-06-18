@@ -9,8 +9,8 @@
 // #define SIZEX n
 // #define SIZEY n
 
-attribute vec2 vertexPosition;
-varying vec2 lightmapCoord;
+layout(location = 0) in vec2 vertexPosition;
+out vec2 lightmapCoord;
 
 void main()
 {

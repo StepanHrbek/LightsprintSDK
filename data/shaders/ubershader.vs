@@ -62,13 +62,8 @@
 
 #define sqr(a) ((a)*(a))
 
-#ifdef LEGACY_GL
-	#define vertexPosition gl_Vertex
-#else
-	attribute vec3 vertexPosition;
-#endif
-
-attribute vec3 vertexNormal;
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 1) in vec3 vertexNormal;
 
 #ifdef OBJECT_SPACE
 	uniform mat4 worldMatrix;
@@ -78,114 +73,107 @@ attribute vec3 vertexNormal;
 #if defined(SHADOW_MAPS)
 #if SHADOW_MAPS>0
 	uniform mat4 textureMatrix0;
-	varying vec4 shadowCoord0;
+	out vec4 shadowCoord0;
 #endif
 #if SHADOW_MAPS>1
 	uniform mat4 textureMatrix1;
-	varying vec4 shadowCoord1;
+	out vec4 shadowCoord1;
 #endif
 #if SHADOW_MAPS>2
 	uniform mat4 textureMatrix2;
-	varying vec4 shadowCoord2;
+	out vec4 shadowCoord2;
 #endif
 #if SHADOW_MAPS>3
 	uniform mat4 textureMatrix3;
-	varying vec4 shadowCoord3;
+	out vec4 shadowCoord3;
 #endif
 #if SHADOW_MAPS>4
 	uniform mat4 textureMatrix4;
-	varying vec4 shadowCoord4;
+	out vec4 shadowCoord4;
 #endif
 #if SHADOW_MAPS>5
 	uniform mat4 textureMatrix5;
-	varying vec4 shadowCoord5;
+	out vec4 shadowCoord5;
 #endif
 #if SHADOW_MAPS>6
 	uniform mat4 textureMatrix6;
-	varying vec4 shadowCoord6;
+	out vec4 shadowCoord6;
 #endif
 #if SHADOW_MAPS>7
 	uniform mat4 textureMatrix7;
-	varying vec4 shadowCoord7;
+	out vec4 shadowCoord7;
 #endif
 #if SHADOW_MAPS>8
 	uniform mat4 textureMatrix8;
-	varying vec4 shadowCoord8;
+	out vec4 shadowCoord8;
 #endif
 #if SHADOW_MAPS>9
 	uniform mat4 textureMatrix9;
-	varying vec4 shadowCoord9;
+	out vec4 shadowCoord9;
 #endif
 #endif
 
 #if defined(LIGHT_DIRECT_MAP) && !defined(SHADOW_MAPS)
 	uniform mat4 textureMatrixL;
-	varying vec4 lightCoord;
+	out vec4 lightCoord;
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
-	#ifdef LEGACY_GL
-		#define vertexColor gl_Color
-	#else
-		attribute vec4 vertexColor;
-	#endif
-	varying vec4 lightIndirectColor;
+	layout(location = 9) in vec4 vertexColor;
+	out vec4 lightIndirectColor;
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR2
-	attribute vec4 vertexColor2;
+	// FIXME: OpenGL 2.0 path did not define location with glBindAttribLocation, how did it even work?
+	layout(location = ?) in vec4 vertexColor2;
 	uniform float lightIndirectBlend;
 #endif
 
 #if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
-	attribute vec2 vertexUvUnwrap;
-	varying vec2 lightIndirectCoord;
+	layout(location = 7) in vec2 vertexUvUnwrap;
+	out vec2 lightIndirectCoord;
 #endif
 
 #if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-	varying vec4 lightIndirectMirrorCoord;
+	out vec4 lightIndirectMirrorCoord;
 #endif
 
-varying vec3 worldPos;
-varying vec3 worldNormalSmooth;
+out vec3 worldPos;
+out vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_DIFFUSE_MAP
-	attribute vec2 vertexUvDiffuse;
-	varying vec2 materialDiffuseCoord;
+	layout(location = 2) in vec2 vertexUvDiffuse;
+	out vec2 materialDiffuseCoord;
 #endif
 
 #ifdef MATERIAL_SPECULAR_MAP
-	attribute vec2 vertexUvSpecular;
-	varying vec2 materialSpecularCoord;
+	layout(location = 3) in vec2 vertexUvSpecular;
+	out vec2 materialSpecularCoord;
 #endif
 
 #ifdef MATERIAL_EMISSIVE_MAP
-	attribute vec2 vertexUvEmissive;
-	varying vec2 materialEmissiveCoord;
+	layout(location = 4) in vec2 vertexUvEmissive;
+	out vec2 materialEmissiveCoord;
 #endif
 
 #ifdef MATERIAL_TRANSPARENCY_MAP
-	attribute vec2 vertexUvTransparent;
-	varying vec2 materialTransparencyCoord;
+	layout(location = 5) in vec2 vertexUvTransparent;
+	out vec2 materialTransparencyCoord;
 #endif
 
 #ifdef MATERIAL_BUMP_MAP
-	attribute vec3 vertexTangent;
-	attribute vec3 vertexBitangent;
-	attribute vec2 vertexUvBump;
-	varying vec3 worldTangent;
-	varying vec3 worldBitangent;
-	varying vec2 materialBumpMapCoord;
+	layout(location = 10) in vec3 vertexTangent;
+	layout(location = 11) in vec3 vertexBitangent;
+	layout(location = 6) in vec2 vertexUvBump;
+	out vec3 worldTangent;
+	out vec3 worldBitangent;
+	out vec2 materialBumpMapCoord;
 #endif
 
 #ifdef FORCE_2D_POSITION
-	attribute vec2 vertexUvForced2D;
+	layout(location = 8) in vec2 vertexUvForced2D;
 #else
-	#ifdef LEGACY_GL
-		#define modelViewProjectionMatrix gl_ModelViewProjectionMatrix
-	#else
-		uniform mat4 modelViewProjectionMatrix;
-	#endif
+	uniform mat4 modelViewProjectionMatrix;
 #endif
 
 #ifdef ANIMATION_WAVE
@@ -195,18 +183,10 @@ varying vec3 worldNormalSmooth;
 void main()
 {
 	#ifdef OBJECT_SPACE
-		#ifdef LEGACY_GL
-			vec4 worldPos4 = worldMatrix * vertexPosition;
-		#else
-			vec4 worldPos4 = worldMatrix * vec4(vertexPosition,1.0);
-		#endif
+		vec4 worldPos4 = worldMatrix * vec4(vertexPosition,1.0);
 		worldNormalSmooth = normalize( inverseWorldMatrix * vertexNormal );
 	#else
-		#ifdef LEGACY_GL
-			vec4 worldPos4 = vertexPosition;
-		#else
-			vec4 worldPos4 = vec4(vertexPosition,1.0);
-		#endif
+		vec4 worldPos4 = vec4(vertexPosition,1.0);
 		worldNormalSmooth = normalize( vertexNormal );
 	#endif
 	#ifdef ANIMATION_WAVE

@@ -5,8 +5,8 @@
 //
 // Contours
 
-attribute vec2 vertexPosition;
-varying vec2 tMapCoord;
+layout(location = 0) in vec2 vertexPosition;
+out vec2 tMapCoord;
 
 void main()
 {

@@ -52,20 +52,6 @@ Program::Program(const char* defines, const rr::RRString& vertexShader, const rr
 		glAttachShader(handle, fragment->getHandle());
 	}
 
-	// hardcoded locations for attributes used by shaders
-	glBindAttribLocation(handle, VAA_POSITION, "vertexPosition");
-	glBindAttribLocation(handle, VAA_NORMAL, "vertexNormal");
-	glBindAttribLocation(handle, VAA_UV_MATERIAL_DIFFUSE, "vertexUvDiffuse");
-	glBindAttribLocation(handle, VAA_UV_MATERIAL_SPECULAR, "vertexUvSpecular");
-	glBindAttribLocation(handle, VAA_UV_MATERIAL_EMISSIVE, "vertexUvEmissive");
-	glBindAttribLocation(handle, VAA_UV_MATERIAL_TRANSPARENT, "vertexUvTransparent");
-	glBindAttribLocation(handle, VAA_UV_MATERIAL_BUMP, "vertexUvBump");
-	glBindAttribLocation(handle, VAA_UV_UNWRAP, "vertexUvUnwrap");
-	glBindAttribLocation(handle, VAA_UV_FORCED_2D, "vertexUvForced2D");
-	glBindAttribLocation(handle, VAA_COLOR, "vertexColor");
-	glBindAttribLocation(handle, VAA_TANGENT, "vertexTangent");
-	glBindAttribLocation(handle, VAA_BITANGENT, "vertexBitangent");
-
 	// link
 	glLinkProgram(handle);
 	GLint alinked;

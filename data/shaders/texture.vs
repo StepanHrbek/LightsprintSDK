@@ -12,22 +12,22 @@
 // #define MIRROR_MASK
 // #define DIVIDE_UV_BY_W
 
-attribute vec2 vertexPosition;
+layout(location = 0) in vec2 vertexPosition;
 
 #ifdef TEXTURE
 	#ifdef DIVIDE_UV_BY_W
-		attribute vec3 vertexUvDiffuse; // c++ code uses "vertexUvDiffuse" name for both uv and uvw
-		varying vec3 uvw;
+		layout(location = 2) in vec3 vertexUvDiffuse; // c++ code uses "vertexUvDiffuse" name for both uv and uvw
+		out vec3 uvw;
 	#else
-		attribute vec2 vertexUvDiffuse;
-		varying vec2 uv;
+		layout(location = 2) in vec2 vertexUvDiffuse;
+		out vec2 uv;
 	#endif
 #endif
 
 #ifdef CUBE_TO_WARP
 	uniform vec2 scale;
-	attribute float vertexColor;
-	varying float intensity;
+	layout(location = 9) in float vertexColor;
+	out float intensity;
 #endif
 
 void main()

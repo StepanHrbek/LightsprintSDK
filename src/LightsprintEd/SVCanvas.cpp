@@ -2188,7 +2188,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				rr_gl::UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
-				uberProgramSetup.LEGACY_GL = 1;
+				//uberProgramSetup.LEGACY_GL = 1;
 				uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,nullptr,0,1,nullptr,1,nullptr);
 			}
 
@@ -2264,7 +2264,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			uberProgramSetup.LEGACY_GL = 1;
+			//uberProgramSetup.LEGACY_GL = 1;
 			uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,nullptr,0,1,nullptr,1,nullptr);
 		}
 
@@ -2381,7 +2381,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				rr_gl::UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
-				uberProgramSetup.LEGACY_GL = 1;
+				//uberProgramSetup.LEGACY_GL = 1;
 				rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),nullptr,nullptr,0,1,nullptr,1,nullptr);
 				program->sendUniform("lightIndirectConst",rr::RRVec4(1));
 			}

@@ -10,7 +10,8 @@
 // OCULUS_RIFT - converts side by side image to Oculus Rift format
 
 uniform sampler2D map;
-varying vec2 texcoord;
+in vec2 texcoord;
+out vec4 fragColor;
 
 #ifdef INTERLACED
 
@@ -18,7 +19,7 @@ varying vec2 texcoord;
 
 	void main()
 	{
-		gl_FragColor = texture2D(map,vec2(texcoord.x,0.5*(texcoord.y+floor(2.0*fract(texcoord.y*mapHalfHeight)))));
+		fragColor = texture(map,vec2(texcoord.x,0.5*(texcoord.y+floor(2.0*fract(texcoord.y*mapHalfHeight)))));
 	}
 
 #endif // INTERLACED
@@ -46,23 +47,23 @@ varying vec2 texcoord;
 		vec2 tcBlue = LensCenter + Scale * thetaBlue;
 		if (!all(equal(clamp(tcBlue, ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25,0.5)), tcBlue)))
 		{
-			gl_FragColor = vec4(0.0);
+			fragColor = vec4(0.0);
 			return;
 		}
 		
 		// Now do blue texture lookup.
-		float blue = texture2D(map, tcBlue).b;
+		float blue = texture(map, tcBlue).b;
 		
 		// Do green lookup (no scaling).
 		vec2  tcGreen = LensCenter + Scale * theta1;
-		vec4  center = texture2D(map, tcGreen);
+		vec4  center = texture(map, tcGreen);
 		
 		// Do red scale and lookup.
 		vec2  thetaRed = theta1 * (ChromAbParam.x + ChromAbParam.y * rSq);
 		vec2  tcRed = LensCenter + Scale * thetaRed;
-		float red = texture2D(map, tcRed).r;
+		float red = texture(map, tcRed).r;
 		
-		gl_FragColor = vec4(red, center.g, blue, 1.0);
+		fragColor = vec4(red, center.g, blue, 1.0);
 	}
 
 #endif // OCULUS_RIFT

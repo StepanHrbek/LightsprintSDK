@@ -11,7 +11,8 @@
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
 
-varying vec3 dir;
+in vec3 dir;
+out vec4 fragColor;
 
 #ifdef PROJECTION_CUBE
 	uniform samplerCube map;
@@ -33,7 +34,7 @@ varying vec3 dir;
 void main()
 {
 #ifdef PROJECTION_CUBE
-	gl_FragColor = textureCube(map,dir);
+	fragColor = texture(map,dir);
 #endif
 
 #ifdef PROJECTION_EQUIRECTANGULAR
@@ -41,15 +42,15 @@ void main()
 	vec2 angle = vec2(asin(normalize(dir.xz).x),asin(normalize(dir).y));
 	if (dir.z<0.0) angle.x = PI-angle.x;
 	// [#55] rotated so that render of empty scene with equirectangular environment E is E
-	gl_FragColor = texture2D(map,angle*shape.xy+shape.zw);
+	fragColor = texture(map,angle*shape.xy+shape.zw);
 #endif
 
 #ifdef POSTPROCESS_BRIGHTNESS
-	gl_FragColor.rgb *= postprocessBrightness;
+	fragColor.rgb *= postprocessBrightness;
 #endif
 
 #ifdef POSTPROCESS_GAMMA
-	gl_FragColor.rgb = pow(gl_FragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
+	fragColor.rgb = pow(fragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
 #endif
 
 }

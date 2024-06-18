@@ -73,12 +73,7 @@ namespace rr_gl
 {
 
 // vertex attrib array indices
-// - Nvidia is broken, small indices alias with fixed attributes like gl_Vertex (although spec explicitly states they don't alias).
-//   Therefore if we ever mix fixed attributes (LEGACY_GL) with e.g. VAA_TANGENT, it's important that VAA_TANGENT is quite high
-//   (MAX_VERTEX_ATTRIBS must be at least 16, so we can safely go up to 15)
-//   to avoid aliasing; it is equally correct, and it works around Nvidia bug.
-// - Catalyst is broken (tested 13-1, HD3/4xxx), many shaders break (no sky, no shadows etc) if index 0 is not used.
-//   Therefore we use index 0 for position, it is almost always used.
+// numbers are hardcoded in "layout(location = ...)"
 enum
 {
 	VAA_POSITION = 0,

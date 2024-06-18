@@ -144,8 +144,6 @@ struct RR_GL_API UberProgramSetup
 	bool     CLIP_PLANE_ZB                 :1; ///< Discards geometry with z<clipPlaneZB.
 	bool     FORCE_2D_POSITION             :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 
-	bool     LEGACY_GL                     :1; ///< Uses legacy built-in variables gl_Vertex, gl_Color and gl_ModelViewProjectionMatrix. For compatibility with 3rd party legacy rendering code.
-
 	const char* comment;                       ///< Comment added to shader. Must start with //. Not freed.
 
 	//! Creates UberProgramSetup with everything turned off by default.

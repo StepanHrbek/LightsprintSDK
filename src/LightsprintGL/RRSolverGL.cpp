@@ -917,7 +917,7 @@ void RRSolverGL::renderLights(const rr::RRCamera& _camera)
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
-	uberProgramSetup.LEGACY_GL = 1;
+	//uberProgramSetup.LEGACY_GL = 1;
 	Program* program = uberProgramSetup.useProgram(uberProgram1,nullptr,nullptr,0,1,nullptr,1,nullptr);
 	uberProgramSetup.useCamera(program,&_camera);
 	for (unsigned i=0;i<getLights().size();i++)

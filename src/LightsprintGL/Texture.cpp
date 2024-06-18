@@ -502,47 +502,41 @@ const char* initializeGL(bool enableGLStateCaching)
 #else //!__ANDROID__
 
 	// init GLEW
-	if (glewInit()!=GLEW_OK)
+	if (glewInit() != GLEW_OK)
 	{
-		return "GLEW init failed (OpenGL 2.0 capable graphics card is required).\n";
+		return "GLEW init failed.\n";
 	}
 
 	// check gl version
-	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
+	rr::RRReporter::report(rr::INF2, "OpenGL %s by %s on %s.\n", glGetString(GL_VERSION), glGetString(GL_VENDOR), glGetString(GL_RENDERER));
 	rr::RRReporter::report(rr::INF2, "GLSL %s.\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	int major, minor;
 #ifdef RR_GL_ES2
 	// check for ES only
-	if (sscanf((char*)glGetString(GL_VERSION), "OpenGL ES %d.%d", &major, &minor) != 2 || major < 2)
+	if (sscanf((char*)glGetString(GL_VERSION), "OpenGL ES %d.%d", &major, &minor) != 2 || major < 3)
 	{
-		return "Your system does not support OpenGL ES 2.0.\n";
+		return "Your system does not support OpenGL ES 3.0.\n";
 	}
 #else
 	// check for ES, then non-ES
-	s_es = sscanf((char*)glGetString(GL_VERSION),"OpenGL ES %d.%d",&major,&minor)==2 && major>=2;
+	s_es = sscanf((char*)glGetString(GL_VERSION), "OpenGL ES %d.%d", &major, &minor) == 2 && major > 2; // we need at least 3.0
 	if (!s_es)
-	if ((sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2))
-	{
-		return "Your system does not support OpenGL 2.0 nor OpenGL ES 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
-	}
+		if ((sscanf((char*)glGetString(GL_VERSION), "%d.%d", &major, &minor) != 2 || major < 3 || (major == 3 && minor < 3))) // we need at least 3.3
+		{
+			return "Your system does not support OpenGL 3.3 nor OpenGL ES 3.0. Note: Multi-display systems may support different versions on different displays.\n";
+		}
 #endif
 
-	// check FBO
-	if (!GLEW_ARB_framebuffer_object) // added in GL 3.0
+#ifndef RR_GL_ES2
+	// make sure that sampling cube maps is seamless
+	// do nothing in GL ES, all cube maps are seamless since GL ES 3.0
+	if (!s_es)
 	{
-#ifdef __EMSCRIPTEN__
-		// continue even though necessary capability is missing
-		// this is temporary, just to see some semi-broken render with GL ES 2.0, before increasing requirements to GL ES 3.0
-		rr::RRReporter::report(rr::ERRO, "ARB_framebuffer_object not supported.\n");
-#else
-		return "GL_ARB_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
-#endif
-	}
-
-	// init "seamless cube maps" feature
-	// in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
-	if (GLEW_ARB_seamless_cube_map)
+		// do it only in OpenGL (in core since OpenGL 3.2)
+		// in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
 		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	}
+#endif
 
 #endif //!__ANDROID__
 
@@ -707,7 +701,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 #endif
 	}
 
-	// for shadow2D() instead of texture2D()
+	// modify texture access for texture mapping
 	if (buffer->getFormat()==rr::BF_DEPTH)
 	{
 		RR_ASSERT(!_buildMipmaps);

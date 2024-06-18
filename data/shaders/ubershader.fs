@@ -70,11 +70,6 @@
 
 #define sqr(a) ((a)*(a))
 
-#ifdef WORKAROUND_NO_LODS
-	#define texture2DLod(a,b,c) texture2D(a,b)
-	#define textureCubeLod(a,b,c) textureCube(a,b)
-#endif
-
 #if defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP)
 	#define LIGHT_INDIRECT_SCALAR // we have an indirect light with unknown direction
 	#if !defined(LIGHT_DIRECT) && !defined(LIGHT_INDIRECT_ENV_SPECULAR) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
@@ -85,70 +80,70 @@
 
 #if defined(SHADOW_MAPS)
 #if SHADOW_MAPS>0
-	varying vec4 shadowCoord0;
+	in vec4 shadowCoord0;
 	uniform sampler2DShadow shadowMap0;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap0;
 	#endif
 #endif
 #if SHADOW_MAPS>1
-	varying vec4 shadowCoord1;
+	in vec4 shadowCoord1;
 	uniform sampler2DShadow shadowMap1;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap1;
 	#endif
 #endif
 #if SHADOW_MAPS>2
-	varying vec4 shadowCoord2;
+	in vec4 shadowCoord2;
 	uniform sampler2DShadow shadowMap2;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap2;
 	#endif
 #endif
 #if SHADOW_MAPS>3
-	varying vec4 shadowCoord3;
+	in vec4 shadowCoord3;
 	uniform sampler2DShadow shadowMap3;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap3;
 	#endif
 #endif
 #if SHADOW_MAPS>4
-	varying vec4 shadowCoord4;
+	in vec4 shadowCoord4;
 	uniform sampler2DShadow shadowMap4;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap4;
 	#endif
 #endif
 #if SHADOW_MAPS>5
-	varying vec4 shadowCoord5;
+	in vec4 shadowCoord5;
 	uniform sampler2DShadow shadowMap5;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap5;
 	#endif
 #endif
 #if SHADOW_MAPS>6
-	varying vec4 shadowCoord6;
+	in vec4 shadowCoord6;
 	uniform sampler2DShadow shadowMap6;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap6;
 	#endif
 #endif
 #if SHADOW_MAPS>7
-	varying vec4 shadowCoord7;
+	in vec4 shadowCoord7;
 	uniform sampler2DShadow shadowMap7;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap7;
 	#endif
 #endif
 #if SHADOW_MAPS>8
-	varying vec4 shadowCoord8;
+	in vec4 shadowCoord8;
 	uniform sampler2DShadow shadowMap8;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap8;
 	#endif
 #endif
 #if SHADOW_MAPS>9
-	varying vec4 shadowCoord9;
+	in vec4 shadowCoord9;
 	uniform sampler2DShadow shadowMap9;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap9;
@@ -193,7 +188,7 @@ uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to t
 
 #ifdef LIGHT_DIRECT_MAP
 	#if !defined(SHADOW_MAPS)
-		varying vec4 lightCoord;
+		in vec4 lightCoord;
 	#endif
 	uniform sampler2D lightDirectMap;
 #endif
@@ -203,12 +198,12 @@ uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to t
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
-	varying vec4 lightIndirectColor;
+	in vec4 lightIndirectColor;
 #endif
 
 #if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
 	uniform sampler2D lightIndirectMap;
-	varying vec2 lightIndirectCoord;
+	in vec2 lightIndirectCoord;
 #endif
 
 #ifdef LIGHT_INDIRECT_MAP2
@@ -222,7 +217,7 @@ uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to t
 #endif
 
 #if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-	varying vec4 lightIndirectMirrorCoord;
+	in vec4 lightIndirectMirrorCoord;
 	uniform sampler2D lightIndirectMirrorMap; // must have mipmaps if LIGHT_INDIRECT_MIRROR_MIPMAPS
 #endif
 #if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
@@ -235,10 +230,10 @@ uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to t
 
 #ifdef MATERIAL_DIFFUSE_MAP
 	uniform sampler2D materialDiffuseMap;
-	varying vec2 materialDiffuseCoord;
+	in vec2 materialDiffuseCoord;
 #endif
 
-varying vec3 worldPos;
+in vec3 worldPos;
 
 #if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_SIMULATED_DIRECTION) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
 	uniform vec3 materialSpecularShininessData; // shininess,pow(shininess,0.01),cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...)
@@ -250,10 +245,10 @@ varying vec3 worldPos;
 
 #ifdef MATERIAL_SPECULAR_MAP
 	uniform sampler2D materialSpecularMap;
-	varying vec2 materialSpecularCoord;
+	in vec2 materialSpecularCoord;
 #endif
 
-varying vec3 worldNormalSmooth;
+in vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_EMISSIVE_CONST
 	uniform vec4 materialEmissiveConst;
@@ -261,7 +256,7 @@ varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_EMISSIVE_MAP
 	uniform sampler2D materialEmissiveMap;
-	varying vec2 materialEmissiveCoord;
+	in vec2 materialEmissiveCoord;
 	uniform float materialEmittanceMultiplier;
 #endif
 
@@ -271,7 +266,7 @@ varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_TRANSPARENCY_MAP
 	uniform sampler2D materialTransparencyMap;
-	varying vec2 materialTransparencyCoord;
+	in vec2 materialTransparencyCoord;
 #endif
 
 #if defined(MATERIAL_TRANSPARENCY_MAP) || (defined(MATERIAL_DIFFUSE_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA) && !defined(MATERIAL_TRANSPARENCY_CONST))
@@ -311,10 +306,10 @@ varying vec3 worldNormalSmooth;
 #endif
 
 #ifdef MATERIAL_BUMP_MAP
-	varying vec3 worldTangent;
-	varying vec3 worldBitangent;
+	in vec3 worldTangent;
+	in vec3 worldBitangent;
 	uniform sampler2D materialBumpMap;
-	varying vec2 materialBumpMapCoord;
+	in vec2 materialBumpMapCoord;
 	uniform vec4 materialBumpMapData; // 1/w,1/h,normal steepness multiplier,parallax offset multiplier
 	#ifdef MATERIAL_NORMAL_MAP_FLOW
 		uniform float seconds;
@@ -395,6 +390,8 @@ vec4 toLinear(vec4 color)
 	#endif
 }
 
+out vec4 fragColor;
+
 void main()
 {
 
@@ -451,33 +448,33 @@ void main()
 				vec2 materialBumpMapCoord2 = 0.2*materialBumpMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0);
 				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
 					// a) faster
-					//float height = texture2D(materialBumpMap,materialBumpMapCoord1).x+texture2D(materialBumpMap,materialBumpMapCoord2).x-1.0;
+					//float height = texture(materialBumpMap,materialBumpMapCoord1).x+texture(materialBumpMap,materialBumpMapCoord2).x-1.0;
 					//vec3 localNormal = vec3(dFdx(height),dFdy(height),0.1);
 					// b) higher quality
-					float height = texture2D(materialBumpMap,materialBumpMapCoord1).x+texture2D(materialBumpMap,materialBumpMapCoord2).x-1.0;
-					float hx = texture2D(materialBumpMap,materialBumpMapCoord1+vec2(materialBumpMapData.x,0.0)).x+texture2D(materialBumpMap,materialBumpMapCoord2+vec2(materialBumpMapData.x,0.0)).x-1.0;
-					float hy = texture2D(materialBumpMap,materialBumpMapCoord1+vec2(0.0,materialBumpMapData.y)).x+texture2D(materialBumpMap,materialBumpMapCoord2+vec2(0.0,materialBumpMapData.y)).x-1.0;
+					float height = texture(materialBumpMap,materialBumpMapCoord1).x+texture(materialBumpMap,materialBumpMapCoord2).x-1.0;
+					float hx = texture(materialBumpMap,materialBumpMapCoord1+vec2(materialBumpMapData.x,0.0)).x+texture(materialBumpMap,materialBumpMapCoord2+vec2(materialBumpMapData.x,0.0)).x-1.0;
+					float hy = texture(materialBumpMap,materialBumpMapCoord1+vec2(0.0,materialBumpMapData.y)).x+texture(materialBumpMap,materialBumpMapCoord2+vec2(0.0,materialBumpMapData.y)).x-1.0;
 					vec3 localNormal = vec3(height-hx,height-hy,0.1);
 				#else
 					vec3 localNormal = normalize(
-						texture2D(materialBumpMap,materialBumpMapCoord1).xyz+
-						texture2D(materialBumpMap,materialBumpMapCoord2).xyz-vec3(1.0,1.0,1.0) );
+						texture(materialBumpMap,materialBumpMapCoord1).xyz+
+						texture(materialBumpMap,materialBumpMapCoord2).xyz-vec3(1.0,1.0,1.0) );
 				#endif
 			#else
 				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
-					float height = texture2D(materialBumpMap,materialBumpMapCoord).x;
+					float height = texture(materialBumpMap,materialBumpMapCoord).x;
 					#ifdef MATERIAL_DIFFUSE_MAP // effect is hardly visible without diffuse map, not worth two more lookups
 						parallaxOffset = (height-0.5) * materialBumpMapData.w * normalize(vec3(dot(worldEyeDir,worldTangent),dot(worldEyeDir,worldBitangent),dot(worldEyeDir,worldNormalSmooth))).xy;
-						height = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset).x;
+						height = texture(materialBumpMap,materialBumpMapCoord+parallaxOffset).x;
 					#endif
 					// a) faster
 					//vec3 localNormal = vec3(dFdx(height),dFdy(height),0.1);
 					// b) higher quality
-					float hx = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(materialBumpMapData.x,0.0)).x;
-					float hy = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(0.0,materialBumpMapData.y)).x;
+					float hx = texture(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(materialBumpMapData.x,0.0)).x;
+					float hy = texture(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(0.0,materialBumpMapData.y)).x;
 					vec3 localNormal = vec3(height-hx,height-hy,0.1);
 				#else
-					vec3 localNormal = texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0);
+					vec3 localNormal = texture(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0);
 				#endif
 			#endif
 			localNormal.z = localNormal.z * materialBumpMapData.z;
@@ -508,7 +505,7 @@ void main()
 		#endif
 	#endif
 	#ifdef MATERIAL_TRANSPARENCY_MAP
-		vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
+		vec4 materialTransparencyMapColor = texture(materialTransparencyMap, materialTransparencyCoord);
 		if (materialTransparencyMapInverted)
 			materialTransparencyMapColor = vec4(1.0)-materialTransparencyMapColor;
 		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
@@ -520,7 +517,7 @@ void main()
 		#endif
 	#endif
 	#ifdef MATERIAL_DIFFUSE_MAP
-		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord+parallaxOffset);
+		vec4 materialDiffuseMapColor = texture(materialDiffuseMap, materialDiffuseCoord+parallaxOffset);
 		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
 			if (materialTransparencyMapInverted)
 				materialDiffuseMapColor.a = 1.0-materialDiffuseMapColor.a;
@@ -549,7 +546,7 @@ void main()
 	// specular
 
 	#ifdef MATERIAL_SPECULAR_MAP
-		vec4 materialSpecularMapColor = texture2D(materialSpecularMap, materialSpecularCoord+parallaxOffset);
+		vec4 materialSpecularMapColor = texture(materialSpecularMap, materialSpecularCoord+parallaxOffset);
 	#endif
 	#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_SIMULATED_DIRECTION) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
 		float materialSpecularShininess = materialSpecularShininessData.x;
@@ -577,7 +574,7 @@ void main()
 	// emittance
 
 	#ifdef MATERIAL_EMISSIVE_MAP
-		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord) * materialEmittanceMultiplier;
+		vec4 materialEmissiveMapColor = texture(materialEmissiveMap, materialEmissiveCoord) * materialEmittanceMultiplier;
 	#endif
 
 
@@ -595,19 +592,19 @@ void main()
 			// it's not perfect, sometimes we want it, sometimes we don't, it depends on geometry
 			// let's not do it, to keep shader short
 			//	#if SHADOW_SAMPLES==1
-			//		#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * (shadowCoord.z<0.0?vec4(1.0):texture2DProj(shadowColorMap,shadowCoord.xyw))
+			//		#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * (shadowCoord.z<0.0?vec4(1.0):textureProj(shadowColorMap,shadowCoord.xyw))
 			//	#else
-			//		#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * (shadowCoord.z<0.0?vec4(1.0):texture2D(shadowColorMap,center.xy))
+			//		#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * (shadowCoord.z<0.0?vec4(1.0):texture(shadowColorMap,center.xy))
 			//	#endif
 			//#else
 				#if SHADOW_SAMPLES==1
-					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( texture2DProj(shadowColorMap,shadowCoord.xyw) )
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( textureProj(shadowColorMap,shadowCoord.xyw) )
 				#elif SHADOW_SAMPLES==2
-					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.5 * ( texture2D(shadowColorMap, (center+shift1).xy) +texture2D(shadowColorMap, (center-shift1).xy) ) )
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.5 * ( texture(shadowColorMap, (center+shift1).xy) +texture(shadowColorMap, (center-shift1).xy) ) )
 				#elif SHADOW_SAMPLES==4
-					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.25 * ( texture2D(shadowColorMap, (center+shift1).xy) +texture2D(shadowColorMap, (center-shift1).xy) +texture2D(shadowColorMap, (center+shift2).xy) +texture2D(shadowColorMap, (center-shift2).xy) ) )
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.25 * ( texture(shadowColorMap, (center+shift1).xy) +texture(shadowColorMap, (center-shift1).xy) +texture(shadowColorMap, (center+shift2).xy) +texture(shadowColorMap, (center-shift2).xy) ) )
 				#elif SHADOW_SAMPLES==8
-					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.125 * ( texture2D(shadowColorMap, (center+shift1).xy) +texture2D(shadowColorMap, (center-shift1).xy) +texture2D(shadowColorMap, (center+shift2).xy) +texture2D(shadowColorMap, (center-shift2).xy) +texture2D(shadowColorMap, (center+shift3).xy) +texture2D(shadowColorMap, (center-shift3).xy) +texture2D(shadowColorMap, (center+shift4).xy) +texture2D(shadowColorMap, (center-shift4).xy) ) )
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.125 * ( texture(shadowColorMap, (center+shift1).xy) +texture(shadowColorMap, (center-shift1).xy) +texture(shadowColorMap, (center+shift2).xy) +texture(shadowColorMap, (center-shift2).xy) +texture(shadowColorMap, (center+shift3).xy) +texture(shadowColorMap, (center-shift3).xy) +texture(shadowColorMap, (center+shift4).xy) +texture(shadowColorMap, (center-shift4).xy) ) )
 				#endif
 			//#endif
 		#else
@@ -620,7 +617,7 @@ void main()
 
 		#if SHADOW_SAMPLES==1
 			// hard shadows with 1 lookup
-			#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) visibility += shadow2DProj(shadowMap, shadowCoord).z
+			#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) visibility += textureProj(shadowMap, shadowCoord)
 		#else
 			// soft shadows with 2, 4 or 8 lookups in rotating kernel
 			vec4 shift = vec4(noiseSinCos.xyyx*shadowBlurWidth);
@@ -629,11 +626,11 @@ void main()
 			vec3 shift3 = vec3((shift.xy+shift.zw)*0.5,0.0);
 			vec3 shift4 = vec3((shift.xy-shift.zw)*0.5,0.0);
 			#if SHADOW_SAMPLES==2
-				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z )
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( texture(shadowMap, center+shift1) +texture(shadowMap, center-shift1) )
 			#elif SHADOW_SAMPLES==4
-				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z +shadow2D(shadowMap, center+shift2).z +shadow2D(shadowMap, center-shift2).z )
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( texture(shadowMap, center+shift1) +texture(shadowMap, center-shift1) +texture(shadowMap, center+shift2) +texture(shadowMap, center-shift2) )
 			#elif SHADOW_SAMPLES==8
-				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z +shadow2D(shadowMap, center+shift2).z +shadow2D(shadowMap, center-shift2).z +shadow2D(shadowMap, center+shift3).z +shadow2D(shadowMap, center-shift3).z +shadow2D(shadowMap, center+shift4).z +shadow2D(shadowMap, center-shift4).z )
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( texture(shadowMap, center+shift1) +texture(shadowMap, center-shift1) +texture(shadowMap, center+shift2) +texture(shadowMap, center-shift2) +texture(shadowMap, center+shift3) +texture(shadowMap, center-shift3) +texture(shadowMap, center+shift4) +texture(shadowMap, center-shift4) )
 			#endif
 		#endif // SHADOW_SAMPLES!=1
 
@@ -787,13 +784,13 @@ void main()
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
 				#if !defined(SHADOW_MAPS)
-					* texture2DProj(lightDirectMap, lightCoord)
+					* textureProj(lightDirectMap, lightCoord)
 				#elif SHADOW_MAPS<3
-					* texture2DProj(lightDirectMap, shadowCoord0)
+					* textureProj(lightDirectMap, shadowCoord0)
 				#elif SHADOW_MAPS<5
-					* texture2DProj(lightDirectMap, shadowCoord1)
+					* textureProj(lightDirectMap, shadowCoord1)
 				#else
-					* texture2DProj(lightDirectMap, shadowCoord2)
+					* textureProj(lightDirectMap, shadowCoord2)
 				#endif
 			#endif
 
@@ -820,11 +817,11 @@ void main()
 						+ lightIndirectColor
 					#endif
 					#ifdef LIGHT_INDIRECT_MAP
-						+ texture2D(lightIndirectMap, lightIndirectCoord)
+						+ texture(lightIndirectMap, lightIndirectCoord)
 					#endif
 					#ifdef LIGHT_INDIRECT_MAP2
 						* (1.0-lightIndirectBlend)
-						+ texture2D(lightIndirectMap2, lightIndirectCoord)
+						+ texture(lightIndirectMap2, lightIndirectCoord)
 						* lightIndirectBlend
 					#endif
 					;
@@ -856,8 +853,8 @@ void main()
 				float mirrorLod = lightIndirectMirrorData.z-materialSpecularMipLevel
 					// makes reflection sharper closer to reflected object (rough appriximation)
 					// but does not sharpen very blurry reflections, it would look bad, partially because of low quality generated mipmaps
-					+ max(materialSpecularMipLevel,0.0)*(texture2DLod(lightIndirectMirrorMap, mirrorCenterSmooth, lightIndirectMirrorData.z).a*4.0-4.0);
-					// BTW, texture2DLod() in fragment shader requires GLSL 1.30+ or GL_EXT_gpu_shader4 and we don't check it, it is virtually always present
+					+ max(materialSpecularMipLevel,0.0)*(textureLod(lightIndirectMirrorMap, mirrorCenterSmooth, lightIndirectMirrorData.z).a*4.0-4.0);
+					// BTW, textureLod() in fragment shader requires GLSL 1.30+ or GL_EXT_gpu_shader4 and we don't check it, it is virtually always present
 				vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * pow(1.5,mirrorLod);
 			#else
 				vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * 0.6;
@@ -865,7 +862,7 @@ void main()
 			vec2 mirrorShift2 = mirrorShift1.yx * vec2(1.5,-1.5);
 		#endif
 
-		gl_FragColor =
+		fragColor =
 
 			//
 			// diffuse reflection
@@ -917,20 +914,20 @@ void main()
 							+ lightIndirectScalar
 						#endif
 						#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
-							+ textureCubeLod(lightIndirectEnvMap, worldNormal, lightIndirectEnvMapNumLods-2.0)
+							+ textureLod(lightIndirectEnvMap, worldNormal, lightIndirectEnvMapNumLods-2.0)
 						#endif
 						#if defined(LIGHT_INDIRECT_SCALAR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
 							) * 0.5
 						#endif
 						#ifdef LIGHT_INDIRECT_MIRROR_DIFFUSE
 							#ifdef LIGHT_INDIRECT_MIRROR_MIPMAPS
-								+ dividedByAlpha(texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0))
+								+ dividedByAlpha(textureLod(lightIndirectMirrorMap, mirrorCenter, 6.0))
 							#else
-								+ dividedByAlpha(texture2D(lightIndirectMirrorMap, mirrorCenter))
+								+ dividedByAlpha(texture(lightIndirectMirrorMap, mirrorCenter))
 							#endif
 						#endif
 					#ifdef LIGHT_INDIRECT_DETAIL_MAP
-						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
+						) * texture(lightIndirectMap, lightIndirectCoord) * 2.0
 					#endif
 				).rgb,1.0)
 			)
@@ -997,25 +994,25 @@ void main()
 						#endif
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
-						+ textureCubeLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularMipLevel)
+						+ textureLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularMipLevel)
 					#endif
 					#ifdef LIGHT_INDIRECT_MIRROR_SPECULAR
 						+ dividedByAlpha(
 						#ifdef MATERIAL_BUMP_MAP
 							// when normal map moves mirrorCenter deep in non-mirrored area of mirrorMap, and all 4 rotated lookups read 0 in total, division by 0 looms.
 							// this lookup should always go into mirrored area, makes sum non-zero
-							+ texture2D(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01
+							+ texture(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01
 						#endif
 						#ifdef LIGHT_INDIRECT_MIRROR_MIPMAPS
-							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
-							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
-							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift2, mirrorLod)
-							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift2, mirrorLod)
+							+ textureLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
+							+ textureLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
+							+ textureLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift2, mirrorLod)
+							+ textureLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift2, mirrorLod)
 						#else
-							+ texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift1)
-							+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift1)
-							+ texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift2)
-							+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift2)
+							+ texture(lightIndirectMirrorMap, mirrorCenter+mirrorShift1)
+							+ texture(lightIndirectMirrorMap, mirrorCenter-mirrorShift1)
+							+ texture(lightIndirectMirrorMap, mirrorCenter+mirrorShift2)
+							+ texture(lightIndirectMirrorMap, mirrorCenter-mirrorShift2)
 						#endif
 							)
 					#endif
@@ -1047,47 +1044,47 @@ void main()
 
 			+ toLinear(
 			#if defined(LIGHT_INDIRECT_ENV_REFRACT) && (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA))
-				+ textureCube(lightIndirectEnvMap, refract(-worldEyeDir,worldNormal,1.0/materialRefractionIndex)) * vec4(transparencyRGB,0.0)
+				+ texture(lightIndirectEnvMap, refract(-worldEyeDir,worldNormal,1.0/materialRefractionIndex)) * vec4(transparencyRGB,0.0)
 			#endif
 			)
 			;
 
 		#ifdef FORCE_2D_POSITION
-			gl_FragColor.a = 1.0;
+			fragColor.a = 1.0;
 		#else
 			#if defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
 				#ifdef LIGHT_INDIRECT_ENV_REFRACT
-					// gl_FragColor.rgb already modified in // refraction
+					// fragColor.rgb already modified in // refraction
 				#else
-					gl_FragColor.a = opacityA;
+					fragColor.a = opacityA;
 				#endif
 			#endif
 			#if defined(LIGHT_INDIRECT_SCALAR) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
 				// only if not defined by material, opacity is taken from indirect light
 				// - so we can construct simple shader with color and opacity controlled by glColor4() (e.g. in glMenu)
 				// - before doing this also for LIGHT_INDIRECT_MAP, UberProgramSetup::validate() would have to be changed, it disables lightmap if diffuse is not present
-				gl_FragColor.a = lightIndirectScalar.a;
+				fragColor.a = lightIndirectScalar.a;
 			#endif
 		#endif
 
 		#ifdef POSTPROCESS_NORMALS
-			gl_FragColor.rgb = abs(worldNormalSmooth);
+			fragColor.rgb = abs(worldNormalSmooth);
 		#endif
 //		#ifdef POSTPROCESS_BRIGHTNESS
-//			gl_FragColor.rgb *= postprocessBrightness.rgb;
+//			fragColor.rgb *= postprocessBrightness.rgb;
 //		#endif
 //		#ifdef POSTPROCESS_GAMMA
-//			gl_FragColor.rgb = pow(gl_FragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
+//			fragColor.rgb = pow(fragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
 //		#endif
 		#ifdef POSTPROCESS_BIGSCREEN
-			gl_FragColor.rgb = max(gl_FragColor.rgb,vec3(0.33,0.33,0.33));
+			fragColor.rgb = max(fragColor.rgb,vec3(0.33,0.33,0.33));
 		#endif
 		#ifdef MATERIAL_TRANSPARENCY_TO_RGB
-			gl_FragColor.rgb = transparencyRGB;
+			fragColor.rgb = transparencyRGB;
 		#endif
 	#else
 		// all lights are disabled, render black pixels
-		gl_FragColor = vec4(0.0,0.0,0.0,1.0);
+		fragColor = vec4(0.0,0.0,0.0,1.0);
 	#endif
 
 	#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
@@ -1095,6 +1092,6 @@ void main()
 		// for better clarity, change GL_LINEAR_MIPMAP_LINEAR in PluginScene to GL_NEAREST_MIPMAP_NEAREST
 		// when mirror resolution changes, mipmaps randomly jump one pixel to the left/right/etc (tested on GF220 with GL_NICEST)
 		// if final render quality suffers, we can fix mirror resolution to the nearest power of 2
-		//gl_FragColor = 0.01*gl_FragColor+vec4(vec3(distanceFromMirrorEdge),1.0);
+		//fragColor = 0.01*fragColor+vec4(vec3(distanceFromMirrorEdge),1.0);
 	#endif
 }

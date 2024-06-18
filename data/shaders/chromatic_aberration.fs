@@ -2,11 +2,12 @@
 
 uniform sampler2D map;
 uniform vec2 redShift;
-varying vec2 mapCoord;
+in vec2 mapCoord;
+out vec4 fragColor;
 
 void main()
 {
-	vec4 color0 = texture2D(map,mapCoord);
-	vec4 color1 = texture2D(map,mapCoord+redShift);
-	gl_FragColor = vec4(color1.r,color0.gba);
+	vec4 color0 = texture(map,mapCoord);
+	vec4 color1 = texture(map,mapCoord+redShift);
+	fragColor = vec4(color1.r,color0.gba);
 }

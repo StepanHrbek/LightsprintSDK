@@ -11,22 +11,23 @@
 
 uniform sampler2D depthMap;
 uniform vec2 tPixelSize; // in texture space, 1/texture resolution
-varying vec2 tMapCoord;
+in vec2 tMapCoord;
 uniform vec4 silhouetteColor; // a=opacity, 1=silhouette fully visibile
 uniform vec4 creaseColor; // a=opacity, 1=crease fully visibile
+out vec4 fragColor;
 
 #define min3(a,b,c) min(a,min(b,c))
 #define max3(a,b,c) max(a,max(b,c))
 
 vec4 detectEdge(vec2 tStep)
 {
-	float z_3 = texture2D(depthMap,tMapCoord-3.0*tStep).z;
-	float z_2 = texture2D(depthMap,tMapCoord-2.0*tStep).z;
-	float z_1 = texture2D(depthMap,tMapCoord-tStep).z;
-	float z0  = texture2D(depthMap,tMapCoord).z;
-	float z1  = texture2D(depthMap,tMapCoord+tStep).z;
-	float z2  = texture2D(depthMap,tMapCoord+2.0*tStep).z;
-	float z3  = texture2D(depthMap,tMapCoord+3.0*tStep).z;
+	float z_3 = texture(depthMap,tMapCoord-3.0*tStep);
+	float z_2 = texture(depthMap,tMapCoord-2.0*tStep);
+	float z_1 = texture(depthMap,tMapCoord-tStep);
+	float z0  = texture(depthMap,tMapCoord);
+	float z1  = texture(depthMap,tMapCoord+tStep);
+	float z2  = texture(depthMap,tMapCoord+2.0*tStep);
+	float z3  = texture(depthMap,tMapCoord+3.0*tStep);
 
 	float dz_3 = z_2-z_3;
 	float dz_2 = z_1-z_2;
@@ -70,5 +71,5 @@ void main()
 	vec4 color = (x.a>y.a) ? x : y;
 	if (color.a==0.0)
 		discard;
-	gl_FragColor = color;
+	fragColor = color;
 }

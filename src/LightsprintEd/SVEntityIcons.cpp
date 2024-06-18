@@ -108,7 +108,7 @@ SVEntityIcons::SVEntityIcons(wxString pathToMaps, rr_gl::UberProgram* uberProgra
 
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.LEGACY_GL = true;
+	//uberProgramSetup.LEGACY_GL = true;
 	programArrows = uberProgramSetup.getProgram(uberProgram);
 }
 

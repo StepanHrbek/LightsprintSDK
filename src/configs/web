@@ -42,4 +42,8 @@ IO_LIBS = $(IO_DEPS) \
 
 GLFW_LIB = --use-port=contrib.glfw3
 
+# experiment
+LINK_FLAGS += -sMIN_WEBGL_VERSION=2
+LINK_FLAGS += -sMAX_WEBGL_VERSION=2
+
 CXX += --use-port=boost_headers 
