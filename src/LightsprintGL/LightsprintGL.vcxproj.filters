@@ -128,5 +128,11 @@
     <None Include="..\..\data\shaders\contours.vs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\..\data\shaders\chromatic_aberration.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\chromatic_aberration.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

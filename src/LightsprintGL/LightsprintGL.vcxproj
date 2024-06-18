@@ -115,6 +115,8 @@
   <ItemGroup>
     <None Include="..\..\data\shaders\bloom.fs" />
     <None Include="..\..\data\shaders\bloom.vs" />
+    <None Include="..\..\data\shaders\chromatic_aberration.fs" />
+    <None Include="..\..\data\shaders\chromatic_aberration.vs" />
     <None Include="..\..\data\shaders\contours.fs" />
     <None Include="..\..\data\shaders\contours.vs" />
     <None Include="..\..\data\shaders\dof.fs" />
