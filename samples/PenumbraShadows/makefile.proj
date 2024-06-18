@@ -17,6 +17,7 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 # project-dependent compiler/preprocessor flags
 
 CPP_FLAGS +=
+LINK_FLAGS += -sALLOW_MEMORY_GROWTH 
 
 # source files
 
@@ -40,6 +41,12 @@ DATA_FILES = \
 	scenes\koupelna\ZED_ZEL.JPG \
 	objects\potato \
 	objects\I_Robot_female.3ds \
+	maps\skybox\skybox_bk.jpg \
+	maps\skybox\skybox_dn.jpg \
+	maps\skybox\skybox_ft.jpg \
+	maps\skybox\skybox_lf.jpg \
+	maps\skybox\skybox_rt.jpg \
+	maps\skybox\skybox_up.jpg \
 	maps\spot0.png
 # convert each [file] in this list to --preload-file ../../data/[file]@data/[file]
 #  necessary, because virtual filesystem we build is rooted in current directory, it fails if file is outside
