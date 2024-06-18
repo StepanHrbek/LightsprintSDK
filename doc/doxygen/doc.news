@@ -23,6 +23,7 @@ NEWS
 
 CHANGES
 
+- glew is no longer bundled with SDK, install your own copy (we still use it)
 - cubemap import/export
   - API change: RRBuffer::load() and save() parameter 'cubeSideNames' removed
   - support for 6 files has been reduced (you can't use entirely custom six names,
