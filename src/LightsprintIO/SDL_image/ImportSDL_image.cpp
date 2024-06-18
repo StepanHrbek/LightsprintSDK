@@ -25,7 +25,7 @@ using namespace rr;
 //
 // RRBuffer load
 
-static RRBuffer* loadSDL_image(const RRString& filename, const char* cubeSideName[6])
+static RRBuffer* loadSDL_image(const RRString& filename)
 {
 	SDL_Surface* surface = IMG_Load(filename.c_str());
 	if (!surface)
