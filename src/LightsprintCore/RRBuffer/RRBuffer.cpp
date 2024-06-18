@@ -1343,7 +1343,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 }
 
 // cube map loader
-static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const char* cubeSideName[6], const RRFileLocator* _fileLocator)
+bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const char* cubeSideName[6], const RRFileLocator* _fileLocator)
 {
 	unsigned width = 0;
 	unsigned height = 0;
@@ -1477,18 +1477,8 @@ RRBuffer* RRBuffer::loadCube(const RRString& _filename, const RRFileLocator* _fi
 	}
 	std::wstring filename = RR_RR2STDW(_filename);
 	const char** cubeSideNames = selectCubeSideNames(filename);
-	if (cubeSideNames)
-	{
-		RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER, 1, 1, 1, BF_RGBA, true, nullptr);
-		bool reloaded = reloadCube(buffer, RR_STDW2RR(filename), cubeSideNames, _fileLocator);
-		if (reloaded)
-		{
-			buffer->filename = _filename; // [#36] exact filename we just opened or failed to open (we don't have a locator -> no attempts to open similar names)
-			return buffer;
-		}
-		RR_SAFE_DELETE(buffer);
-	}
-	// fall back to 2d... is this what user wants?
+	// we can stitch 6 files here by calling reloadCube(), but result wouldn't be cached
+	// so instead, we call load() that does caching for us
 	return load(RR_STDW2RR(filename),cubeSideNames,_fileLocator);
 }
 

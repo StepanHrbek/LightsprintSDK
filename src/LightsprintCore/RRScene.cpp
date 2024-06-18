@@ -400,6 +400,10 @@ const char* RRBuffer::getSupportedSaverExtensions()
 	return s_bufferLoadersAndSavers.getSupportedSaverExtensions();
 }
 
+extern bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const char* cubeSideName[6], const RRFileLocator* _fileLocator);
+
+// we get no locator because caller already located the file and calls us only on found file
+// not sure how it works with 6file cubemaps
 RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6])
 {
 	if (_filename.empty())
@@ -413,6 +417,18 @@ RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6]
 	{
 		RR_LIMITED_TIMES(1, RRReporter::report(WARN, "Can't load images, register loader first, see LightsprintIO.\n"));
 		return nullptr;
+	}
+	if (_cubeSideName)
+	{
+		// implement stitching from 6 files or cross here
+		RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER, 1, 1, 1, BF_RGBA, true, nullptr);
+		bool reloaded = reloadCube(buffer, _filename, _cubeSideName, nullptr);
+		if (reloaded)
+		{
+			buffer->filename = _filename; // [#36] exact filename we just opened or failed to open (we don't have a locator -> no attempts to open similar names)
+			return buffer;
+		}
+		RR_SAFE_DELETE(buffer);
 	}
 
 	RRBuffer* loaded = nullptr;
@@ -438,7 +454,7 @@ RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6]
 				loaderFound = true;
 				try
 				{
-					loaded = s_bufferLoadersAndSavers.loaders[i].loader(_filename,_cubeSideName);
+					loaded = s_bufferLoadersAndSavers.loaders[i].loader(_filename);
 				}
 				catch (...)
 				{
@@ -479,11 +495,16 @@ bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], con
 		RR_LIMITED_TIMES(1, RRReporter::report(WARN, "Can't save images, register saver first, see LightsprintIO.\n"));
 		return false;
 	}
+	if (_cubeSideName)
+	{
+		// implement splitting to 6 files here
+		RRReporter::report(WARN, "Saving cubemap to 6 files not yet implemented.\n");
+	}
 	for (unsigned i = 0; i<s_bufferLoadersAndSavers.savers.size(); i++)
 	{
 		if (extensionListMatches(_filename,s_bufferLoadersAndSavers.savers[i].extensions.c_str()))
 		{
-			if (s_bufferLoadersAndSavers.savers[i].saver(this, _filename, _cubeSideName, _parameters))
+			if (s_bufferLoadersAndSavers.savers[i].saver(this, _filename, _parameters))
 			{
 				filename = _filename; // [#36] filename of last successful save (although this could be weird if we save one frame of video)
 				return true;

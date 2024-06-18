@@ -40,7 +40,7 @@ class RRBufferDirectShow : public RRBuffer, public ISampleGrabberCB
 public:
 
 	//! First in buffer's lifetime (load from one location).
-	static RRBuffer* load(const RRString& _filename, const char* _cubeSideName[6])
+	static RRBuffer* load(const RRString& _filename)
 	{
 		RRBufferDirectShow* video = new RRBufferDirectShow(_filename);
 		if (!video->getWidth() || !video->getHeight())

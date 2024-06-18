@@ -873,7 +873,7 @@ class RRBufferFFmpeg : public RRBuffer
 public:
 
 	//! First in buffer's lifetime (load from one location).
-	static RRBuffer* load(const RRString& _filename, const char* _cubeSideName[6])
+	static RRBuffer* load(const RRString& _filename)
 	{
 		RRBufferFFmpeg* video = new RRBufferFFmpeg(_filename);
 		if (!video->player->hasAudio() && !video->player->hasVideo())

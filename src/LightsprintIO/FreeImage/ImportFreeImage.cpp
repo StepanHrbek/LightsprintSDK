@@ -303,7 +303,7 @@ static bool reload2d(RRBuffer* texture, const RRString& filename)
 	}
 }
 
-static RRBuffer* loadFreeImage(const RRString& filename, const char* cubeSideName[6])
+static RRBuffer* loadFreeImage(const RRString& filename)
 {
 	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,nullptr);
 	bool reloaded = (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
@@ -331,21 +331,15 @@ BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
 	}
 }
 
-bool saveFreeImage(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+bool saveFreeImage(RRBuffer* buffer, const RRString& filename, const RRBuffer::SaveParameters* saveParameters)
 {
 	bool result = false;
 
-	// preliminary, may change due to cubeSideName replacement
 #ifdef _WIN32
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilenameU(filename.w_str());
 #else
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.c_str());
 #endif
-
-	// default cube side names
-	const char* cubeSideNameBackup[6] = {"0","1","2","3","4","5"};
-	if (!cubeSideName)
-		cubeSideName = cubeSideNameBackup;
 
 	// save vertex buffer
 	if (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
@@ -495,19 +489,6 @@ bool saveFreeImage(RRBuffer* buffer, const RRString& filename, const char* cubeS
 						dst += dstbypp;
 					}
 
-					// generate single side filename
-#ifdef _WIN32
-					std::wstring filenameCube = RR_RR2STDW(filename);
-					int ofs = (int)filenameCube.find(L"%s");
-					if (ofs>=0)
-						filenameCube.replace(ofs,2,RRString(cubeSideName[side]).w_str());
-#else
-					std::string filenameCube = RR_RR2STD(filename);
-					int ofs = (int)filenameCube.find("%s");
-					if (ofs>=0)
-						filenameCube.replace(ofs,2,cubeSideName[side]);
-#endif
-
 					// save single side
 					int flags = 0;
 					if (saveParameters)
@@ -519,12 +500,16 @@ bool saveFreeImage(RRBuffer* buffer, const RRString& filename, const char* cubeS
 						flags = JPEG_QUALITYSUPERB;
 					}
 #ifdef _WIN32
-					result = FreeImage_SaveU(fif, dib, filenameCube.c_str(), flags)!=0;
+					result = FreeImage_SaveU(fif, dib, filename.w_str(), flags) != 0;
 #else
-					result = FreeImage_Save(fif, dib, filenameCube.c_str(), flags)!=0;
+					result = FreeImage_Save(fif, dib, filename.c_str(), flags)!=0;
 #endif
 					// if any one of 6 images fails, don't try other and report fail
 					if (!result) break;
+
+					// if we are saving 6 sides, we don't have mechanism to generate 6 different filenames here,
+					// stop after saving first side
+					break;
 				}
 			}
 		}

@@ -465,9 +465,9 @@ namespace rr
 		bool save(const RRString& filenameMask, const char* cubeSideName[6] = nullptr, const SaveParameters* saveParameters = nullptr);
 
 		//! Type of user defined function that loads content from file into new buffer.
-		typedef RRBuffer* (Loader)(const RRString& filename, const char* cubeSideName[6]);
+		typedef RRBuffer* (Loader)(const RRString& filename);
 		//! Type of user defined function that saves buffer contents to file.
-		typedef bool (Saver)(RRBuffer* buffer, const RRString& filenameMask, const char* cubeSideName[6], const SaveParameters* parameters);
+		typedef bool (Saver)(RRBuffer* buffer, const RRString& filename, const SaveParameters* parameters);
 		//! Hooks external code that handles loading content from files into new buffers.
 		//
 		//! Usually called from rr_io::registerIO().
