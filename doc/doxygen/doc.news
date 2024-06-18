@@ -23,11 +23,15 @@ NEWS
 
 CHANGES
 
-- if you still load cubemaps with RRBuffer::load(), switch to RRBuffer::loadCube()
-  - existing cubemap import code has been relocated from FreeImage integration to generic RRBuffer::loadCube() function,
-    where it works even if you disable FreeImage and use SDL_image or DirectShow instead
-  - RRBuffer::load() does no longer load cubemaps (API still makes it possible, but our importers don't do it)
-  - RRBuffer::reload() does no longer reload cubemaps (API still makes it possible, but our importers don't do it)
+- cubemap import/export
+  - API change: RRBuffer::load() and save() parameter 'cubeSideNames' removed
+  - support for 6 files has been reduced (you can't use entirely custom six names,
+    but you can still use RRBuffer::loadCube() that guesses the filenames)
+  - you can no longer save cubemaps to 6 files (saving to single file still works)
+  - stitching cubemaps from 6 images or cross works even with SDL_image or DirectShow, not just with FreeImage
+  - RRBuffer::load() does no longer stitch cubemaps from 6 images or cross (it can still load from .rrbuffer or .dds)
+  - RRBuffer::reload() does no longer restitch cubemaps from 6 images or cross (it can still reload from .rrbuffer or .dds)
+  - image cache no longer caches stitched cubemaps
 - nullptr->createXxx() will most likely crash, but it used to return nullptr.
   These and several other methods used to silently support being called on nullptr object.
   We used to define behavior in otherwise undefined behavior situations.
