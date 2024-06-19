@@ -180,8 +180,8 @@
             <reflectivity>
               <float>1.000000</float>
             </reflectivity>
-            <transparent opaque="RGB_ZERO">
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
             </transparent>
             <transparency>
               <float>0</float>
@@ -252,8 +252,8 @@
             <reflectivity>
               <float>1.000000</float>
             </reflectivity>
-            <transparent opaque="RGB_ZERO">
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
             </transparent>
             <transparency>
               <float>0</float>
@@ -324,8 +324,8 @@
             <reflectivity>
               <float>1.000000</float>
             </reflectivity>
-            <transparent opaque="RGB_ZERO">
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
             </transparent>
             <transparency>
               <float>0</float>
@@ -396,8 +396,8 @@
             <reflectivity>
               <float>1.000000</float>
             </reflectivity>
-            <transparent opaque="RGB_ZERO">
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
             </transparent>
             <transparency>
               <float>0</float>
@@ -468,8 +468,8 @@
             <reflectivity>
               <float>1.000000</float>
             </reflectivity>
-            <transparent opaque="RGB_ZERO">
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
             </transparent>
             <transparency>
               <float>0</float>
@@ -540,8 +540,8 @@
             <reflectivity>
               <float>1.000000</float>
             </reflectivity>
-            <transparent opaque="RGB_ZERO">
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+            <transparent opaque="A_ONE">
+              <color>1 1 1 1</color>
             </transparent>
             <transparency>
               <float>0</float>
