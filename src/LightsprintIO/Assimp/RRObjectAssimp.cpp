@@ -338,9 +338,17 @@ public:
 		aimaterial->Get(_AI_MATKEY_TEXTURE_BASE,aitype,0,str);
 		if (str.length)
 		{
+			aimaterial->Get(_AI_MATKEY_UVWSRC_BASE, aitype, 0, (int&)property.texcoord);
+			if (property == material.lightmap && str == aiString("unwrap.jpg"))
+			{
+				// I can't find way to specify ambient uv channel without texture in .dae file.
+				// So in koupelna4.dae, I use fake "unwrap" name. Assimp somehow appends .jpg.
+				// Skip loading the fake "unwrap.jpg", we don't want to flood log with warnings.
+				property.texture = nullptr;
+				return;
+			}
 			//property.texture = RRBuffer::load(convertStr(str));
 			property.texture = RRBuffer::load(convertStr(str),nullptr,textureLocator);
-			aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aitype,0,(int&)property.texcoord);
 			if (property.texture)
 			{
 				int texFlags;

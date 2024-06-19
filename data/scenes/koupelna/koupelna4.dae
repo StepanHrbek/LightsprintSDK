@@ -40,6 +40,7 @@
             </emission>
             <ambient>
               <color>1 1 1 1</color>
+              <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
               <texture texture="ZED_MOD_JPG-sampler" texcoord="CHANNEL1"/>
@@ -110,6 +111,7 @@
             </emission>
             <ambient>
               <color>1 1 1 1</color>
+              <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
               <texture texture="ZED_JPG-sampler" texcoord="CHANNEL1"/>
@@ -190,6 +192,7 @@
             </emission>
             <ambient>
               <color>1 1 1 1</color>
+              <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
               <texture texture="CERVENA_JPG-sampler" texcoord="CHANNEL1"/>
@@ -260,6 +263,7 @@
             </emission>
             <ambient>
               <color>1 1 1 1</color>
+              <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
               <texture texture="DRV_JPG-sampler" texcoord="CHANNEL1"/>
@@ -340,6 +344,7 @@
             </emission>
             <ambient>
               <color>1 1 1 1</color>
+              <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
               <texture texture="ZED_ZEL_JPG-sampler" texcoord="CHANNEL1"/>
@@ -420,6 +425,7 @@
             </emission>
             <ambient>
               <color>1 1 1 1</color>
+              <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
               <color>0 0 0 1</color>
@@ -503,6 +509,7 @@
             </emission>
             <ambient>
               <color>1 1 1 1</color>
+              <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
               <texture texture="PODLAHA_JPG-sampler" texcoord="CHANNEL1"/>
@@ -1331,18 +1338,23 @@
             <technique_common>
               <instance_material symbol="cervena" target="#cervena-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
               <instance_material symbol="zelena" target="#zelena-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
               <instance_material symbol="drevo" target="#drevo-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
               <instance_material symbol="_1_-_Default" target="#_1_-_Default-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
               <instance_material symbol="modra" target="#modra-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
             </technique_common>
           </bind_material>
@@ -1359,6 +1371,7 @@
             <technique_common>
               <instance_material symbol="drevo" target="#drevo-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
             </technique_common>
           </bind_material>
@@ -1375,6 +1388,7 @@
             <technique_common>
               <instance_material symbol="drevo" target="#drevo-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
             </technique_common>
           </bind_material>
@@ -1389,6 +1403,7 @@
             <technique_common>
               <instance_material symbol="drevo" target="#drevo-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
             </technique_common>
           </bind_material>
@@ -1402,7 +1417,7 @@
             <technique_common>
               <instance_material symbol="zluta" target="#zluta-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
-                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
             </technique_common>
           </bind_material>
@@ -1424,7 +1439,7 @@
             <technique_common>
               <instance_material symbol="zluta" target="#zluta-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
-                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
             </technique_common>
           </bind_material>
@@ -1437,7 +1452,7 @@
             <technique_common>
               <instance_material symbol="podlaha" target="#podlaha-material">
                 <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
-                <bind_vertex_input semantic="CHANNEL1" input_semantic="TEXCOORD" input_set="0"/>
+                <bind_vertex_input semantic="CHANNEL2" input_semantic="TEXCOORD" input_set="1"/>
               </instance_material>
             </technique_common>
           </bind_material>
