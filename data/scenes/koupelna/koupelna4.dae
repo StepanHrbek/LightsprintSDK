@@ -39,7 +39,6 @@
               <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>1 1 1 1</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -110,7 +109,6 @@
               <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>1 1 1 1</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -191,7 +189,6 @@
               <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>1 1 1 1</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -262,7 +259,6 @@
               <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>1 1 1 1</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -343,7 +339,6 @@
               <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>1 1 1 1</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -424,7 +419,6 @@
               <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>1 1 1 1</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -508,7 +502,6 @@
               <color>0 0 0 1</color>
             </emission>
             <ambient>
-              <color>1 1 1 1</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>

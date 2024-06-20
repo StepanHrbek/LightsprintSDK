@@ -157,7 +157,6 @@
         <technique sid="common">
           <phong>
             <ambient>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -230,7 +229,6 @@
         <technique sid="common">
           <phong>
             <ambient>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -303,7 +301,6 @@
         <technique sid="common">
           <phong>
             <ambient>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -376,7 +373,6 @@
         <technique sid="common">
           <phong>
             <ambient>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -449,7 +445,6 @@
         <technique sid="common">
           <phong>
             <ambient>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -522,7 +517,6 @@
         <technique sid="common">
           <phong>
             <ambient>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
@@ -595,7 +589,6 @@
         <technique sid="common">
           <phong>
             <ambient>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
               <texture texture="unwrap" texcoord="CHANNEL2"/>
             </ambient>
             <diffuse>
