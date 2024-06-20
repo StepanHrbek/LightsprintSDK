@@ -319,7 +319,7 @@ private:
 //
 // .rrbuffer load
 
-static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6])
+static RRBuffer* loadBuffer(const RRString& filename)
 {
 	try
 	{
@@ -357,7 +357,7 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 //
 // .rrbuffer save
 
-static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const RRBuffer::SaveParameters* saveParameters)
 {
 	if (!buffer || filename.empty())
 	{
