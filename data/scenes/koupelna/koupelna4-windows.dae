@@ -169,7 +169,7 @@
               </texture>
             </diffuse>
             <specular>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <color>0.4 0.4 0.4 1</color>
             </specular>
             <shininess>
               <float>9.999999</float>
@@ -241,7 +241,7 @@
               </texture>
             </diffuse>
             <specular>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <color>0.05 0.05 0.05 1</color>
             </specular>
             <shininess>
               <float>9.999999</float>
@@ -313,7 +313,7 @@
               </texture>
             </diffuse>
             <specular>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <color>0.05 0.05 0.05 1</color>
             </specular>
             <shininess>
               <float>9.999999</float>
@@ -385,7 +385,7 @@
               </texture>
             </diffuse>
             <specular>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <color>0.1 0.1 0.1 1</color>
             </specular>
             <shininess>
               <float>19.999998</float>
@@ -457,7 +457,7 @@
               </texture>
             </diffuse>
             <specular>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <color>0.05 0.05 0.05 1</color>
             </specular>
             <shininess>
               <float>19.999998</float>
@@ -529,7 +529,7 @@
               </texture>
             </diffuse>
             <specular>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <color>0.1 0.1 0.1 1</color>
             </specular>
             <shininess>
               <float>9.999999</float>
@@ -595,7 +595,7 @@
               <color>0.000000 0.000000 0.000000 0.000000</color>
             </diffuse>
             <specular>
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <color>0.6 0.6 0.6 1.000000</color>
             </specular>
             <shininess>
               <float>29.999998</float>
