@@ -12,13 +12,18 @@
 
 #include "RRObjectAssimp.h"
 #include "Lightsprint/RRScene.h"
-#include "include/assimp/cimport.h"
-#include "include/assimp/cexport.h"
-#include "include/assimp/config.h"
-#include "include/assimp/postprocess.h"
-#include "include/assimp/scene.h"
-#include "include/assimp/material.inl"
+#include "assimp/cimport.h"
+#include "assimp/cexport.h"
+#include "assimp/config.h"
+#include "assimp/postprocess.h"
+#include "assimp/scene.h"
+#include "assimp/material.inl"
+#include "assimp/revision.h"
 #include <filesystem>
+
+//#pragma comment(lib,VER_ORIGINAL_FILENAME_STR)           // this macro has dll instead of lib
+//#pragma comment(lib,"assimp-" RR_LIB_COMPILER "-mt.lib") // this macro has v143 instead of vc143
+#pragma comment(lib,"assimp-vc143-mtd.lib")                 // too specific
 
 namespace bf = std::filesystem;
 

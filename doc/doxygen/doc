@@ -638,18 +638,18 @@ Material formats (1)
    - Ubuntu: install with <code>sudo apt-get install libboost-dev libboost-serialization-dev</code>
 
   \section boost_remove Removing boost
-   Boost is good, but if you really must build Lightsprint SDK without it, do
-   - delete <code>\#define SUPPORT_ASSIMP</code> and <code>\#define SUPPORT_LIGHTSPRINT</code> in <code>src/LightsprintIO/supported_formats.h</code>
-   - few more places might need tweak
+   Boost is good, but if you really must build Lightsprint SDK without it,
+   stop defining RR_LINKS_BOOST in your project or makefile.
+   This will disable features that depend on boost libraries that are not header only.
 
 \page tpl_assimp Assimp
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - Windows: git head from 2018-06-08 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - Windows: install with ???
   - OSX: install with <code>sudo port install assimp</code>
   - Ubuntu: install with <code>sudo apt-get install libassimp-dev</code>
-  - Assimp is automatically disabled when building with old Visual Studios
+  - \subpage assimp_patch "patches"
 
  \page assimp_patch Assimp patch
 
@@ -692,6 +692,7 @@ Material formats (1)
   - www: <a href="http://opencollada.org/">OpenCollada</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, remove by deleting <code>\#define SUPPORT_OPENCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
+  - \subpage opencollada_patch "patches"
 
  \page opencollada_patch OpenCollada patch
 

@@ -25,6 +25,7 @@ NEWS
 CHANGES
 
 - GLEW is no longer bundled with SDK, install your own copy (we still use it)
+- assimp is no longer bundled with SDK, install your own copy (we still use it)
 - OpenCollada is no longer bundled with SDK and is disabled by default,
   install your own copy and define SUPPORT_OPENCOLLADA if you use it (it's still the best of our 3 importers)
 - nullptr->createXxx() will most likely crash, but it used to return nullptr.
