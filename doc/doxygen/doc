@@ -473,6 +473,7 @@ Material formats (1)
  - \subpage tpl_boost
  - \subpage tpl_assimp
  - \subpage tpl_freeimage
+ - \subpage tpl_sdlimage
  - \subpage tpl_ffmpeg
  - \subpage tpl_portaudio
  - \subpage tpl_opencollada
@@ -670,6 +671,12 @@ Material formats (1)
   - OSX: install with <code>sudo port install freeimage</code>
   - Ubuntu: install with <code>sudo apt-get install libfreeimage-dev</code>
   - Fedora: install with <code>pkcon install freeimage-devel</code>
+
+\page tpl_sdlimage SDL_image
+  - www: <a href="http://libsdl.org/">SDL</a>
+  - license: <a href="https://www.libsdl.org/license.php">zlib</a>
+  - optional, remove by deleting <code>\#define SUPPORT_SDL_IMAGE</code> in <code>src/LightsprintIO/supported_formats.h</code>
+  - web: no need to install, build system works it out
 
 \page tpl_ffmpeg FFmpeg or libav
   - www: <a href="http://ffmpeg.org/">FFmpeg</a> or <a href="http://libav.org/">libav</a>

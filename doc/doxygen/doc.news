@@ -17,17 +17,18 @@ NEWS
   - install or checkout emsdk
   - build with emscripten's <code>emmake make</code> (if necessary, prepare environment with emsdk_env)
   - this is work in progress, early phase, only the simplest console samples work
-- added image import using SDL_image
-  - intended primarily for web target, not as complete as FreeImage integration
+- added image import using \ref tpl_sdlimage
+  - intended primarily for web target, not as complete as \ref tpl_freeimage integration
 - stitching cubemaps from 6 images or cross shape works even with SDL_image or DirectShow, not just with FreeImage
-- added RR_DEBUG(a) as a shortcut for <code>#ifdef _DEBUG a #endif</code>
+- added RR_DEBUG(a) as a shortcut for <code>\#ifdef _DEBUG a \#endif</code>
 
 CHANGES
 
-- GLEW is no longer bundled with SDK, install your own copy (we still use it)
-- assimp is no longer bundled with SDK, install your own copy (we still use it)
-- OpenCollada is no longer bundled with SDK and is disabled by default,
-  install your own copy and define SUPPORT_OPENCOLLADA if you use it (it's still the best of our 3 importers)
+- some 3rd party libraries no longer bundled with SDK
+  - \ref tpl_glew no longer bundled, install your own copy (we still use it)
+  - \ref tpl_assimp no longer bundled, install your own copy (we still use it)
+  - \ref tpl_opencollada no longer bundled and is disabled by default,
+    install your own copy and define SUPPORT_OPENCOLLADA if you use it (it's still the best of our 3 importers)
 - nullptr->createXxx() will most likely crash, but it used to return nullptr.
   These and several other methods used to silently support being called on nullptr object.
   We used to define behavior in otherwise undefined behavior situations.
