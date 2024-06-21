@@ -32,6 +32,8 @@ CHANGES
   We used to define behavior in otherwise undefined behavior situations.
   New compilers loudly complain about it, so our good behavior has been removed.
 - RRBuffer::createReference() is now thread safe
+- improved assimp import of lights
+
 
 \section news149 ------------------------------------ 2023.08.30 -------------------------------------
 

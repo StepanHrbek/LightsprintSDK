@@ -294,6 +294,19 @@ public:
 		if (_node)
 		{
 			_transformation *= _node->mTransformation;
+			RRMatrix3x4 world = convertMatrix(_transformation);
+
+			for (unsigned i=0;i<_scene->mNumLights;i++)
+			{
+				if (_scene->mLights[i]->mName==_node->mName)
+				{
+					// each light is transformed by nodes with the same name
+					// i hope assimp ensures that there is only one such node
+					// transform lights in this node
+					_scene->mLights[i]->mDirection = _transformation * _scene->mLights[i]->mDirection;
+					_scene->mLights[i]->mPosition = _transformation * _scene->mLights[i]->mPosition + aiVector3D(_transformation.d1, _transformation.d2, _transformation.d3);
+				}
+			}
 
 			RRObjects objectsInThisNode;
 			for (unsigned i=0;i<_node->mNumMeshes;i++)
@@ -304,7 +317,6 @@ public:
 				{
 					RRObject* object = new RRObject;
 					object->setCollider(collider);
-					RRMatrix3x4 world = convertMatrix(_transformation);
 					object->setWorldMatrix(&world);
 					if (_node->mParent && _node->mParent->mParent && !_node->mParent->mNumMeshes && _node->mParent->mName.length)
 						object->name.format(L"%hs / %hs",_node->mParent->mName.data,_node->mName.data); // prepend name of empty non-root parent, helps in .ifc
@@ -527,6 +539,7 @@ public:
 			textureLocator->setParent(true,subdirTex);
 			textureLocator->setParent(true,subdirTextures);
 		}
+		// first objects, then lights, because we transform lights while reading objects
 		scene->protectedObjects = new RRObjectsAssimp(aiscene,textureLocator);
 		scene->protectedLights = new RRLightsAssimp(aiscene);
 		for (unsigned i=0;i<aiscene->mNumCameras;i++)
