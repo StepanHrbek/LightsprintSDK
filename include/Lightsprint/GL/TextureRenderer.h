@@ -125,6 +125,13 @@ public:
 
 private:
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, float angleRad, const rr::RRVec3& brightness, float gamma);
+	enum
+	{
+		VBO_4xVEC2,
+		VBO_4xVEC3,
+		VBO_COUNT,
+	};
+	GLuint VBO[VBO_COUNT];
 };
 
 }; // namespace

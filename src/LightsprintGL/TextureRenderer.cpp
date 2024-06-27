@@ -57,10 +57,12 @@ TextureRenderer::TextureRenderer(const rr::RRString& pathToShaders)
 		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lssky.*\n",pathToShaders.w_str());
 	if (!twodProgram)
 		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lstexture.*\n",pathToShaders.w_str());
+	glGenBuffers(VBO_COUNT, VBO);
 }
 
 TextureRenderer::~TextureRenderer()
 {
+	glDeleteBuffers(VBO_COUNT, VBO);
 	delete skyProgram;
 	delete twodProgram;
 }
@@ -107,13 +109,19 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	rr::RRVec3 unused;
 	for (unsigned i=0;i<4;i++)
 		 camera.getRay(position[i],unused,direction[i]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_4xVEC2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VAA_POSITION);
-	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
+	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_4xVEC3]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(direction), direction, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VAA_NORMAL);
-	glVertexAttribPointer(VAA_NORMAL, 3, GL_FLOAT, 0, 0, direction);
+	glVertexAttribPointer(VAA_NORMAL, 3, GL_FLOAT, 0, 0, 0);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(VAA_NORMAL);
 	glDisableVertexAttribArray(VAA_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	return true;
 }
@@ -205,9 +213,14 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 
 	rr::RRVec3 position[4] = {rr::RRVec3(2*x-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*(y+h)-1,RR_MAX(z,0)),rr::RRVec3(2*x-1,2*(y+h)-1,RR_MAX(z,0))};
 	rr::RRVec2 uv[4] = {rr::RRVec2(0,0),rr::RRVec2(1,0),rr::RRVec2(1,1),rr::RRVec2(0,1)};
-	glVertexAttribPointer(VAA_POSITION, 3, GL_FLOAT, 0, 0, position);
-	glVertexAttribPointer(VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, 0, 0, uv);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_4xVEC3]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(VAA_POSITION, 3, GL_FLOAT, 0, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_4xVEC2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(uv), uv, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, 0, 0, 0);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 #ifndef RR_GL_ES2
 	if (texture && texture->getBuffer() && texture->getBuffer()->getFormat()==rr::BF_DEPTH)
@@ -245,10 +258,15 @@ void TextureRenderer::render2D(const Texture* texture, const ToneParameters* tp,
 void TextureRenderer::renderQuad(const float* position)
 {
 	float fixedPosition[8] = {-1,-1, -1,1, 1,1, 1,-1};
+	if (!position)
+		position = fixedPosition;
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_4xVEC2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(fixedPosition), position, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VAA_POSITION);
-	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position?position:fixedPosition);
+	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, 0);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(VAA_POSITION);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 }; // namespace
