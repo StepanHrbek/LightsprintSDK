@@ -242,10 +242,10 @@ public:
 				texcoords.clear();
 				unsigned numTriangles = aimesh->mNumFaces;
 				unsigned numVertices = aimesh->mNumVertices;
-				unsigned numTexcoords = aimesh->GetNumUVChannels();
 				bool tangents = aimesh->mTangents && aimesh->mBitangents;
-				for (unsigned i=0;i<numTexcoords;i++)
-					texcoords.push_back(i);
+				for (unsigned i=0;i<AI_MAX_NUMBER_OF_TEXTURECOORDS;i++)
+					if (aimesh->mTextureCoords[i])
+						texcoords.push_back(i);
 				if (mesh->resizeMesh(numTriangles,numVertices,&texcoords,tangents,false))
 				{	
 					for (unsigned t=0;t<numTriangles;t++)
@@ -272,9 +272,9 @@ public:
 							if (tangents) mesh->bitangent[v] = convertDir(aimesh->mBitangents[v]);
 						}
 					}
-					for (unsigned uv=0;uv<numTexcoords;uv++)
+					for (unsigned uv=0;uv<texcoords.size();uv++)
 						for (unsigned v=0;v<numVertices;v++)
-							mesh->texcoord[uv][v] = convertUv(aimesh->mTextureCoords[uv][v]);
+							mesh->texcoord[texcoords[uv]][v] = convertUv(aimesh->mTextureCoords[texcoords[uv]][v]);
 				}
 			}
 		}
