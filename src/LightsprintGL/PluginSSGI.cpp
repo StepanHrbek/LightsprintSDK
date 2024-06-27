@@ -116,7 +116,7 @@ public:
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,bigColor2,oldFBOState);
 			glViewport(0,0,w,h);
 			glDisable(GL_CULL_FACE);
-			TextureRenderer::renderQuad();
+			_renderer.getTextureRenderer()->renderQuad();
 
 			// bigColor3 = blurred(bigColor2)
 			ssgiProgram = ssgiProgram2;
@@ -126,7 +126,7 @@ public:
 			ssgiProgram->sendTexture("colorMap",bigColor);
 			ssgiProgram->sendTexture("aoMap",bigColor2);
 			ssgiProgram->sendUniform("tPixelSize",1.0f/w,0.f);
-			TextureRenderer::renderQuad();
+			_renderer.getTextureRenderer()->renderQuad();
 
 			// backbuffer = blurred(bigColor3)
 			oldFBOState.restore();
@@ -139,7 +139,7 @@ public:
 		PreserveFlag p4(GL_BLEND,GL_TRUE);
 		PreserveBlendFunc p5;
 		glBlendFunc(GL_ZERO,GL_SRC_COLOR);
-		TextureRenderer::renderQuad();
+		_renderer.getTextureRenderer()->renderQuad();
 		//if (_textureRenderer)
 		//	_textureRenderer->render2D(bigDepth,nullptr,0,0.35f,0.3f,0.3f,-1);
 	}

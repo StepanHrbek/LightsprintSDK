@@ -148,7 +148,7 @@ public:
 				stereoProgram->useIt();
 				stereoProgram->sendTexture("map",stereoTexture);
 				stereoProgram->sendUniform("mapHalfHeight",float(_sp.viewport[3]/2));
-				TextureRenderer::renderQuad();
+				_renderer.getTextureRenderer()->renderQuad();
 			}
 		}
 

@@ -190,20 +190,20 @@ public:
 		dofProgram1->sendUniform("mDepthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 		glViewport(0,0,smallColor1->getBuffer()->getWidth(),smallColor1->getBuffer()->getHeight());
 		glDisable(GL_CULL_FACE);
-		TextureRenderer::renderQuad();
+		_renderer.getTextureRenderer()->renderQuad();
 
 		// blur smallColor1 to smallColor2
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallColor2,oldFBOState);
 		dofProgram2->useIt();
 		dofProgram2->sendTexture("smallMap",smallColor1);
 		dofProgram2->sendUniform("tPixelSize",1.0f/smallColor1->getBuffer()->getWidth(),0.f);
-		TextureRenderer::renderQuad();
+		_renderer.getTextureRenderer()->renderQuad();
 
 		// blur smallColor2 to smallColor3
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallColor3,oldFBOState);
 		dofProgram2->sendTexture("smallMap",smallColor2);
 		dofProgram2->sendUniform("tPixelSize",0.f,1.0f/smallColor1->getBuffer()->getHeight());
-		TextureRenderer::renderQuad();
+		_renderer.getTextureRenderer()->renderQuad();
 
 		// blur bigColor+bigDepth to render target using CoC from smallColor
 		oldFBOState.restore();
@@ -283,7 +283,7 @@ public:
 		dofProgram3->sendUniform("num_samples",numSamples);
 		dofProgram3->sendUniformArray("samples", numSamples, sample);
 		glViewport(_sp.viewport[0],_sp.viewport[1],w,h);
-		TextureRenderer::renderQuad();
+		_renderer.getTextureRenderer()->renderQuad();
 	}
 };
 

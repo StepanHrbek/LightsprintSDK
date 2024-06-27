@@ -121,7 +121,7 @@ public:
 
 	//! Helper, renders quad, identical to glBegin();4x glVertex();glEnd(); with coordinates from -1,-1 to 1,1.
 	//! Optional parameter lets you provide your own coordinates.
-	static void renderQuad(const float* positions = nullptr);
+	void renderQuad(const float* positions = nullptr);
 
 private:
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, float angleRad, const rr::RRVec3& brightness, float gamma);
