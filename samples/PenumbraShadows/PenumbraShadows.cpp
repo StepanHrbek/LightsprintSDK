@@ -62,7 +62,7 @@ void error(const char* message, bool gfxRelated)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// globals are ugly, but required by GLFW design with callbacks
+// variables accessed by GLFW callbacks
 
 Model_3DS                  m3ds;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
@@ -272,8 +272,7 @@ int main(int argc, char** argv)
 	glfwSetErrorCallback(error_callback);
 	if (!glfwInit())
 		error("glfwInit() failed.", true);
-	GLFWwindow* window;
-	window = glfwCreateWindow(800, 600, "Lightsprint Penumbra Shadows", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Lightsprint Penumbra Shadows", NULL, NULL);
 	if (!window)
 		error("glfwCreateWindow() failed.", true);
 	glfwMakeContextCurrent(window);

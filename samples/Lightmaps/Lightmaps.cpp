@@ -73,7 +73,7 @@ void error(const char* message, bool gfxRelated)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// globals are ugly, but required by GLUT design with callbacks
+// variables accessed by GLFW callbacks
 
 enum Layer// arbitrary layer numbers
 {
