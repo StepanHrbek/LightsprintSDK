@@ -21,11 +21,35 @@ CPP_FLAGS +=
 # source files
 
 SOURCES = \
-MovingSun.cpp
+	MovingSun.cpp
+
+# data files
+
+DATA_FILES = \
+	shaders \
+	scenes\sponza\sponza.dae \
+	scenes\sponza\00_skap.jpg \
+	scenes\sponza\01_stub.jpg \
+	scenes\sponza\01_st_kp.jpg \
+	scenes\sponza\01_s_ba.jpg \
+	scenes\sponza\kamen.jpg \
+	scenes\sponza\prozor1.jpg \
+	scenes\sponza\reljef.jpg \
+	scenes\sponza\sp_luk.jpg \
+	scenes\sponza\vrata_ko.jpg \
+	scenes\sponza\vrata_kr.jpg \
+	scenes\sponza\x01_st.jpg \
+	objects\lowpoly \
+	maps\skybox\skybox_bk.jpg \
+	maps\skybox\skybox_dn.jpg \
+	maps\skybox\skybox_ft.jpg \
+	maps\skybox\skybox_lf.jpg \
+	maps\skybox\skybox_rt.jpg \
+	maps\skybox\skybox_up.jpg
 
 # libraries
 
-LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB)
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLFW_LIB)
 
 # include directories
 
