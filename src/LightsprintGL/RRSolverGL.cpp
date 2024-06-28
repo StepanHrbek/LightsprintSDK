@@ -748,8 +748,8 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 			if (bytes <= _spaceBytes)
 			{
 				glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiPbo[stopIndex]);
-				const unsigned* pixel_data = (const unsigned*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-				//const unsigned* pixel_data = (const unsigned*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, bytes, GL_MAP_READ_BIT); // commented out because it requires GL 3.0, but it's not better than glMapBuffer GL 2.0
+				// glMapBufferRange exists since GL 3.0 and GL ES 3.0, WebGL 2.0 has glGetBufferSubData
+				const unsigned* pixel_data = (const unsigned*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, bytes, GL_MAP_READ_BIT);
 				RR_ASSERT(pixel_data);
 				if (pixel_data)
 				{
