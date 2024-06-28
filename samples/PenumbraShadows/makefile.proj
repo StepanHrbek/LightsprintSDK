@@ -17,14 +17,13 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 # project-dependent compiler/preprocessor flags
 
 CPP_FLAGS +=
-LINK_FLAGS += -sALLOW_MEMORY_GROWTH 
 
 # source files
 
 SOURCES = \
-PenumbraShadows.cpp \
-DynamicObject.cpp \
-../../src/LightsprintIO/3DS/Model_3DS.cpp
+	PenumbraShadows.cpp \
+	DynamicObject.cpp \
+	../../src/LightsprintIO/3DS/Model_3DS.cpp
 
 # data files / virtual filesystem
 

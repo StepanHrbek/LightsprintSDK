@@ -14,7 +14,7 @@ CPP_FLAGS += -DNDEBUG
 # workaround for emscripten in 2024-04 not understanding std::execution::par_unseq
 CPP_FLAGS += -fexperimental-library
 
-# emscripten translates our code to webgl, which is similar to GL ES
+# emscripten translates our code to WebGL 2.0, which is similar to GL ES 3.0
 CPP_FLAGS += -DRR_GL_ES2
 
 C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++17 from CPP_FLAGS 
@@ -42,8 +42,9 @@ IO_LIBS = $(IO_DEPS) \
 
 GLFW_LIB = --use-port=contrib.glfw3
 
-LINK_FLAGS += -sMIN_WEBGL_VERSION=2
-LINK_FLAGS += -sMAX_WEBGL_VERSION=2
+LINK_FLAGS += -sALLOW_MEMORY_GROWTH # all graphics samples need more than default memory
+LINK_FLAGS += -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 # we target WebGL 2.0
+LINK_FLAGS += -sFULL_ES3 # please emulate glMapBufferRange / glUnmapBuffer with glGetBufferSubData
 # convert each [file] in DATA_FILES list to --preload-file ../../data/[file]@data/[file]
 #  necessary, because virtual filesystem we build is rooted in current directory, it fails if file is outside
 #  luckily, when c++ code looks for "../../data/file", virtual filesystem finds it in "data/file"
