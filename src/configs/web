@@ -42,8 +42,11 @@ IO_LIBS = $(IO_DEPS) \
 
 GLFW_LIB = --use-port=contrib.glfw3
 
-# experiment
 LINK_FLAGS += -sMIN_WEBGL_VERSION=2
 LINK_FLAGS += -sMAX_WEBGL_VERSION=2
+# convert each [file] in DATA_FILES list to --preload-file ../../data/[file]@data/[file]
+#  necessary, because virtual filesystem we build is rooted in current directory, it fails if file is outside
+#  luckily, when c++ code looks for "../../data/file", virtual filesystem finds it in "data/file"
+LINK_FLAGS += $(subst ::, ,$(join $(patsubst %,--preload-file::../../data/%@data/,$(DATA_FILES)),$(DATA_FILES)))
 
 CXX += --use-port=boost_headers 
