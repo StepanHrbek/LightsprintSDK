@@ -37,16 +37,11 @@
 #include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/GL/PluginSSGI.h"
 #include "Lightsprint/IO/IO.h"
-#ifdef __APPLE__
-	#include <GLUT/glut.h>
-	#include <ApplicationServices/ApplicationServices.h>
-#else
-	#include <GL/glut.h>
+#ifdef __EMSCRIPTEN__
+	#include <emscripten.h> // emscripten_set_main_loop
 #endif
-
-// only longjmp can break us from glut mainloop
-#include <setjmp.h>
-jmp_buf jmp;
+#include <GLFW/glfw3.h>
+#pragma comment(lib,"glfw3.lib")
 
 // arbitrary unique non-negative numbers
 enum
@@ -72,7 +67,7 @@ void error(const char* message, bool gfxRelated)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// globals are ugly, but required by GLUT design with callbacks
+// variables accessed by GLFW callbacks
 
 rr_gl::RRSolverGL*  solver = nullptr;
 rr::RRObject*              robot = nullptr;
@@ -128,33 +123,29 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// GLUT callbacks
+// GLFW callbacks
 
-void special(int c, int x, int y)
+void error_callback(int error, const char* description)
 {
-	switch(c) 
+	rr::RRReporter::report(rr::ERRO, "%d %s\n", error, description);
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	int speed = (action == GLFW_PRESS || action == GLFW_REPEAT) ? 1 : 0;
+	switch (key)
 	{
-		case GLUT_KEY_UP: speedForward = 1; break;
-		case GLUT_KEY_DOWN: speedBack = 1; break;
-		case GLUT_KEY_LEFT: speedLeft = 1; break;
-		case GLUT_KEY_RIGHT: speedRight = 1; break;
+		case GLFW_KEY_UP: speedForward = speed; break;
+		case GLFW_KEY_DOWN: speedBack = speed; break;
+		case GLFW_KEY_LEFT: speedLeft = speed; break;
+		case GLFW_KEY_RIGHT: speedRight = speed; break;
+		case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(window, GLFW_TRUE); break;
 	}
 }
 
-void specialUp(int c, int x, int y)
+void character_callback(GLFWwindow* window, unsigned int codepoint)
 {
-	switch(c) 
-	{
-		case GLUT_KEY_UP: speedForward = 0; break;
-		case GLUT_KEY_DOWN: speedBack = 0; break;
-		case GLUT_KEY_LEFT: speedLeft = 0; break;
-		case GLUT_KEY_RIGHT: speedRight = 0; break;
-	}
-}
-
-void keyboard(unsigned char c, int x, int y)
-{
-	switch (c)
+	switch (codepoint)
 	{
 		case '+':
 			brightness *= 1.2f;
@@ -177,19 +168,14 @@ void keyboard(unsigned char c, int x, int y)
 		case '7':
 		case '8':
 		case '9':
-			selectedLightIndex = RR_MIN(c-'1',(int)solver->getLights().size()-1);
+			selectedLightIndex = RR_MIN(codepoint-'1',(int)solver->getLights().size()-1);
 			if (solver->realtimeLights.size()) modeMovingEye = false;
 			break;
-
-		case 27:
-			// only longjmp can break us from glut mainloop
-			// (exceptions don't propagate through foreign stack)
-			longjmp(jmp,0);
 	}
 	solver->reportInteraction();
 }
 
-void reshape(int w, int h)
+void reshape_callback(GLFWwindow* window, int w, int h)
 {
 	winWidth = w;
 	winHeight = h;
@@ -197,58 +183,52 @@ void reshape(int w, int h)
 	eye.setAspect( winWidth/(float)winHeight );
 }
 
-void mouse(int button, int state, int x, int y)
+void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && solver->realtimeLights.size())
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && solver->realtimeLights.size())
 		modeMovingEye = !modeMovingEye;
-#ifdef GLUT_WHEEL_UP
+	solver->reportInteraction();
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
 	float fov = eye.getFieldOfViewVerticalDeg();
-	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
+	if (yoffset < 0)
 	{
 		if (fov>13) fov -= 10; else fov /= 1.4f;
 	}
-	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
+	if (yoffset > 0)
 	{
 		if (fov*1.4f<=3) fov *= 1.4f; else if (fov<130) fov += 10;
 	}
 	eye.setFieldOfViewVerticalDeg(fov);
-#endif
 	solver->reportInteraction();
 }
 
-void passive(int x, int y)
+void mouseposition_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (!winWidth || !winHeight) return;
-	RR_LIMITED_TIMES(1,glutWarpPointer(winWidth/2,winHeight/2);return;);
-	x -= winWidth/2;
-	y -= winHeight/2;
-	if (x || y)
+	RR_LIMITED_TIMES(1, \
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); \
+		glfwSetCursorPos(window, 0, 0); \
+		return; );
+	if (xpos || ypos)
 	{
-#if defined(LINUX) || defined(linux)
-		const float mouseSensitivity = 0.0002f;
-#else
 		const float mouseSensitivity = 0.005f;
-#endif
 		rr::RRCamera& cam = modeMovingEye ? eye : *solver->realtimeLights[selectedLightIndex]->getCamera();
-		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
+		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(xpos,ypos,0)*mouseSensitivity;
 		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		cam.setYawPitchRollRad(yawPitchRollRad);
 		if (!modeMovingEye)
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true,false);
-		glutWarpPointer(winWidth/2,winHeight/2);
+		glfwSetCursorPos(window, 0, 0);
 		solver->reportInteraction();
 	}
 }
 
 void display(void)
 {
-	if (!winWidth || !winHeight)
-	{
-		winWidth = glutGet(GLUT_WINDOW_WIDTH);
-		winHeight = glutGet(GLUT_WINDOW_HEIGHT);
-		if (!winWidth || !winHeight) return; // can't display without window
-		reshape(winWidth,winHeight);
-	}
+	if (!winWidth || !winHeight) return; // can't display without window
 
 	// move dynamic objects
 	rotation = (clock()%10000000)*0.07f;
@@ -281,8 +261,6 @@ void display(void)
 	solver->getRenderer()->render(&ppSSGI,ppShared);
 	// render light frustum
 	solver->renderLights(eye);
-
-	glutSwapBuffers();
 }
 
 void idle()
@@ -305,8 +283,13 @@ void idle()
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true,false);
 		}
 	}
+}
 
-	glutPostRedisplay();
+void main_loop()
+{
+	idle();
+	display();
+	glfwPollEvents();
 }
 
 
@@ -335,11 +318,24 @@ int main(int argc, char** argv)
 
 	rr_io::registerIO(argc,argv);
 
-	// init GLUT
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH);
-	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
-	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint RealtimeLights"); // for windowed mode
+	// init GLFW
+	glfwSetErrorCallback(error_callback);
+	if (!glfwInit())
+		error("glfwInit() failed.", true);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Lightsprint RealtimeLights", NULL, NULL);
+	if (!window)
+		error("glfwCreateWindow() failed.", true);
+	glfwMakeContextCurrent(window);
+	glfwGetFramebufferSize(window, &winWidth, &winHeight);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCharCallback(window, character_callback);
+	glfwSetMouseButtonCallback(window, mousebutton_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+#ifndef __EMSCRIPTEN__
+	// glfw-emscripten did not yet implement cursor locking
+	glfwSetCursorPosCallback(window, mouseposition_callback);
+#endif
+	glfwSetFramebufferSizeCallback(window, reshape_callback);
 
 	// init GL
 	const char* err = rr_gl::initializeGL(true);
@@ -389,21 +385,6 @@ int main(int argc, char** argv)
 	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
 	solver->loadFireball("",true) || solver->buildFireball(350,"");
 
-	glutSetCursor(GLUT_CURSOR_NONE);
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(special);
-	glutSpecialUpFunc(specialUp);
-	glutReshapeFunc(reshape);
-	glutMouseFunc(mouse);
-	glutPassiveMotionFunc(passive);
-	glutIdleFunc(idle);
-#ifdef __APPLE__
-//	OSX kills events ruthlessly
-//	see http://stackoverflow.com/questions/728049/glutpassivemotionfunc-and-glutwarpmousepointer
-	CGSetLocalEventsSuppressionInterval(0.0);
-#endif
-
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
 
 	rr::RRReporter::report(rr::INF2,
@@ -420,9 +401,15 @@ int main(int argc, char** argv)
 		"  wheel = change camera FOV\n"
 		"\n");
 
-	// only longjmp can break us from glut mainloop
-	if (!setjmp(jmp))
-		glutMainLoop();
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(main_loop, 0, true);
+#else
+	while (!glfwWindowShouldClose(window))
+	{
+		main_loop();
+		glfwSwapBuffers(window);
+	}
+#endif
 
 	// free memory (just to check for leaks)
 	rr_gl::deleteAllTextures();

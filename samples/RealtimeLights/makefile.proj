@@ -21,11 +21,36 @@ CPP_FLAGS +=
 # source files
 
 SOURCES = \
-RealtimeLights.cpp
+	RealtimeLights.cpp
+
+# data files
+
+DATA_FILES = \
+	shaders \
+	scenes\koupelna\koupelna4.dae \
+	scenes\koupelna\CERVENA.JPG \
+	scenes\koupelna\DRV.JPG \
+	scenes\koupelna\glass.png \
+	scenes\koupelna\golf_height.png \
+	scenes\koupelna\PODLAHA.JPG \
+	scenes\koupelna\podlaha_height.jpg \
+	scenes\koupelna\stones_height.jpg \
+	scenes\koupelna\ZED.JPG \
+	scenes\koupelna\ZED_MOD.JPG \
+	scenes\koupelna\ZED_ZEL.JPG \
+	objects\potato \
+	objects\I_Robot_female.3ds \
+	maps\skybox\skybox_bk.jpg \
+	maps\skybox\skybox_dn.jpg \
+	maps\skybox\skybox_ft.jpg \
+	maps\skybox\skybox_lf.jpg \
+	maps\skybox\skybox_rt.jpg \
+	maps\skybox\skybox_up.jpg \
+	maps\spot0.png
 
 # libraries
 
-LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB)
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLFW_LIB)
 
 # include directories
 
