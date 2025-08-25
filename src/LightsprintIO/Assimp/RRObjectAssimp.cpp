@@ -18,7 +18,6 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "assimp/material.inl"
-#include "assimp/revision.h"
 #include <filesystem>
 
 //#pragma comment(lib,VER_ORIGINAL_FILENAME_STR)           // this macro has dll instead of lib

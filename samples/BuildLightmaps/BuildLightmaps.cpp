@@ -60,6 +60,8 @@
 #ifdef _WIN32
 	#include <windows.h>
 	#include <direct.h> // _chdir
+#else
+	#include <sys/stat.h> // mkdir
 #endif
 #include "Lightsprint/RRMath.h"
 #include "Lightsprint/IO/IO.h"
@@ -324,7 +326,11 @@ struct Parameters
 				if (ofs>=0) outputPath.replace(ofs,999,"_precalculated/");
 			}
 			layerParameters.suggestedPath = RR_STD2RR(outputPath);
-			_mkdir(outputPath.c_str());
+			#ifdef _WIN32
+						_mkdir(outputPath.c_str());
+			#else
+						mkdir(outputPath.c_str(), 0777);
+			#endif
 		}
 	}
 

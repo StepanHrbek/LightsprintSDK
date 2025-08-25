@@ -23,6 +23,7 @@
 #include "wx/aboutdlg.h"
 #include "wx/display.h"
 #include "wx/splash.h"
+#include "wx/tooltip.h"
 #ifdef _WIN32
 	#include <shlobj.h> // SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
