@@ -42,7 +42,6 @@ IO_DEPS = \
 	-lboost_iostreams \
 	-lboost_locale \
 	-lboost_serialization \
-	-lboost_zlib \
 	-lassimp \
 	-lfreeimage \
 	-lportaudio \
@@ -60,4 +59,4 @@ GLUT_LIB = \
 	-lglut
 
 GLFW_LIB = \
-	-lglfw3
+	-lglfw
